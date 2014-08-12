@@ -6,8 +6,17 @@ var jshint = require('gulp-jshint');
 var stylish = require('jshint-stylish');
 
 gulp.task('lint', function() {
-  return gulp.src('*.js')
-    .pipe(jshint())
+  return gulp.src(['*.js', 'test/*.js'])
+        .pipe(jshint({
+            laxcomma: true
+            , strict: true
+            , globals: { 'require': false 
+                         , 'describe': false
+                         , 'it': false
+                         , 'exports': false
+                         , 'before': false
+                       }
+        }))
     .pipe(jshint.reporter(stylish));
 });
 
