@@ -306,7 +306,7 @@ describe('HevEmitter on', function () {
                 .then(function () {
                     wait = false;
                 });
-            h.emit(['james'])
+            h.emit(['heroes'])
                 .then(function () {
                     assert(wait);
                     done();
