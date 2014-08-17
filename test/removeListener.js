@@ -20,6 +20,19 @@ describe('HevEmitter on', function () {
                 .then(function () { done(); });
         });
 
+        it('should NOT leak after one level removal', function (done) {
+            var h = new H();
+            var f = function () {
+                assert(false);
+            };
+            assert(_.isEmpty(h._eventTree.hash));
+            h.on(['son'], f);
+            assert(!_.isEmpty(h._eventTree.hash));
+            h.removeListener(['son'], f);
+            assert(_.isEmpty(h._eventTree.hash));
+        });
+
+
         it('SHOULD trigger one level method after one level removal of different function', function (done) {
             var h = new H();
             var f = function () {
