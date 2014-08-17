@@ -137,11 +137,32 @@ var execCallbacks = function (route, tree, msg) {
 
 var removeCallback = function (route, tree, f) {
     var head = _.head(route);
-    if (tree.hash.hasOwnProperty(head)) {
-        if (route.length > 1) {
+    if (route.length > 1) {
+        var rest = _.rest(route);
+        if (head === '*') {
+            _.each(tree.hash, function (subtree, subhead) {
+                if (subhead !== '**') {
+                    removeCallback(rest, subtree, f);
+                }
+            });
+        }
+        else if (tree.hash.hasOwnProperty(head)) {
             return removeCallback(_.rest(route), tree.hash[head], f);
         }
-        else if (route.length === 1) {
+    }
+    else if (route.length === 1) {
+        if (head === '**')  {
+            tree.funcs = _.without(tree.funcs, f);
+            _.each(tree.hash, function (subtree, subhead) {
+                removeCallback(route, subtree, f);
+            });
+        }
+        if (head === '*') {
+            _.each(tree.hash, function (subtree, subhead) {
+                subtree.funcs = _.without(subtree.funcs, f);
+            });
+        }
+        else if (tree.hash.hasOwnProperty(head)) {
             tree.hash[head].funcs = _.without(tree.hash[head].funcs, f);
         }
     }
@@ -156,7 +177,6 @@ _.extend(EventEmitter.prototype, {
         return addCallback(route, this._eventTree, cb);
     }
     , emit: function (route, msg) {
-        // return execCallbacks(route, this._eventTree, msg);
         return joinTwoExecutions(execTree(this._eventTree.hash['**'], msg)
                                  , execCallbacks(route, this._eventTree, msg));
     } 
