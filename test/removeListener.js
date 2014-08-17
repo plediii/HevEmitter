@@ -17,7 +17,7 @@ describe('HevEmitter on', function () {
             h.on(['son'], f);
             h.removeListener(['son'], f);
             h.emit(['son'])
-                .then(done);
+                .then(function () { done(); });
         });
 
         it('SHOULD trigger one level method after one level removal of different function', function (done) {
@@ -39,7 +39,7 @@ describe('HevEmitter on', function () {
             h.on(['circus'], f);
             h.removeListener(['*'], f);
             h.emit(['circus'])
-                .then(done);
+                .then(function () { done(); });
         });
 
         it('SHOULD trigger one level method after one star removal of different function ', function (done) {
@@ -70,7 +70,7 @@ describe('HevEmitter on', function () {
             h.on(['squirrel', 'snake'], f);
             h.removeListener(['*', 'snake'], f);
             h.emit(['squirrel', 'snake'])
-                .then(done);
+                .then(function () { done(); });
         });
 
         it('SHOULD trigger two level method after one star removal of different function', function (done) {
@@ -91,7 +91,7 @@ describe('HevEmitter on', function () {
             h.on(['sadface'], f);
             h.removeListener(['**'], f);
             h.emit(['sadface'])
-                .then(done);
+                .then(function () { done(); });
         });
 
         it('should NOT trigger one level method after two star removal', function (done) {
@@ -112,7 +112,7 @@ describe('HevEmitter on', function () {
             h.on(['cash', 'act'], f);
             h.removeListener(['**'], f);
             h.emit(['cash', 'act'])
-                .then(done);
+                .then(function () { done(); });
         });
 
         it('SHOULD trigger two level method after two star removal of different function', function (done) {
