@@ -10,7 +10,7 @@ describe('HevEmitter once', function () {
     it('should emit and recieve one level events', function (done) {
         var h = new H();
         var emitted = 0;
-        h.on(['storage'], function () {
+        h.once(['storage'], function () {
             emitted += 1;
         });
         h.emit(['storage']);
@@ -24,7 +24,7 @@ describe('HevEmitter once', function () {
     it('should emit and recieve two level events', function (done) {
         var h = new H();
         var emitted = 0;
-        h.on(['request', 'date'], function () {
+        h.once(['request', 'date'], function () {
             emitted += 1;
         });
         h.emit(['request', 'date']);
@@ -38,7 +38,7 @@ describe('HevEmitter once', function () {
     it('should NOT recieve the wrong event', function (done) {
         var h = new H();
         var emitted = 0;
-        h.on(['prismo'], function () {
+        h.once(['prismo'], function () {
             emitted += 1;
         });
         h.emit(['wish']);
@@ -53,7 +53,7 @@ describe('HevEmitter once', function () {
     it('should NOT receive the wrong two level event', function (done) {
         var h = new H();
         var emitted = 0;
-        h.on(['ritz', 'cracker'], function () {
+        h.once(['ritz', 'cracker'], function () {
             emitted += 1;
         });
         h.emit(['cheese', 'cracker']);
@@ -67,7 +67,7 @@ describe('HevEmitter once', function () {
     it('should trigger listeners on one star events', function (done) {
         var h = new H();
         var emitted = 0;
-        h.on(['bones', '*'], function () {
+        h.once(['bones', '*'], function () {
             emitted += 1;
         });
         h.emit(['bones', 'elephant']);
@@ -81,7 +81,7 @@ describe('HevEmitter once', function () {
     it('should trigger listeners on one star events in the first place', function (done) {
         var h = new H();
         var emitted = 0;
-        h.on(['*', 'bill'], function () {
+        h.once(['*', 'bill'], function () {
             emitted += 1;
         });
         h.emit(['thankyou', 'bill']);
@@ -95,7 +95,7 @@ describe('HevEmitter once', function () {
     it('should trigger one star events in the first place', function (done) {
         var h = new H();
         var emitted = 0;
-        h.on(['baby', 'booster'], function () {
+        h.once(['baby', 'booster'], function () {
             emitted += 1;
         });
         h.emit(['*', 'booster']);
@@ -109,7 +109,7 @@ describe('HevEmitter once', function () {
     it('should NOT trigger one star events only in the first place', function (done) {
         var h = new H();
         var emitted = 0;
-        h.on(['baby', 'booster'], function () {
+        h.once(['baby', 'booster'], function () {
             emitted += 1;
         });
         h.emit(['*']);
@@ -123,7 +123,7 @@ describe('HevEmitter once', function () {
     it('should NOT trigger one star events only in the first place', function (done) {
         var h = new H();
         var emitted = 0;
-        h.on(['*'], function () {
+        h.once(['*'], function () {
             emitted += 1;
         });
         h.emit(['green', 'buns']);
@@ -137,7 +137,7 @@ describe('HevEmitter once', function () {
     it('should trigger two star events in the first place with one level', function (done) {
         var h = new H();
         var emitted = 0;
-        h.on(['**'], function () {
+        h.once(['**'], function () {
             emitted += 1;
         });
         h.emit(['giant']);
@@ -152,7 +152,7 @@ describe('HevEmitter once', function () {
     it('should trigger two star emitted events in the first place with one level', function (done) {
         var h = new H();
         var emitted = 0;
-        h.on(['sun'], function () {
+        h.once(['sun'], function () {
             emitted += 1;
         });
         h.emit(['**']);
@@ -166,7 +166,7 @@ describe('HevEmitter once', function () {
     it('should trigger two star events in the first place with two levels', function (done) {
         var h = new H();
         var emitted = 0;
-        h.on(['**'], function () {
+        h.once(['**'], function () {
             emitted += 1;
         });
         h.emit(['oglethorpe', 'piggy']);
@@ -181,7 +181,7 @@ describe('HevEmitter once', function () {
     it('should trigger second level two star emitted events in the first place with two levels', function (done) {
         var h = new H();
         var emitted = 0;
-        h.on(['emry', 'please'], function () {
+        h.once(['emry', 'please'], function () {
             emitted += 1;
         });
         h.emit(['emry', '**']);
@@ -195,7 +195,7 @@ describe('HevEmitter once', function () {
     it('should trigger second level two star events in the first place with one level', function (done) {
         var h = new H();
         var emitted = 0;
-        h.on(['**'], function () {
+        h.once(['**'], function () {
             emitted += 1;
         });
         h.emit(['vanted', 'vatch']);
@@ -210,7 +210,7 @@ describe('HevEmitter once', function () {
     it('should trigger second level two star emitted events in the first place with one level', function (done) {
         var h = new H();
         var emitted = 0;
-        h.on(['trail'], function () {
+        h.once(['trail'], function () {
             emitted += 1;
         });
         h.emit(['trail', '**']);
@@ -224,7 +224,7 @@ describe('HevEmitter once', function () {
     it('should trigger second level two star events in the first place with two levels', function (done) {
         var h = new H();
         var emitted = 0;
-        h.on(['rrr', '**'], function () {
+        h.once(['rrr', '**'], function () {
             emitted += 1;
         });
         h.emit(['rrr', 'mooninite']);
@@ -238,7 +238,7 @@ describe('HevEmitter once', function () {
     it('should trigger second level two star emitted events in the first place with two levels', function (done) {
         var h = new H();
         var emitted = 0;
-        h.on(['hypersleep', 'dreams'], function () {
+        h.once(['hypersleep', 'dreams'], function () {
             emitted += 1;
         });
         h.emit(['hypersleep', '**']);
