@@ -115,7 +115,7 @@ describe('HevEmitter on', function () {
                 .then(done);
         });
 
-        it('SHOULD trigger two level method after two star removal', function (done) {
+        it('SHOULD trigger two level method after two star removal of different function', function (done) {
             var h = new H();
             var f = function () {
                 done();
