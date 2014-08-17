@@ -94,16 +94,6 @@ describe('HevEmitter on', function () {
                 .then(function () { done(); });
         });
 
-        it('should NOT trigger one level method after two star removal', function (done) {
-            var h = new H();
-            var f = function () {
-                done();
-            };
-            h.on(['sadface'], f);
-            h.removeListener(['**'], function() {});
-            h.emit(['sadface']);
-        });
-
         it('should NOT trigger two level method after two star removal', function (done) {
             var h = new H();
             var f = function () {
