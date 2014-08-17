@@ -104,10 +104,9 @@ describe('HevEmitter on', function () {
                 assert(false);
             };
             h.on(['son'], f);
+            assert(!_.isEmpty(h._eventTree.hash));
             h.removeAllListeners(['son']);
-            assert(_.isEmpty(h._hash));
-            assert.equal(0, h._promises.length);
-            assert.equal(0, h._callbacks.length);
+            assert(_.isEmpty(h._eventTree.hash));
         });
 
         it('should NOT trigger a second one level method after one level removal', function (done) {
@@ -120,10 +119,9 @@ describe('HevEmitter on', function () {
             };
             h.on(['son'], f);
             h.on(['son'], g);
+            assert(!_.isEmpty(h._eventTree.hash));
             h.removeAllListeners(['son']);
-            assert(_.isEmpty(h._hash));
-            assert.equal(0, h._promises.length);
-            assert.equal(0, h._callbacks.length);
+            assert(_.isEmpty(h._eventTree.hash));
         });
 
 
@@ -133,10 +131,9 @@ describe('HevEmitter on', function () {
                 assert(false);
             };
             h.on(['circus'], f);
+            assert(!_.isEmpty(h._eventTree.hash));
             h.removeAllListeners(['*']);
-            assert(_.isEmpty(h._hash));
-            assert.equal(0, h._promises.length);
-            assert.equal(0, h._callbacks.length);
+            assert(_.isEmpty(h._eventTree.hash));
         });
 
         it('should NOT trigger two level method after one star removal', function (done) {
@@ -145,10 +142,9 @@ describe('HevEmitter on', function () {
                 assert(false);
             };
             h.on(['squirrel', 'snake'], f);
+            assert(!_.isEmpty(h._eventTree.hash));
             h.removeAllListeners(['*', 'snake']);
-            assert(_.isEmpty(h._hash));
-            assert.equal(0, h._promises.length);
-            assert.equal(0, h._callbacks.length);
+            assert(_.isEmpty(h._eventTree.hash));
         });
 
         it('should NOT trigger one level method after two star removal', function (done) {
@@ -157,10 +153,9 @@ describe('HevEmitter on', function () {
                 assert(false);
             };
             h.on(['sadface'], f);
+            assert(!_.isEmpty(h._eventTree.hash));
             h.removeAllListeners(['**']);
-            assert(_.isEmpty(h._hash));
-            assert.equal(0, h._promises.length);
-            assert.equal(0, h._callbacks.length);
+            assert(_.isEmpty(h._eventTree.hash));
         });
 
         it('should NOT trigger a second two level method after two star removal', function (done) {
@@ -173,10 +168,9 @@ describe('HevEmitter on', function () {
             };
             h.on(['cash', 'act'], f);
             h.on(['cash', 'act'], g);
+            assert(!_.isEmpty(h._eventTree.hash));
             h.removeAllListeners(['**']);
-            assert(_.isEmpty(h._hash));
-            assert.equal(0, h._promises.length);
-            assert.equal(0, h._callbacks.length);
+            assert(_.isEmpty(h._eventTree.hash));
         });
 
     });
