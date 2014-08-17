@@ -56,7 +56,7 @@ describe('HevEmitter on', function () {
         it('should emit and recieve one level events', function (done) {
             var h = new H();
             var msg = { emitted: 0 };
-            h.on(['storage'], function () {
+            h.on(['storage'], function (msg) {
                 msg.emitted += 1;
             });
             h.emit(['storage'], msg);
@@ -70,7 +70,7 @@ describe('HevEmitter on', function () {
         it('should emit and recieve two level events', function (done) {
             var h = new H();
             var msg = { emitted: 0 };
-            h.on(['request', 'date'], function () {
+            h.on(['request', 'date'], function (msg) {
                 msg.emitted += 1;
             });
             h.emit(['request', 'date'], msg);
@@ -84,7 +84,7 @@ describe('HevEmitter on', function () {
         it('should NOT recieve the wrong event', function (done) {
             var h = new H();
             var msg = { emitted: 0 };
-            h.on(['prismo'], function () {
+            h.on(['prismo'], function (msg) {
                 msg.emitted += 1;
             });
             h.emit(['wish'], msg)
@@ -98,7 +98,7 @@ describe('HevEmitter on', function () {
         it('should NOT receive the wrong two level event', function (done) {
             var h = new H();
             var msg = { emitted: 0 };
-            h.on(['ritz', 'cracker'], function () {
+            h.on(['ritz', 'cracker'], function (msg) {
                 msg.emitted += 1;
             });
             h.emit(['cheese', 'cracker'], msg)
@@ -111,7 +111,7 @@ describe('HevEmitter on', function () {
         it('should trigger listeners on one star events', function (done) {
             var h = new H();
             var msg = { emitted: 0 };
-            h.on(['bones', '*'], function () {
+            h.on(['bones', '*'], function (msg) {
                 msg.emitted += 1;
             });
             h.emit(['bones', 'elephant'], msg);
@@ -125,7 +125,7 @@ describe('HevEmitter on', function () {
         it('should trigger listeners on one star events in the first place', function (done) {
             var h = new H();
             var msg = { emitted: 0 };
-            h.on(['*', 'bill'], function () {
+            h.on(['*', 'bill'], function (msg) {
                 msg.emitted += 1;
             });
             h.emit(['thankyou', 'bill'], msg);
@@ -139,7 +139,7 @@ describe('HevEmitter on', function () {
         it('should trigger one star events in the first place', function (done) {
             var h = new H();
             var msg = { emitted: 0 };
-            h.on(['baby', 'booster'], function () {
+            h.on(['baby', 'booster'], function (msg) {
                 msg.emitted += 1;
             });
             h.emit(['*', 'booster'], msg);
@@ -153,7 +153,7 @@ describe('HevEmitter on', function () {
         it('should NOT trigger one star events only in the first place', function (done) {
             var h = new H();
             var msg = { emitted: 0 };
-            h.on(['baby', 'booster'], function () {
+            h.on(['baby', 'booster'], function (msg) {
                 msg.emitted += 1;
             });
             h.emit(['*'], msg)
@@ -166,7 +166,7 @@ describe('HevEmitter on', function () {
         it('should NOT trigger one star events only in the first place', function (done) {
             var h = new H();
             var msg = { emitted: 0 };
-            h.on(['*'], function () {
+            h.on(['*'], function (msg) {
                 msg.emitted += 1;
             });
             h.emit(['green', 'buns'], msg)
@@ -179,7 +179,7 @@ describe('HevEmitter on', function () {
         it('should trigger two star events in the first place with one level', function (done) {
             var h = new H();
             var msg = { emitted: 0 };
-            h.on(['**'], function () {
+            h.on(['**'], function (msg) {
                 msg.emitted += 1;
             });
             h.emit(['giant'], msg);
@@ -194,7 +194,7 @@ describe('HevEmitter on', function () {
         it('should trigger two star emitted events in the first place with one level', function (done) {
             var h = new H();
             var msg = { emitted: 0 };
-            h.on(['sun'], function () {
+            h.on(['sun'], function (msg) {
                 msg.emitted += 1;
             });
             h.emit(['**'], msg);
@@ -208,7 +208,7 @@ describe('HevEmitter on', function () {
         it('should trigger two star events in the first place with two levels', function (done) {
             var h = new H();
             var msg = { emitted: 0 };
-            h.on(['**'], function () {
+            h.on(['**'], function (msg) {
                 msg.emitted += 1;
             });
             h.emit(['oglethorpe', 'piggy'], msg);
@@ -223,7 +223,7 @@ describe('HevEmitter on', function () {
         it('should trigger second level two star emitted events in the first place with two levels', function (done) {
             var h = new H();
             var msg = { emitted: 0 };
-            h.on(['emry', 'please'], function () {
+            h.on(['emry', 'please'], function (msg) {
                 msg.emitted += 1;
             });
             h.emit(['emry', '**'], msg);
@@ -237,7 +237,7 @@ describe('HevEmitter on', function () {
         it('should trigger second level two star events in the first place with one level', function (done) {
             var h = new H();
             var msg = { emitted: 0 };
-            h.on(['**'], function () {
+            h.on(['**'], function (msg) {
                 msg.emitted += 1;
             });
             h.emit(['vanted', 'vatch'], msg);
@@ -252,7 +252,7 @@ describe('HevEmitter on', function () {
         it('should trigger second level two star emitted events in the first place with one level', function (done) {
             var h = new H();
             var msg = { emitted: 0 };
-            h.on(['trail'], function () {
+            h.on(['trail'], function (msg) {
                 msg.emitted += 1;
             });
             h.emit(['trail', '**'], msg);
@@ -266,7 +266,7 @@ describe('HevEmitter on', function () {
         it('should trigger second level two star events in the first place with two levels', function (done) {
             var h = new H();
             var msg = { emitted: 0 };
-            h.on(['rrr', '**'], function () {
+            h.on(['rrr', '**'], function (msg) {
                 msg.emitted += 1;
             });
             h.emit(['rrr', 'mooninite'], msg);
@@ -280,7 +280,7 @@ describe('HevEmitter on', function () {
         it('should trigger second level two star emitted events in the first place with two levels', function (done) {
             var h = new H();
             var msg = { emitted: 0 };
-            h.on(['hypersleep', 'dreams'], function () {
+            h.on(['hypersleep', 'dreams'], function (msg) {
                 msg.emitted += 1;
             });
             h.emit(['hypersleep', '**'], msg);
