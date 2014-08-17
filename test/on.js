@@ -13,7 +13,7 @@ describe('HevEmitter on', function () {
             var h = new H();
             h.on(['joke'], function () {});
             h.emit(['horse'])
-                .then(function (msg, called) {
+                .then(function (called) {
                     assert(!called);
                     done();
                 });
@@ -23,7 +23,7 @@ describe('HevEmitter on', function () {
             var h = new H();
             h.on(['son'], function () {});
             h.emit(['son'])
-                .then(function (msg, called) {
+                .then(function (called) {
                     assert(called);
                     done();
                 });
@@ -33,7 +33,7 @@ describe('HevEmitter on', function () {
             var h = new H();
             h.on(['ask', 'something'], function () {});
             h.emit(['ask', 'something'])
-                .then(function (msg, called) {
+                .then(function (called) {
                     assert(called);
                     done();
                 });
@@ -43,7 +43,7 @@ describe('HevEmitter on', function () {
             var h = new H();
             h.on(['gree', 'gaa'], function () {});
             h.emit(['gree', 'goo'])
-                .then(function (msg, called) {
+                .then(function (called) {
                     assert(!called);
                     done();
                 });
@@ -75,7 +75,7 @@ describe('HevEmitter on', function () {
             });
             h.emit(['request', 'date'], msg);
             h.emit(['request', 'date'], msg)
-                .then(function (msg) {
+                .then(function (called) {
                     assert.equal(2, msg.emitted);
                     done();
                 });
@@ -88,7 +88,7 @@ describe('HevEmitter on', function () {
                 msg.emitted += 1;
             });
             h.emit(['wish'], msg)
-                .then(function (msg) {
+                .then(function (called) {
                     assert.equal(0, msg.emitted);
                     done();
                 });
@@ -102,7 +102,7 @@ describe('HevEmitter on', function () {
                 msg.emitted += 1;
             });
             h.emit(['cheese', 'cracker'], msg)
-                .then(function (msg) {
+                .then(function (called) {
                     assert.equal(0, msg.emitted);
                     done();
                 });
@@ -116,7 +116,7 @@ describe('HevEmitter on', function () {
             });
             h.emit(['bones', 'elephant'], msg);
             h.emit(['bones', 'elephant'], msg)
-                .then(function (msg) {
+                .then(function (called) {
                     assert.equal(2, msg.emitted);
                     done();
                 });
@@ -130,7 +130,7 @@ describe('HevEmitter on', function () {
             });
             h.emit(['thankyou', 'bill'], msg);
             h.emit(['thankyou', 'bill'], msg)
-                .then(function (msg) {
+                .then(function (called) {
                     assert.equal(2, msg.emitted);
                     done();
                 });
@@ -144,7 +144,7 @@ describe('HevEmitter on', function () {
             });
             h.emit(['*', 'booster'], msg);
             h.emit(['*', 'booster'], msg)
-                .then(function (msg) {
+                .then(function (called) {
                     assert.equal(2, msg.emitted);
                     done();
                 });
@@ -157,7 +157,7 @@ describe('HevEmitter on', function () {
                 msg.emitted += 1;
             });
             h.emit(['*'], msg)
-                .then(function (msg) {
+                .then(function (called) {
                     assert.equal(0, msg.emitted);
                     done();
                 });
@@ -170,7 +170,7 @@ describe('HevEmitter on', function () {
                 msg.emitted += 1;
             });
             h.emit(['green', 'buns'], msg)
-                .then(function (msg) {
+                .then(function (called) {
                     assert.equal(0, msg.emitted);
                     done();
                 });
@@ -184,7 +184,7 @@ describe('HevEmitter on', function () {
             });
             h.emit(['giant'], msg);
             h.emit(['giant'], msg)
-                .then(function (msg) {
+                .then(function (called) {
                     assert.equal(2, msg.emitted);
                     done();
                 });
@@ -199,7 +199,7 @@ describe('HevEmitter on', function () {
             });
             h.emit(['**'], msg);
             h.emit(['**'], msg)
-                .then(function (msg) {
+                .then(function (called) {
                     assert.equal(2, msg.emitted);
                     done();
                 });
@@ -213,7 +213,7 @@ describe('HevEmitter on', function () {
             });
             h.emit(['oglethorpe', 'piggy'], msg);
             h.emit(['oglethorpe', 'piggy'], msg)
-                .then(function (msg) {
+                .then(function (called) {
                     assert.equal(2, msg.emitted);
                     done();
                 });
@@ -228,7 +228,7 @@ describe('HevEmitter on', function () {
             });
             h.emit(['emry', '**'], msg);
             h.emit(['emry', '**'], msg)
-                .then(function (msg) {
+                .then(function (called) {
                     assert.equal(2, msg.emitted);
                     done();
                 });
@@ -242,7 +242,7 @@ describe('HevEmitter on', function () {
             });
             h.emit(['vanted', 'vatch'], msg);
             h.emit(['vanted', 'vatch'], msg)
-                .then(function (msg) {
+                .then(function (called) {
                     assert.equal(2, msg.emitted);
                     done();
                 });
@@ -257,7 +257,7 @@ describe('HevEmitter on', function () {
             });
             h.emit(['trail', '**'], msg);
             h.emit(['trail', '**'], msg)
-                .then(function (msg) {
+                .then(function (called) {
                     assert.equal(2, msg.emitted);
                     done();
                 });
@@ -271,7 +271,7 @@ describe('HevEmitter on', function () {
             });
             h.emit(['rrr', 'mooninite'], msg);
             h.emit(['rrr', 'mooninite'], msg)
-                .then(function (msg) {
+                .then(function (called) {
                     assert.equal(2, msg.emitted);
                     done();
                 });
@@ -285,7 +285,7 @@ describe('HevEmitter on', function () {
             });
             h.emit(['hypersleep', '**'], msg);
             h.emit(['hypersleep', '**'], msg)
-                .then(function (msg) {
+                .then(function (called) {
                     assert.equal(2, msg.emitted);
                     done();
                 });
