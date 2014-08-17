@@ -21,6 +21,22 @@ describe('HevEmitter once', function () {
             });
     });
 
+    it('should not be able to trigger twice', function (done) {
+        var h = new H();
+        var emitted = 0;
+        h.once(['storage'], function () {
+            emitted += 1;
+            h.emit(['storage']);
+        });
+        h.emit(['storage']);
+        h.emit(['storage'])
+            .then(function () {
+                assert.equal(1, emitted);
+                done();
+            });
+    });
+
+
     it('should emit and recieve two level events', function (done) {
         var h = new H();
         var emitted = 0;
