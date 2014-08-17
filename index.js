@@ -163,6 +163,13 @@ _.extend(EventEmitter.prototype, {
     , removeListener: function (route, f) {
         return removeCallback(route, this._eventTree, f);
     }
+    , once: function (route, cb) {
+        var _this = this;
+        _this.on(route, cb);
+        _this.on(route, function () {
+            _this.removeListener(route, cb);
+        });
+    }
 });
 
 module.exports = {
