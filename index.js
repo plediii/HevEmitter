@@ -136,9 +136,12 @@ var execCallbacks = function (route, tree, msg) {
         var rest = _.rest(route);
         if (head === '*') {
             return applySubTrees(tree, function (subtree) {
-                return execCallbacks(rest, subtree, msg);
-            })
-                .then(anyExecutions);    
+                return Promise.join(execTree(subtree.hash['**'], msg)
+                            , execCallbacks(rest, subtree, msg)
+                                   , function (l, r) {
+                                       return l || r;
+                                   });
+            });
         }
         else {
             var matchTree = tree.hash.hasOwnProperty(head) && tree.hash[head];
