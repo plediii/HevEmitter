@@ -153,7 +153,7 @@ var execCallbacks = function (route, tree, msg) {
     else if (route.length === 1) {
         if (head === '*') {
             return applySubTrees(tree, function (subtree) {
-                return execMatch(rest, subtree[1], msg);
+                return execTree(subtree, msg);
             })
                 .then(anyExecutions);    
         }
