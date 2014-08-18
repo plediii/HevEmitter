@@ -27,27 +27,47 @@ var addCallback = function (once, route, tree, cb) {
             tree.hash[head].onces.push(cb);
         }
         else {
-            tree.hash[head].funcs.push(cb);
+            if (cb.length === 2) {
+                tree.hash[head].promises.push(Promise.promisify(cb));
+            }
+            else {
+                tree.hash[head].funcs.push(cb);
+            }
         }
     }
 };
 
+var promisifyArray = function (arr) {
+    return _.map(arr, function (f) {
+        return Promise.promisify(f);
+    });
+};
+
+var any = function (arr) {
+    return _.any(arr);
+};
+
 var execTree = function (tree, msg) {
     if (!tree || (tree.funcs.length === 0 
-                  && tree.onces.length === 0)) {
+                  && tree.onces.length === 0
+                  && tree.promises.length === 0)) {
         return Promise.resolve(false);
     }
-    return new Promise(function (resolve) {
-        _.each(tree.funcs, function (cb) {
-            cb(msg);
+
+    return Promise.all(_.map(tree.promises, function (p) {
+        return p(msg);
+    }))
+        .then(function () {
+            _.each(tree.funcs, function (cb) {
+                cb(msg);
+            });
+            var onces = tree.onces;
+            tree.onces = [];
+            _.each(onces, function (cb) {
+                cb(msg);
+            });
+            return true;
         });
-        var onces = tree.onces;
-        tree.onces = [];
-        _.each(onces, function (cb) {
-            cb(msg);
-        });
-        resolve(true);
-    });
 };
 
 var applySubTrees = function (tree, method) {
@@ -211,6 +231,19 @@ var removeCallback = function (route, tree, f) {
     }
 };
 
+var chain = function (promises) {
+    var result = Promise.resolve(false);
+    _.each(promises, function (p) {
+        result.catch(function () {
+            console.log('chain err: ', arguments);
+        });
+        result = Promise.join(result, p, function (l, r) {
+            return l || r;
+        });
+    });
+    return result;
+};
+
 var EventEmitter = function () {
     this._eventTree = eventTree();
 };
@@ -220,8 +253,14 @@ _.extend(EventEmitter.prototype, {
         return addCallback(false, route, this._eventTree, cb);
     }
     , emit: function (route, msg) {
-        return joinTwoExecutions(execTree(this._eventTree.hash['**'], msg)
-                                 , execCallbacks(route, this._eventTree, msg));
+        var _this = this;
+        return execTree(_this._eventTree.hash['**'], msg)
+        .then(function (l) {
+            return execCallbacks(route, _this._eventTree, msg)
+            .then(function (r) {
+                return l || r;
+            });
+        });
     } 
     , removeListener: function (route, f) {
         removeCallback(route, this._eventTree, f);
