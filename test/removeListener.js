@@ -20,7 +20,7 @@ describe('HevEmitter on', function () {
                 .then(function () { done(); });
         });
 
-        it('should NOT leak after one level removal', function (done) {
+        it('should NOT leak after one level removal', function () {
             var h = new H();
             var f = function () {
                 assert(false);
