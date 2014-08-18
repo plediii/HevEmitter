@@ -174,7 +174,7 @@ var removeCallback = function (route, tree, f) {
         if (head === '*') {
             return _.each(tree.hash, function (subtree, subhead) {
                 if (subhead !== '**') {
-                    removeCallback(rest, subtree, f)
+                    removeCallback(rest, subtree, f);
                     deleteIfEmpty(subhead, tree.hash);
                 }
             });
