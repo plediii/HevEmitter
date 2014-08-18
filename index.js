@@ -231,19 +231,6 @@ var removeCallback = function (route, tree, f) {
     }
 };
 
-var chain = function (promises) {
-    var result = Promise.resolve(false);
-    _.each(promises, function (p) {
-        result.catch(function () {
-            console.log('chain err: ', arguments);
-        });
-        result = Promise.join(result, p, function (l, r) {
-            return l || r;
-        });
-    });
-    return result;
-};
-
 var EventEmitter = function () {
     this._eventTree = eventTree();
 };
