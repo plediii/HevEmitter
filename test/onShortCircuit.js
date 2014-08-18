@@ -40,6 +40,9 @@ describe('HevEmitter on', function () {
             h.emit(['gross']).then(function() {
                 assert(false);
             })
+            .then(function () {
+                assert(false);
+            })
             .catch(function (err) {
                 assert(twoStarShort);
                 done();
@@ -57,7 +60,9 @@ describe('HevEmitter on', function () {
             h.emit(['gross']).then(function() {
                 assert(false);
             })
-            .catch(done);
+            .catch(function () { 
+                done(); 
+            });
         });
 
         it('one star error should short circuit one level', function (done) {
@@ -71,7 +76,7 @@ describe('HevEmitter on', function () {
             h.emit(['gross']).then(function() {
                 assert(false);
             })
-            .catch(done);
+            .catch(function () { done() });
         });
 
         it('one level should short circuit one level', function (done) {
@@ -85,7 +90,7 @@ describe('HevEmitter on', function () {
             h.emit(['baby']).then(function() {
                 assert(false);
             })
-            .catch(done);
+            .catch(function () { done(); });
         });
         
     });
