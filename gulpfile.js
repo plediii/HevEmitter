@@ -9,6 +9,7 @@ gulp.task('lint', function() {
   return gulp.src(['*.js', 'test/*.js'])
         .pipe(jshint({
             laxcomma: true
+            , laxbreak: true
             , strict: true
             , globals: { 'require': false 
                          , 'describe': false
