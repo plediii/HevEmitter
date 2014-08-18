@@ -135,35 +135,60 @@ var execCallbacks = function (route, tree, msg) {
     }
 };
 
+var filterFuncs = function (funcs, f) {
+    if (f) {
+        return _.without(funcs, f);
+    }
+    else {
+        return [];
+    }
+};
+
+var emptyTree = function (tree) {
+    return tree.funcs.length === 0
+        && _.isEmpty(tree.hash);
+};
+
+var deleteIfEmpty = function (target, hash) {
+    if (emptyTree(hash[target])) {
+        delete hash[target];
+    }
+};
+
 var removeCallback = function (route, tree, f) {
     var head = _.head(route);
     if (route.length > 1) {
         var rest = _.rest(route);
         if (head === '*') {
-            _.each(tree.hash, function (subtree, subhead) {
+            return _.each(tree.hash, function (subtree, subhead) {
                 if (subhead !== '**') {
-                    removeCallback(rest, subtree, f);
+                    removeCallback(rest, subtree, f)
+                    deleteIfEmpty(subhead, tree.hash);
                 }
             });
         }
         else if (tree.hash.hasOwnProperty(head)) {
-            return removeCallback(_.rest(route), tree.hash[head], f);
+            removeCallback(_.rest(route), tree.hash[head], f);
+            deleteIfEmpty(head, tree.hash);            
         }
     }
     else if (route.length === 1) {
         if (head === '**')  {
-            tree.funcs = _.without(tree.funcs, f);
+            tree.funcs = filterFuncs(tree.funcs, f);
             _.each(tree.hash, function (subtree, subhead) {
                 removeCallback(route, subtree, f);
+                deleteIfEmpty(subhead, tree.hash);
             });
         }
         if (head === '*') {
             _.each(tree.hash, function (subtree, subhead) {
-                subtree.funcs = _.without(subtree.funcs, f);
+                subtree.funcs = filterFuncs(subtree.funcs, f);
+                deleteIfEmpty(subhead, tree.hash);
             });
         }
         else if (tree.hash.hasOwnProperty(head)) {
-            tree.hash[head].funcs = _.without(tree.hash[head].funcs, f);
+            tree.hash[head].funcs = filterFuncs(tree.hash[head].funcs, f);
+            deleteIfEmpty(head, tree.hash);
         }
     }
 };
@@ -181,7 +206,7 @@ _.extend(EventEmitter.prototype, {
                                  , execCallbacks(route, this._eventTree, msg));
     } 
     , removeListener: function (route, f) {
-        return removeCallback(route, this._eventTree, f);
+        removeCallback(route, this._eventTree, f);
     }
     , once: function (route, cb) {
         var _this = this;
@@ -189,6 +214,14 @@ _.extend(EventEmitter.prototype, {
         _this.on(route, function () {
             _this.removeListener(route, cb);
         });
+    }
+    , removeAllListeners: function (route) {
+        if (route[0] === '**') {
+            this._eventTree = eventTree();
+        }
+        else {
+            removeCallback(route, this._eventTree);
+        }
     }
 });
 
