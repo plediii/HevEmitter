@@ -59,6 +59,16 @@ describe('HevEmitter on', function () {
                 });
         });
 
+        it('should trigger star-star after emitting first level star', function (done) {
+            var h = new H();
+            h.on(['base', '**'], function () {});
+            h.emit(['*', 'belong'])
+                .then(function (called) {
+                    assert(called);
+                    done();
+                });
+        });
+
 
     });
 
