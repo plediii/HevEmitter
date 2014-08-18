@@ -158,6 +158,7 @@ var filterFuncs = function (funcs, f) {
 
 var emptyTree = function (tree) {
     return tree.funcs.length === 0
+        && tree.onces.length === 0
         && _.isEmpty(tree.hash);
 };
 
@@ -165,6 +166,11 @@ var deleteIfEmpty = function (target, hash) {
     if (emptyTree(hash[target])) {
         delete hash[target];
     }
+};
+
+var removeFunc = function (tree, f) {
+    tree.funcs = filterFuncs(tree.funcs, f);
+    tree.onces = filterFuncs(tree.onces, f);
 };
 
 var removeCallback = function (route, tree, f) {
@@ -186,7 +192,7 @@ var removeCallback = function (route, tree, f) {
     }
     else if (route.length === 1) {
         if (head === '**')  {
-            tree.funcs = filterFuncs(tree.funcs, f);
+            removeFunc(tree, f);
             _.each(tree.hash, function (subtree, subhead) {
                 removeCallback(route, subtree, f);
                 deleteIfEmpty(subhead, tree.hash);
@@ -194,12 +200,12 @@ var removeCallback = function (route, tree, f) {
         }
         if (head === '*') {
             _.each(tree.hash, function (subtree, subhead) {
-                subtree.funcs = filterFuncs(subtree.funcs, f);
+                removeFunc(subtree, f);
                 deleteIfEmpty(subhead, tree.hash);
             });
         }
         else if (tree.hash.hasOwnProperty(head)) {
-            tree.hash[head].funcs = filterFuncs(tree.hash[head].funcs, f);
+            removeFunc(tree.hash[head], f);
             deleteIfEmpty(head, tree.hash);
         }
     }
