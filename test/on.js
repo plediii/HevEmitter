@@ -49,6 +49,17 @@ describe('HevEmitter on', function () {
                 });
         });
 
+        it('should trigger promise success on second level star', function (done) {
+            var h = new H();
+            h.on(['doctor', 'who'], function () {});
+            h.emit(['doctor', '*'])
+                .then(function (called) {
+                    assert(called);
+                    done();
+                });
+        });
+
+
     });
 
     describe('no explicit promise', function () {
