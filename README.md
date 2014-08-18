@@ -50,9 +50,10 @@ h.on(['finn', '**'], function () {
     console.log('princess bubblegum');
 });
 ```
-This would listen to an event route of any length, with 'finn' in the first position.
+This would listen to an event route of any length, with `'finn'` in the first position.
 
 For example
+```javascript
 h.emit(['finn', 'the', 'human'], 'cake');
 ```
 
