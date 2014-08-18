@@ -76,7 +76,7 @@ describe('HevEmitter on', function () {
             h.emit(['gross']).then(function() {
                 assert(false);
             })
-            .catch(function () { done() });
+            .catch(function () { done(); });
         });
 
         it('one level should short circuit one level', function (done) {
