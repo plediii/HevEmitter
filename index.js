@@ -8,30 +8,42 @@ var eventTree = function () {
     return {
         hash: {}
         , funcs: []
+        , onces: []
         , promises: []
     };
 };
 
-var addCallback = function (route, tree, cb) {
+var addCallback = function (once, route, tree, cb) {
     var head = _.head(route);
     if (!tree.hash.hasOwnProperty(head)) {
         tree.hash[head] = eventTree();
     }
 
     if (route.length > 1) {
-        return addCallback(_.rest(route), tree.hash[head], cb);
+        return addCallback(once, _.rest(route), tree.hash[head], cb);
     }
     else if (route.length === 1) {
-        tree.hash[head].funcs.push(cb);
+        if (once) {
+            tree.hash[head].onces.push(cb);
+        }
+        else {
+            tree.hash[head].funcs.push(cb);
+        }
     }
 };
 
 var execTree = function (tree, msg) {
-    if (!tree || tree.funcs.length === 0) {
+    if (!tree || (tree.funcs.length === 0 
+                  && tree.onces.length === 0)) {
         return Promise.resolve(false);
     }
     return new Promise(function (resolve) {
         _.each(tree.funcs, function (cb) {
+            cb(msg);
+        });
+        var onces = tree.onces;
+        tree.onces = [];
+        _.each(onces, function (cb) {
             cb(msg);
         });
         resolve(true);
@@ -199,7 +211,7 @@ var EventEmitter = function () {
 
 _.extend(EventEmitter.prototype, {
     on: function (route, cb) {
-        return addCallback(route, this._eventTree, cb);
+        return addCallback(false, route, this._eventTree, cb);
     }
     , emit: function (route, msg) {
         return joinTwoExecutions(execTree(this._eventTree.hash['**'], msg)
@@ -209,11 +221,7 @@ _.extend(EventEmitter.prototype, {
         removeCallback(route, this._eventTree, f);
     }
     , once: function (route, cb) {
-        var _this = this;
-        _this.on(route, cb);
-        _this.on(route, function () {
-            _this.removeListener(route, cb);
-        });
+        return addCallback(true, route, this._eventTree, cb);
     }
     , removeAllListeners: function (route) {
         if (route[0] === '**') {
