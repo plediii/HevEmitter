@@ -109,7 +109,7 @@ describe('HevEmitter on', function () {
             assert(_.isEmpty(h._eventTree.hash));
         });
 
-        it('should NOT trigger a second one level method after one level removal', function (done) {
+        it('should NOT trigger a second one level method after one level removal', function () {
             var h = new H();
             var f = function () {
                 assert(false);
@@ -125,7 +125,7 @@ describe('HevEmitter on', function () {
         });
 
 
-        it('should NOT trigger one level method after one star removal', function (done) {
+        it('should NOT trigger one level method after one star removal', function () {
             var h = new H();
             var f = function () {
                 assert(false);
@@ -136,7 +136,7 @@ describe('HevEmitter on', function () {
             assert(_.isEmpty(h._eventTree.hash));
         });
 
-        it('should NOT trigger two level method after one star removal', function (done) {
+        it('should NOT trigger two level method after one star removal', function () {
             var h = new H();
             var f = function () {
                 assert(false);
@@ -147,7 +147,7 @@ describe('HevEmitter on', function () {
             assert(_.isEmpty(h._eventTree.hash));
         });
 
-        it('should NOT trigger one level method after two star removal', function (done) {
+        it('should NOT trigger one level method after two star removal', function () {
             var h = new H();
             var f = function () {
                 assert(false);
@@ -158,7 +158,7 @@ describe('HevEmitter on', function () {
             assert(_.isEmpty(h._eventTree.hash));
         });
 
-        it('should NOT trigger a second two level method after two star removal', function (done) {
+        it('should NOT trigger a second two level method after two star removal', function () {
             var h = new H();
             var f = function () {
                 assert(false);
