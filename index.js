@@ -47,25 +47,15 @@ var applySubTrees = function (tree, method) {
                        }, {concurrency: 1});
 };
 
-var joinTwoExecutions = function (left, right) {
-    return Promise.join(left, right, function (l, r) {
-        return l || r;
-    });
-};
-
-var joinThreeExecutions = function (left, mid, right) {
-    return Promise.join(left, mid, right, function (l, m, r) {
-        return l || m || r;
-    });
-};
 
 
 var execAll = function (tree, msg) {
     var subTreeExecution = applySubTrees(tree, function (subtree) {
         return execAll(subtree, msg);
     });
-    return joinTwoExecutions(execTree(tree, msg)
-                            , subTreeExecution);
+    return Promise.join(execTree(tree, msg)
+                       , subTreeExecution)
+        .then(_.any);
 };
 
 var execMatch = function (target, tree, msg) {
@@ -77,8 +67,9 @@ var execMatch = function (target, tree, msg) {
         return Promise.resolve(false);
     }
     var doubleStarTree = targetTree.hash['**'];
-    return joinTwoExecutions(execTree(targetTree, msg)
-                            , execTree(doubleStarTree, msg));
+    return Promise.join(execTree(targetTree, msg)
+                        , execTree(doubleStarTree, msg))
+        .then(_.any);
 };
 
 var noExecution = function () {
@@ -98,10 +89,8 @@ var execCallbacks = function (route, tree, msg) {
         if (head === '*') {
             return applySubTrees(tree, function (subtree) {
                 return Promise.join(execTree(subtree.hash['**'], msg)
-                            , execCallbacks(rest, subtree, msg)
-                                   , function (l, r) {
-                                       return l || r;
-                                   });
+                                    , execCallbacks(rest, subtree, msg))
+                    .then(_.any);
             });
         }
         else {
@@ -121,8 +110,9 @@ var execCallbacks = function (route, tree, msg) {
                 .then(_.any);    
         }
         else {
-            return joinTwoExecutions(execMatch('*', tree, msg)
-                                     , execMatch(head, tree, msg));
+            return Promise.join(execMatch('*', tree, msg)
+                                , execMatch(head, tree, msg))
+            .then(_.any);
         }
     }
     else {
