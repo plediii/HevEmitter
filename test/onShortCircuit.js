@@ -31,16 +31,15 @@ describe('HevEmitter on', function () {
             var h = new H();
             var twoStarShort = true;
             h.on(['**'], function (msg, cb) {
-                return cb(true);
+                return cb('block');
             });
             h.on(['gross'], function (msg, cb) {
                 twoStarShort = false;
                 cb();
             });
-            h.emit(['gross']).then(function() {
-                assert(false);
-            })
+            h.emit(['gross'])
             .catch(function (err) {
+                assert.equal(err.message, 'block');
                 assert(twoStarShort);
                 done();
             });
@@ -48,47 +47,82 @@ describe('HevEmitter on', function () {
 
         it('two star error should short circuit one star', function (done) {
             var h = new H();
+            var blocked = true;
             h.on(['**'], function (msg, cb) {
-                return cb(true);
+                return cb('block');
             });
             h.on(['*'], function (msg, cb) {
-                assert(false);
+                blocked = false;
             });
             h.emit(['gross']).then(function() {
-                assert(false);
+                blocked = false;
             })
-            .catch(function () { 
+            .catch(function (err) { 
+                assert.equal(err.message, 'block');
+                assert(blocked);
                 done(); 
             });
         });
 
         it('one star error should short circuit one level', function (done) {
             var h = new H();
+            var blocked = true;
             h.on(['*'], function (msg, cb) {
-                return cb(true);
+                return cb('block');
             });
             h.on(['gross'], function (msg, cb) {
-                assert(false);
+                blocked = false;
             });
             h.emit(['gross']).then(function() {
-                assert(false);
+                blocked = false;
             })
-            .catch(function () { done(); });
+            .catch(function (err) {
+                assert.equal(err.message, 'block');
+                assert(blocked);
+                done(); 
+            });
         });
 
         it('one level should short circuit one level', function (done) {
             var h = new H();
+            var blocked = true;
             h.on(['baby'], function (msg, cb) {
-                return cb(true);
+                return cb('block');
             });
             h.on(['baby'], function (msg, cb) {
-                assert(false);
+                blocked = false;
             });
             h.emit(['baby']).then(function() {
-                assert(false);
+                blocked = false;
             })
-            .catch(function () { done(); });
+            .catch(function (err) {
+                assert.equal(err.message, 'block');
+                assert(blocked);
+                done(); 
+            });
         });
+
+        it('one level should short circuit one level even if deferred', function (done) {
+            var h = new H();
+            var blocked = true;
+            h.on(['baby'], function (msg, cb) {
+                process.nextTick(function () {
+                    cb('block');
+                });
+            });
+            h.on(['baby'], function (msg, cb) {
+                blocked = false;
+            });
+            h.emit(['baby']).then(function() {
+                blocked = false;
+            })
+            .catch(function (err) { 
+                assert.equal(err.message, 'block');
+                assert(blocked);
+                done(); 
+            });
+        });
+
         
     });
 
