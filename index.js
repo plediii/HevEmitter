@@ -11,14 +11,14 @@ var eventTree = function () {
     };
 };
 
-var addCallback = function (once, route, tree, cb) {
+var addCallback = function (route, tree, cb) {
     var head = _.head(route);
     if (!tree.hash.hasOwnProperty(head)) {
         tree.hash[head] = eventTree();
     }
 
     if (route.length > 1) {
-        return addCallback(once, _.rest(route), tree.hash[head], cb);
+        return addCallback(_.rest(route), tree.hash[head], cb);
     }
     else if (route.length === 1) {
         tree.hash[head].funcs.push(cb);
@@ -205,7 +205,7 @@ var EventEmitter = function () {
 
 _.extend(EventEmitter.prototype, {
     on: function (route, cb) {
-        return addCallback(false, route, this._eventTree, adaptCallback(cb));
+        return addCallback(route, this._eventTree, adaptCallback(cb));
     }
     , emit: function (route, msg) {
         var _this = this;
@@ -234,7 +234,7 @@ _.extend(EventEmitter.prototype, {
             }
         };
         g.listener = cb;
-        return addCallback(false, route, this._eventTree, g);
+        return addCallback(route, this._eventTree, g);
     }
     , removeAllListeners: function (route) {
         if (route[0] === '**') {
