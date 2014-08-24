@@ -8,7 +8,7 @@ var assert = require('assert');
 describe('HevEmitter on', function () {
 
     describe('explicit promise', function () {
-        
+
         it('should wait for callback when provided', function (done) {
             var h = new H();
             var wait = true;
@@ -27,122 +27,544 @@ describe('HevEmitter on', function () {
                 });
         });
 
-        it('two star error should short circuit one named event on same level', function (done) {
-            var h = new H();
-            var twoStarShort = true;
-            h.on(['**'], function (msg, cb) {
-                return cb('block');
-            });
-            h.on(['gross'], function (msg, cb) {
-                twoStarShort = false;
-                cb();
-            });
-            h.emit(['gross'])
-            .catch(function (err) {
-                assert.equal(err.message, 'block');
-                assert(twoStarShort);
-                done();
-            });
-        });
 
-        it('two star error should short circuit one named event on same level even if deferred', function (done) {
-            var h = new H();
-            var twoStarShort = true;
-            h.on(['**'], function (msg, cb) {
-                process.nextTick(function () {
-                    return cb('block');
+
+        describe('two star', function () {
+
+            describe('on first level', function () {
+                it('should short circuit named event on first level', function (done) {
+                    var h = new H();
+                    var blocked = true;
+                    h.on(['**'], function (msg, cb) {
+                        return cb('block');
+                    });
+                    h.on(['gross'], function (msg, cb) {
+                        blocked = false;
+                        cb();
+                    });
+                    h.emit(['gross'])
+                        .catch(function (err) {
+                            assert.equal(err.message, 'block');
+                            assert(blocked);
+                            done();
+                        });
+                });
+
+                it('should short circuit named event on the first level even if deferred', function (done) {
+                    var h = new H();
+                    var blocked = true;
+                    h.on(['**'], function (msg, cb) {
+                        process.nextTick(function () {
+                            return cb('block');
+                        });
+                    });
+                    h.on(['gross'], function (msg, cb) {
+                        blocked = false;
+                        cb();
+                    });
+                    h.emit(['gross'])
+                        .catch(function (err) {
+                            assert.equal(err.message, 'block');
+                            assert(blocked);
+                            done();
+                        });
+                });
+
+                it('error should short circuit one star on the first level', function (done) {
+                    var h = new H();
+                    var blocked = true;
+                    h.on(['**'], function (msg, cb) {
+                        return cb('block');
+                    });
+                    h.on(['*'], function (msg, cb) {
+                        blocked = false;
+                    });
+                    h.emit(['gross']).then(function() {
+                        blocked = false;
+                    })
+                        .catch(function (err) { 
+                            assert.equal(err.message, 'block');
+                            assert(blocked);
+                            done(); 
+                        });
+                });
+
+                it('error should short circuit one star on the first level even if deferred', function (done) {
+                    var h = new H();
+                    var blocked = true;
+                    h.on(['**'], function (msg, cb) {
+                        process.nextTick(function () {
+                            return cb('block');
+                        });
+                    });
+                    h.on(['*'], function (msg, cb) {
+                        blocked = false;
+                    });
+                    h.emit(['gross']).then(function() {
+                        blocked = false;
+                    })
+                        .catch(function (err) { 
+                            assert.equal(err.message, 'block');
+                            assert(blocked);
+                            done(); 
+                        });
+                });
+
+            });
+
+            describe('on second level', function () {
+
+                it('should short circuit named event on second level', function (done) {
+                    var h = new H();
+                    var blocked = true;
+                    h.on(['togg', '**'], function (msg, cb) {
+                        return cb('block');
+                    });
+                    h.on(['togg', 'gross'], function (msg, cb) {
+                        blocked = false;
+                        cb();
+                    });
+                    h.emit(['togg', 'gross'])
+                        .catch(function (err) {
+                            assert.equal(err.message, 'block');
+                            assert(blocked);
+                            done();
+                        });
+                });
+
+                it('should short circuit named event on the second level even if deferred', function (done) {
+                    var h = new H();
+                    var blocked = true;
+                    h.on(['togg', '**'], function (msg, cb) {
+                        process.nextTick(function () {
+                            return cb('block');
+                        });
+                    });
+                    h.on(['togg', 'gross'], function (msg, cb) {
+                        blocked = false;
+                        cb();
+                    });
+                    h.emit(['togg', 'gross'])
+                        .catch(function (err) {
+                            assert.equal(err.message, 'block');
+                            assert(blocked);
+                            done();
+                        });
+                });
+
+                it('error should short circuit one star on the first level', function (done) {
+                    var h = new H();
+                    var blocked = true;
+                    h.on(['daemon', '**'], function (msg, cb) {
+                        return cb('block');
+                    });
+                    h.on(['daemon', '*'], function (msg, cb) {
+                        blocked = false;
+                    });
+                    h.emit(['daemon', 'gross']).then(function() {
+                        blocked = false;
+                    })
+                        .catch(function (err) { 
+                            assert.equal(err.message, 'block');
+                            assert(blocked);
+                            done(); 
+                        });
+                });
+
+                it('error should short circuit one star on the first level even if deferred', function (done) {
+                    var h = new H();
+                    var blocked = true;
+                    h.on(['daemon', '**'], function (msg, cb) {
+                        process.nextTick(function () {
+                            return cb('block');
+                        });
+                    });
+                    h.on(['daemon', '*'], function (msg, cb) {
+                        blocked = false;
+                    });
+                    h.emit(['daemon', 'gross']).then(function() {
+                        blocked = false;
+                    })
+                        .catch(function (err) { 
+                            assert.equal(err.message, 'block');
+                            assert(blocked);
+                            done(); 
+                        });
                 });
             });
-            h.on(['gross'], function (msg, cb) {
-                twoStarShort = false;
-                cb();
-            });
-            h.emit(['gross'])
-            .catch(function (err) {
-                assert.equal(err.message, 'block');
-                assert(twoStarShort);
-                done();
-            });
+
         });
 
-        it('two star error should short circuit one star', function (done) {
-            var h = new H();
-            var blocked = true;
-            h.on(['**'], function (msg, cb) {
-                return cb('block');
+        describe('one star', function () {
+
+            describe('on first level', function () {
+
+                it('should short circuit named event on first level', function (done) {
+                    var h = new H();
+                    var blocked = true;
+                    h.on(['*'], function (msg, cb) {
+                        return cb('block');
+                    });
+                    h.on(['stay'], function (msg, cb) {
+                        blocked = false;
+                        cb();
+                    });
+                    h.emit(['stay'])
+                        .catch(function (err) {
+                            assert.equal(err.message, 'block');
+                            assert(blocked);
+                            done();
+                        });
+                });
+
+                it('should short circuit named event on the first level even if deferred', function (done) {
+                    var h = new H();
+                    var blocked = true;
+                    h.on(['*'], function (msg, cb) {
+                        process.nextTick(function () {
+                            return cb('block');
+                        });
+                    });
+                    h.on(['stay'], function (msg, cb) {
+                        blocked = false;
+                        cb();
+                    });
+                    h.emit(['stay'])
+                        .catch(function (err) {
+                            assert.equal(err.message, 'block');
+                            assert(blocked);
+                            done();
+                        });
+                });
+
+                it('should short circuit named event on first level (reverse order)', function (done) {
+                    var h = new H();
+                    var blocked = true;
+                    h.on(['stay'], function (msg, cb) {
+                        blocked = false;
+                        cb();
+                    });
+                    h.on(['*'], function (msg, cb) {
+                        return cb('block');
+                    });
+                    h.emit(['stay'])
+                        .catch(function (err) {
+                            assert.equal(err.message, 'block');
+                            assert(blocked);
+                            done();
+                        });
+                });
+
+                it('should short circuit named event on the first level even if deferred (reverse order)', function (done) {
+                    var h = new H();
+                    var blocked = true;
+                    h.on(['stay'], function (msg, cb) {
+                        blocked = false;
+                        cb();
+                    });
+                    h.on(['*'], function (msg, cb) {
+                        process.nextTick(function () {
+                            return cb('block');
+                        });
+                    });
+                    h.emit(['stay'])
+                        .catch(function (err) {
+                            assert.equal(err.message, 'block');
+                            assert(blocked);
+                            done();
+                        });
+                });
+
+                it('error should short circuit one star on the first level', function (done) {
+                    var h = new H();
+                    var blocked = true;
+                    h.on(['*'], function (msg, cb) {
+                        return cb('block');
+                    });
+                    h.on(['*'], function (msg, cb) {
+                        blocked = false;
+                    });
+                    h.emit(['stay']).then(function() {
+                        blocked = false;
+                    })
+                        .catch(function (err) { 
+                            assert.equal(err.message, 'block');
+                            assert(blocked);
+                            done(); 
+                        });
+                });
+
+                it('error should short circuit one star on the first level even if deferred', function (done) {
+                    var h = new H();
+                    var blocked = true;
+                    h.on(['*'], function (msg, cb) {
+                        process.nextTick(function () {
+                            return cb('block');
+                        });
+                    });
+                    h.on(['*'], function (msg, cb) {
+                        blocked = false;
+                    });
+                    h.emit(['once']).then(function() {
+                        blocked = false;
+                    })
+                        .catch(function (err) { 
+                            assert.equal(err.message, 'block');
+                            assert(blocked);
+                            done(); 
+                        });
+                });
+
             });
-            h.on(['*'], function (msg, cb) {
-                blocked = false;
+
+            describe('on second level', function () {
+
+                it('should short circuit named event on second level', function (done) {
+                    var h = new H();
+                    var blocked = true;
+                    h.on(['troy', '**'], function (msg, cb) {
+                        return cb('block');
+                    });
+                    h.on(['troy', 'gross'], function (msg, cb) {
+                        blocked = false;
+                        cb();
+                    });
+                    h.emit(['troy', 'gross'])
+                        .catch(function (err) {
+                            assert.equal(err.message, 'block');
+                            assert(blocked);
+                            done();
+                        });
+                });
+
+                it('should short circuit named event on the second level even if deferred', function (done) {
+                    var h = new H();
+                    var blocked = true;
+                    h.on(['troy', '**'], function (msg, cb) {
+                        process.nextTick(function () {
+                            return cb('block');
+                        });
+                    });
+                    h.on(['troy', 'gross'], function (msg, cb) {
+                        blocked = false;
+                        cb();
+                    });
+                    h.emit(['troy', 'gross'])
+                        .catch(function (err) {
+                            assert.equal(err.message, 'block');
+                            assert(blocked);
+                            done();
+                        });
+                });
+
+                it('error should short circuit one star on the first level', function (done) {
+                    var h = new H();
+                    var blocked = true;
+                    h.on(['troy', '**'], function (msg, cb) {
+                        return cb('block');
+                    });
+                    h.on(['troy', '*'], function (msg, cb) {
+                        blocked = false;
+                    });
+                    h.emit(['troy', 'gross']).then(function() {
+                        blocked = false;
+                    })
+                        .catch(function (err) { 
+                            assert.equal(err.message, 'block');
+                            assert(blocked);
+                            done(); 
+                        });
+                });
+
+                it('error should short circuit one star on the first level even if deferred', function (done) {
+                    var h = new H();
+                    var blocked = true;
+                    h.on(['shields', '**'], function (msg, cb) {
+                        process.nextTick(function () {
+                            return cb('block');
+                        });
+                    });
+                    h.on(['shields', '*'], function (msg, cb) {
+                        blocked = false;
+                    });
+                    h.emit(['shields', 'gross']).then(function() {
+                        blocked = false;
+                    })
+                        .catch(function (err) { 
+                            assert.equal(err.message, 'block');
+                            assert(blocked);
+                            done(); 
+                        });
+                });
+
+
+                it('should short circuit named event on second level (reverse order)', function (done) {
+                    var h = new H();
+                    var blocked = true;
+                    h.on(['troy', 'gross'], function (msg, cb) {
+                        blocked = false;
+                        cb();
+                    });
+                    h.on(['troy', '**'], function (msg, cb) {
+                        return cb('block');
+                    });
+                    h.emit(['troy', 'gross'])
+                        .catch(function (err) {
+                            assert.equal(err.message, 'block');
+                            assert(blocked);
+                            done();
+                        });
+                });
+
+                it('should short circuit named event on the second level even if deferred (reverse order)', function (done) {
+                    var h = new H();
+                    var blocked = true;
+                    h.on(['troy', 'gross'], function (msg, cb) {
+                        blocked = false;
+                        cb();
+                    });
+                    h.on(['troy', '**'], function (msg, cb) {
+                        process.nextTick(function () {
+                            return cb('block');
+                        });
+                    });
+                    h.emit(['troy', 'gross'])
+                        .catch(function (err) {
+                            assert.equal(err.message, 'block');
+                            assert(blocked);
+                            done();
+                        });
+                });
+
+                it('error should short circuit one star on the first level (reverse order)', function (done) {
+                    var h = new H();
+                    var blocked = true;
+                    h.on(['troy', '*'], function (msg, cb) {
+                        blocked = false;
+                    });
+                    h.on(['troy', '**'], function (msg, cb) {
+                        return cb('block');
+                    });
+                    h.emit(['troy', 'gross']).then(function() {
+                        blocked = false;
+                    })
+                        .catch(function (err) { 
+                            assert.equal(err.message, 'block');
+                            assert(blocked);
+                            done(); 
+                        });
+                });
+
+                it('error should short circuit one star on the first level even if deferred (reverse order)', function (done) {
+                    var h = new H();
+                    var blocked = true;
+                    h.on(['shields', '*'], function (msg, cb) {
+                        blocked = false;
+                    });
+                    h.on(['shields', '**'], function (msg, cb) {
+                        process.nextTick(function () {
+                            return cb('block');
+                        });
+                    });
+                    h.emit(['shields', 'gross']).then(function() {
+                        blocked = false;
+                    })
+                        .catch(function (err) { 
+                            assert.equal(err.message, 'block');
+                            assert(blocked);
+                            done(); 
+                        });
+                });
+
             });
-            h.emit(['gross']).then(function() {
-                blocked = false;
-            })
-            .catch(function (err) { 
-                assert.equal(err.message, 'block');
-                assert(blocked);
-                done(); 
-            });
+
         });
 
-        it('one star error should short circuit named event at same level', function (done) {
-            var h = new H();
-            var blocked = true;
-            h.on(['*'], function (msg, cb) {
-                return cb('block');
-            });
-            h.on(['gross'], function (msg, cb) {
-                blocked = false;
-            });
-            h.emit(['gross']).then(function() {
-                blocked = false;
-            })
-            .catch(function (err) {
-                assert.equal(err.message, 'block');
-                assert(blocked);
-                done(); 
-            });
-        });
+        describe('named event', function () {
 
-        it('named event should short circuit named event', function (done) {
-            var h = new H();
-            var blocked = true;
-            h.on(['baby'], function (msg, cb) {
-                return cb('block');
-            });
-            h.on(['baby'], function (msg, cb) {
-                blocked = false;
-            });
-            h.emit(['baby']).then(function() {
-                blocked = false;
-            })
-            .catch(function (err) {
-                assert.equal(err.message, 'block');
-                assert(blocked);
-                done(); 
-            });
-        });
+            describe('on first level', function () {
+                it('should short circuit named event on first level', function (done) {
+                    var h = new H();
+                    var blocked = true;
+                    h.on(['luc'], function (msg, cb) {
+                        return cb('block');
+                    });
+                    h.on(['luc'], function (msg, cb) {
+                        blocked = false;
+                        cb();
+                    });
+                    h.emit(['luc'])
+                        .catch(function (err) {
+                            assert.equal(err.message, 'block');
+                            assert(blocked);
+                            done();
+                        });
+                });
 
-        it('one level should short circuit one level even if deferred', function (done) {
-            var h = new H();
-            var blocked = true;
-            h.on(['baby'], function (msg, cb) {
-                process.nextTick(function () {
-                    cb('block');
+                it('should short circuit named event on the first level even if deferred', function (done) {
+                    var h = new H();
+                    var blocked = true;
+                    h.on(['luc'], function (msg, cb) {
+                        process.nextTick(function () {
+                            return cb('block');
+                        });
+                    });
+                    h.on(['luc'], function (msg, cb) {
+                        blocked = false;
+                        cb();
+                    });
+                    h.emit(['luc'])
+                        .catch(function (err) {
+                            assert.equal(err.message, 'block');
+                            assert(blocked);
+                            done();
+                        });
+                });
+
+            });
+
+            describe('on second level', function () {
+
+                it('should short circuit named event on second level', function (done) {
+                    var h = new H();
+                    var blocked = true;
+                    h.on(['troy', 'gross'], function (msg, cb) {
+                        return cb('block');
+                    });
+                    h.on(['troy', 'gross'], function (msg, cb) {
+                        blocked = false;
+                        cb();
+                    });
+                    h.emit(['troy', 'gross'])
+                        .catch(function (err) {
+                            assert.equal(err.message, 'block');
+                            assert(blocked);
+                            done();
+                        });
+                });
+
+                it('should short circuit named event on the second level even if deferred', function (done) {
+                    var h = new H();
+                    var blocked = true;
+                    h.on(['troy', 'gross'], function (msg, cb) {
+                        process.nextTick(function () {
+                            return cb('block');
+                        });
+                    });
+                    h.on(['troy', 'gross'], function (msg, cb) {
+                        blocked = false;
+                        cb();
+                    });
+                    h.emit(['troy', 'gross'])
+                        .catch(function (err) {
+                            assert.equal(err.message, 'block');
+                            assert(blocked);
+                            done();
+                        });
                 });
             });
-            h.on(['baby'], function (msg, cb) {
-                blocked = false;
-            });
-            h.emit(['baby']).then(function() {
-                blocked = false;
-            })
-            .catch(function (err) { 
-                assert.equal(err.message, 'block');
-                assert(blocked);
-                done(); 
-            });
-        });
 
+        });
         
     });
 
