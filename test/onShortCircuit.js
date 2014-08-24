@@ -40,9 +40,6 @@ describe('HevEmitter on', function () {
             h.emit(['gross']).then(function() {
                 assert(false);
             })
-            .then(function () {
-                assert(false);
-            })
             .catch(function (err) {
                 assert(twoStarShort);
                 done();
