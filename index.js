@@ -25,16 +25,6 @@ var addCallback = function (once, route, tree, cb) {
     }
 };
 
-var promisifyArray = function (arr) {
-    return _.map(arr, function (f) {
-        return Promise.promisify(f);
-    });
-};
-
-var any = function (arr) {
-    return _.any(arr);
-};
-
 var execTree = function (tree, msg) {
     if (!tree || (tree.funcs.length === 0)) {
         return Promise.resolve(false);
@@ -91,10 +81,6 @@ var execMatch = function (target, tree, msg) {
                             , execTree(doubleStarTree, msg));
 };
 
-var anyExecutions = function (executions) {
-    return _.any(executions);
-};
-
 var noExecution = function () {
     return Promise.resolve(false);
 };
@@ -123,9 +109,8 @@ var execCallbacks = function (route, tree, msg) {
             return Promise.join(execTree(tree.hash['*'] && tree.hash['*'].hash['**'], msg)
                                , execTree(matchTree && matchTree.hash['**'], msg)
                                , execCallbacks(rest, tree.hash['*'], msg)
-                               , execCallbacks(rest, matchTree, msg), function () {
-                                   return _.any(arguments);
-                               });
+                               , execCallbacks(rest, matchTree, msg))
+                .then(_.any)
         }
     }
     else if (route.length === 1) {
@@ -133,7 +118,7 @@ var execCallbacks = function (route, tree, msg) {
             return applySubTrees(tree, function (subtree) {
                 return execTree(subtree, msg);
             })
-                .then(anyExecutions);    
+                .then(_.any);    
         }
         else {
             return joinTwoExecutions(execMatch('*', tree, msg)
