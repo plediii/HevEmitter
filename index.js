@@ -8,8 +8,6 @@ var eventTree = function () {
     return {
         hash: {}
         , funcs: []
-        , onces: []
-        , promises: []
     };
 };
 
@@ -23,17 +21,7 @@ var addCallback = function (once, route, tree, cb) {
         return addCallback(once, _.rest(route), tree.hash[head], cb);
     }
     else if (route.length === 1) {
-        if (once) {
-            tree.hash[head].onces.push(cb);
-        }
-        else {
-            if (cb.length === 2) {
-                tree.hash[head].promises.push(Promise.promisify(cb));
-            }
-            else {
-                tree.hash[head].funcs.push(cb);
-            }
-        }
+        tree.hash[head].funcs.push(cb);
     }
 };
 
@@ -48,26 +36,13 @@ var any = function (arr) {
 };
 
 var execTree = function (tree, msg) {
-    if (!tree || (tree.funcs.length === 0 
-                  && tree.onces.length === 0
-                  && tree.promises.length === 0)) {
+    if (!tree || (tree.funcs.length === 0)) {
         return Promise.resolve(false);
     }
 
-    return Promise.all(_.map(tree.promises, function (p) {
+    return Promise.all(_.map(tree.funcs, function (p) {
         return p(msg);
-    }))
-        .then(function () {
-            _.each(tree.funcs, function (cb) {
-                cb(msg);
-            });
-            var onces = tree.onces;
-            tree.onces = [];
-            _.each(onces, function (cb) {
-                cb(msg);
-            });
-            return true;
-        });
+    }));
 };
 
 var applySubTrees = function (tree, method) {
@@ -172,7 +147,9 @@ var execCallbacks = function (route, tree, msg) {
 
 var filterFuncs = function (funcs, f) {
     if (f) {
-        return _.without(funcs, f);
+        return _.filter(funcs, function (func) {
+            return func.listener !== f;
+        });
     }
     else {
         return [];
@@ -181,7 +158,6 @@ var filterFuncs = function (funcs, f) {
 
 var emptyTree = function (tree) {
     return tree.funcs.length === 0
-        && tree.onces.length === 0
         && _.isEmpty(tree.hash);
 };
 
@@ -193,7 +169,6 @@ var deleteIfEmpty = function (target, hash) {
 
 var removeFunc = function (tree, f) {
     tree.funcs = filterFuncs(tree.funcs, f);
-    tree.onces = filterFuncs(tree.onces, f);
 };
 
 var removeCallback = function (route, tree, f) {
@@ -234,13 +209,28 @@ var removeCallback = function (route, tree, f) {
     }
 };
 
+var adaptCallback = function (cb) {
+    var f;
+    if (cb.length === 2) {
+        f = Promise.promisify(cb);
+    }
+    else {
+        f = function (msg) {
+            cb(msg);
+            return Promise.resolve(false);
+        };
+    }
+    f.listener = cb;
+    return f;
+};
+
 var EventEmitter = function () {
     this._eventTree = eventTree();
 };
 
 _.extend(EventEmitter.prototype, {
     on: function (route, cb) {
-        return addCallback(false, route, this._eventTree, cb);
+        return addCallback(false, route, this._eventTree, adaptCallback(cb));
     }
     , emit: function (route, msg) {
         var _this = this;
@@ -256,7 +246,20 @@ _.extend(EventEmitter.prototype, {
         removeCallback(route, this._eventTree, f);
     }
     , once: function (route, cb) {
-        return addCallback(true, route, this._eventTree, cb);
+        var _this = this;
+        var f = adaptCallback(cb);
+        var fired = false;
+        var g = function (msg) {
+            if (!fired) {
+                _this.removeListener(route, cb);
+                return f(msg);
+            }
+            else {
+                return Promise.resolve(false);
+            }
+        };
+        g.listener = cb;
+        return addCallback(false, route, this._eventTree, g);
     }
     , removeAllListeners: function (route) {
         if (route[0] === '**') {
