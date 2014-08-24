@@ -100,11 +100,25 @@ var execCallbacks = function (route, tree, msg) {
         }
         else {
             var matchTree = tree.hash.hasOwnProperty(head) && tree.hash[head];
-            return Promise.join(execTree(tree.hash['*'] && tree.hash['*'].hash['**'], msg)
-                               , execTree(matchTree && matchTree.hash['**'], msg)
-                               , execCallbacks(rest, tree.hash['*'], msg)
-                               , execCallbacks(rest, matchTree, msg))
-                .then(_.any);
+            return execTree(tree.hash['*'] && tree.hash['*'].hash['**'], msg)
+            .then(function (anycalled) {
+                return execTree(matchTree && matchTree.hash['**'], msg)
+                .then(function (called) {
+                    return anycalled || called;
+                });
+            })
+            .then(function (anycalled) {
+                return execCallbacks(rest, tree.hash['*'], msg)
+                .then(function (called) {
+                    return anycalled || called;
+                });
+            })
+            .then(function (anycalled) {
+                return execCallbacks(rest, matchTree, msg)
+                .then(function (called) {
+                    return anycalled || called;
+                });
+            });
         }
     }
     else if (route.length === 1) {
