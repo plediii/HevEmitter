@@ -110,6 +110,86 @@ describe('HevEmitter on', function () {
                         });
                 });
 
+
+
+                it('should short circuit named event on first level (reverse order)', function (done) {
+                    var h = new H();
+                    var blocked = true;
+                    h.on(['gross'], function (msg, cb) {
+                        blocked = false;
+                        cb();
+                    });
+                    h.on(['**'], function (msg, cb) {
+                        return cb('block');
+                    });
+                    h.emit(['gross'])
+                        .catch(function (err) {
+                            assert.equal(err.message, 'block');
+                            assert(blocked);
+                            done();
+                        });
+                });
+
+                it('should short circuit named event on the first level even if deferred (reverse order)', function (done) {
+                    var h = new H();
+                    var blocked = true;
+                    h.on(['gross'], function (msg, cb) {
+                        blocked = false;
+                        cb();
+                    });
+                    h.on(['**'], function (msg, cb) {
+                        process.nextTick(function () {
+                            return cb('block');
+                        });
+                    });
+                    h.emit(['gross'])
+                        .catch(function (err) {
+                            assert.equal(err.message, 'block');
+                            assert(blocked);
+                            done();
+                        });
+                });
+
+                it('error should short circuit one star on the first level (reverse order)', function (done) {
+                    var h = new H();
+                    var blocked = true;
+                    h.on(['*'], function (msg, cb) {
+                        blocked = false;
+                    });
+                    h.on(['**'], function (msg, cb) {
+                        return cb('block');
+                    });
+                    h.emit(['gross']).then(function() {
+                        blocked = false;
+                    })
+                        .catch(function (err) { 
+                            assert.equal(err.message, 'block');
+                            assert(blocked);
+                            done(); 
+                        });
+                });
+
+                it('error should short circuit one star on the first level even if deferred (reverse order)', function (done) {
+                    var h = new H();
+                    var blocked = true;
+                    h.on(['*'], function (msg, cb) {
+                        blocked = false;
+                    });
+                    h.on(['**'], function (msg, cb) {
+                        process.nextTick(function () {
+                            return cb('block');
+                        });
+                    });
+                    h.emit(['gross']).then(function() {
+                        blocked = false;
+                    })
+                        .catch(function (err) { 
+                            assert.equal(err.message, 'block');
+                            assert(blocked);
+                            done(); 
+                        });
+                });
+
             });
 
             describe('on second level', function () {
@@ -191,6 +271,90 @@ describe('HevEmitter on', function () {
                             done(); 
                         });
                 });
+
+
+
+
+
+
+                it('should short circuit named event on second level (reverse order)', function (done) {
+                    var h = new H();
+                    var blocked = true;
+                    h.on(['togg', 'gross'], function (msg, cb) {
+                        blocked = false;
+                        cb();
+                    });
+                    h.on(['togg', '**'], function (msg, cb) {
+                        return cb('block');
+                    });
+                    h.emit(['togg', 'gross'])
+                        .catch(function (err) {
+                            assert.equal(err.message, 'block');
+                            assert(blocked);
+                            done();
+                        });
+                });
+
+                it('should short circuit named event on the second level even if deferred (reverse order)', function (done) {
+                    var h = new H();
+                    var blocked = true;
+                    h.on(['togg', 'gross'], function (msg, cb) {
+                        blocked = false;
+                        cb();
+                    });
+                    h.on(['togg', '**'], function (msg, cb) {
+                        process.nextTick(function () {
+                            return cb('block');
+                        });
+                    });
+                    h.emit(['togg', 'gross'])
+                        .catch(function (err) {
+                            assert.equal(err.message, 'block');
+                            assert(blocked);
+                            done();
+                        });
+                });
+
+                it('error should short circuit one star on the first level (reverse order)', function (done) {
+                    var h = new H();
+                    var blocked = true;
+                    h.on(['daemon', '*'], function (msg, cb) {
+                        blocked = false;
+                    });
+                    h.on(['daemon', '**'], function (msg, cb) {
+                        return cb('block');
+                    });
+                    h.emit(['daemon', 'gross']).then(function() {
+                        blocked = false;
+                    })
+                        .catch(function (err) { 
+                            assert.equal(err.message, 'block');
+                            assert(blocked);
+                            done(); 
+                        });
+                });
+
+                it('error should short circuit one star on the first level even if deferred (reverse order)', function (done) {
+                    var h = new H();
+                    var blocked = true;
+                    h.on(['daemon', '*'], function (msg, cb) {
+                        blocked = false;
+                    });
+                    h.on(['daemon', '**'], function (msg, cb) {
+                        process.nextTick(function () {
+                            return cb('block');
+                        });
+                    });
+                    h.emit(['daemon', 'gross']).then(function() {
+                        blocked = false;
+                    })
+                        .catch(function (err) { 
+                            assert.equal(err.message, 'block');
+                            assert(blocked);
+                            done(); 
+                        });
+                });
+
             });
 
         });
