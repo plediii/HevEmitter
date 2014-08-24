@@ -24,7 +24,7 @@ h.on(['finn', 'the', 'peasant'], function (msg) {
 });
 ```
 
-The event listener may only receive on data argument.  Any second
+The event listener may only receive one data argument.  Any second
 argument is assumed to be a callback function used for short
 circuiting the event hierarchy.
 
@@ -89,16 +89,16 @@ Hello EventEmitter
 
 Note that removing `**` events removes `**`, `*` and `'name'` listeners.
 
-Removing `*` removes only `*` listeners and `'name'` lisenters.
+Removing `*` removes only `*` listeners and `'name'` listeners.
 
-Removing `'name'` listeners removes only `name` listeners.
+Removing `'name'` listeners removes only `'name'` listeners.
 
 ### Short circuiting
 
 If the event listener has a second argument, it must be a callback
 function indicating whether the listeners to descendant events should
 be invoked.  If the callback function is not invoked, or invoked with
-a truthy argument, no further events will not be invoked.
+a truthy argument, no further listeners will not be invoked.
 
 The order of callback at every level is `**` events first, then `*`
 events, then `'name'` events (in no particular order), followed by
