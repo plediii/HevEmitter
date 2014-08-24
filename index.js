@@ -29,10 +29,15 @@ var execTree = function (tree, msg) {
     if (!tree || (tree.funcs.length === 0)) {
         return Promise.resolve(false);
     }
-
-    return Promise.all(_.map(tree.funcs, function (p) {
-        return p(msg);
-    }));
+    var funcs = tree.funcs;
+    return (function execution () {
+        if (funcs.length === 0) {
+            return true;
+        }
+        var f = funcs[0];
+        funcs = funcs.slice(1);
+        return f(msg).then(execution);
+    })();
 };
 
 var applySubTrees = function (tree, method) {
@@ -99,7 +104,7 @@ var execCallbacks = function (route, tree, msg) {
                                , execTree(matchTree && matchTree.hash['**'], msg)
                                , execCallbacks(rest, tree.hash['*'], msg)
                                , execCallbacks(rest, matchTree, msg))
-                .then(_.any)
+                .then(_.any);
         }
     }
     else if (route.length === 1) {
@@ -110,9 +115,13 @@ var execCallbacks = function (route, tree, msg) {
                 .then(_.any);    
         }
         else {
-            return Promise.join(execMatch('*', tree, msg)
-                                , execMatch(head, tree, msg))
-            .then(_.any);
+            return execMatch('*', tree, msg)
+            .then(function (starcalled) {
+                return execMatch(head, tree, msg)
+                .then(function (headcalled) {
+                    return starcalled || headcalled;
+                });
+            });
         }
     }
     else {
