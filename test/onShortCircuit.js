@@ -27,11 +27,31 @@ describe('HevEmitter on', function () {
                 });
         });
 
-        it('two star error should short circuit one level', function (done) {
+        it('two star error should short circuit one named event on same level', function (done) {
             var h = new H();
             var twoStarShort = true;
             h.on(['**'], function (msg, cb) {
                 return cb('block');
+            });
+            h.on(['gross'], function (msg, cb) {
+                twoStarShort = false;
+                cb();
+            });
+            h.emit(['gross'])
+            .catch(function (err) {
+                assert.equal(err.message, 'block');
+                assert(twoStarShort);
+                done();
+            });
+        });
+
+        it('two star error should short circuit one named event on same level even if deferred', function (done) {
+            var h = new H();
+            var twoStarShort = true;
+            h.on(['**'], function (msg, cb) {
+                process.nextTick(function () {
+                    return cb('block');
+                });
             });
             h.on(['gross'], function (msg, cb) {
                 twoStarShort = false;
@@ -64,7 +84,7 @@ describe('HevEmitter on', function () {
             });
         });
 
-        it('one star error should short circuit one level', function (done) {
+        it('one star error should short circuit named event at same level', function (done) {
             var h = new H();
             var blocked = true;
             h.on(['*'], function (msg, cb) {
@@ -83,7 +103,7 @@ describe('HevEmitter on', function () {
             });
         });
 
-        it('one level should short circuit one level', function (done) {
+        it('named event should short circuit named event', function (done) {
             var h = new H();
             var blocked = true;
             h.on(['baby'], function (msg, cb) {
