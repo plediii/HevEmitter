@@ -66,11 +66,14 @@ h.emit(['finn', 'the', 'human'], 'cake');
 
 Outputs:
 ```shell
-jake the dog
 princess bubblegum
+jake the dog
 ```
 
-The specific route `['finn', 'the', 'peasant']` did not match this time, however the general route `['finn', '**']` did.
+The specific route `['finn', 'the', 'peasant']` did not match this
+time, however the general route `['finn', '**']` did.  `princess
+bubblegum` is output *before* `jake the dog` because it is registered
+lower on the hierarchy.
 
 ### Removing events in a hierarchy
 
