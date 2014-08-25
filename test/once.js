@@ -49,6 +49,32 @@ describe('HevEmitter once', function () {
                 });
         });
 
+        it('should not be able to trigger twice when registered on **', function (done) {
+            var h = new H();
+            var emitted = 0;
+            h.once(['**'], function () {
+                emitted += 1;
+                h.emit(['storage'])
+                    .then(function (called) {
+                        assert(!called);
+                        assert.equal(1, emitted);
+                    });
+
+            });
+            h.emit(['storage'])
+                .then(function (called) {
+                    assert(called);
+                    assert.equal(1, emitted);
+                });
+
+            h.emit(['storage'])
+                .then(function (called) {
+                    assert(!called);
+                    assert.equal(1, emitted);
+                    done();
+                });
+        });
+
 
         it('should emit and recieve two level events', function (done) {
             var h = new H();
