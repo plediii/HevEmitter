@@ -246,16 +246,9 @@ _.extend(EventEmitter.prototype, {
     , once: function (route, cb) {
         var _this = this;
         var f = adaptCallback(cb);
-        var fired = false;
         var g = function (msg) {
-            if (!fired) {
-                fired = true;
-                _this.removeListener(route, cb);
-                return f(msg);
-            }
-            else {
-                return Promise.resolve(false);
-            }
+            _this.removeListener(route, cb);
+            return f(msg);
         };
         g.listener = cb;
         return addCallback(route, this._eventTree, g);
