@@ -28,11 +28,22 @@ describe('HevEmitter once', function () {
             var emitted = 0;
             h.once(['storage'], function () {
                 emitted += 1;
-                h.emit(['storage']);
+                h.emit(['storage'])
+                    .then(function (called) {
+                        assert(!called);
+                        assert.equal(1, emitted);
+                    });
+
             });
-            h.emit(['storage']);
             h.emit(['storage'])
-                .then(function () {
+                .then(function (called) {
+                    assert(called);
+                    assert.equal(1, emitted);
+                });
+
+            h.emit(['storage'])
+                .then(function (called) {
+                    assert(!called);
                     assert.equal(1, emitted);
                     done();
                 });
