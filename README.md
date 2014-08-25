@@ -36,7 +36,7 @@ h.emit(['finn', 'the', '*'], 'cake');
 
 Here the `*` means to trigger all events at that level.  With the
 listeners from the previous example, we expect the output:
-```shell
+```
 jake the dog
 cake the cat
 ```
@@ -65,7 +65,7 @@ h.emit(['finn', 'the', 'human'], 'cake');
 ```
 
 Outputs:
-```shell
+```
 princess bubblegum
 jake the dog
 ```
@@ -86,7 +86,7 @@ h.emit(['finn', 'the', '*'], 'EventEmitter');
 ```
 Here, we've removed all events starting with 'finn', leaving only the
 'hello' listener.  So the resulting output is:
-```shell
+```
 Hello EventEmitter
 ```
 
@@ -109,7 +109,7 @@ descendant events.
 
 Currently, we have only the `['*', 'the', '*']` listener.  We can
 enforce that only greetings to Captain Picard are allowed:
-```
+```javascript
 h.on(['**'], function (msg, next) {
   if (msg === 'picard') {
     return next();
