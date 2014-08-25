@@ -249,6 +249,7 @@ _.extend(EventEmitter.prototype, {
         var fired = false;
         var g = function (msg) {
             if (!fired) {
+                fired = true;
                 _this.removeListener(route, cb);
                 return f(msg);
             }
