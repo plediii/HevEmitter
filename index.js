@@ -63,14 +63,9 @@ var execTree = function (tree, msg) {
         return Promise.resolve(false);
     }
     var funcs = tree.funcs;
-    return (function execution () {
-        if (funcs.length === 0) {
-            return true;
-        }
-        var f = funcs[0];
-        funcs = funcs.slice(1);
-        return f(msg).then(execution);
-    })();
+    return Promise.all(_.map(funcs, function (f) {
+        return f(msg);
+    }));
 };
 
 var applySubTrees = function (tree, method) {
