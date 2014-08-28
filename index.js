@@ -11,6 +11,39 @@ var eventTree = function () {
     };
 };
 
+var chainExecutions = function () {
+    var ps = _.toArray(arguments);
+    if (ps.length === 1) {
+        return (ps[0])();
+    }
+    var head = _.head(ps);
+    var rest = _.rest(ps);
+    var headResult = head();
+    if (headResult.isFulfilled()) {
+        var l = headResult.value();
+        var restResult  = chainExecutions.apply(null, rest);
+        if (restResult.isPending()) {
+            return restResult.then(function (r) {
+                return l || r;
+            });
+        }
+        if (restResult.isFulfilled()) {
+            return Promise.resolve(l || restResult.value());
+        }
+        else {
+            return Promise.reject(headResult.reason());
+        }
+    }
+    else {
+        return headResult.then(function (l) {
+            return chainExecutions.apply(null, rest)
+            .then(function (r) {
+                return l || r;
+            });
+        });
+    }
+};
+
 var addCallback = function (route, tree, cb) {
     var head = _.head(route);
     if (!tree.hash.hasOwnProperty(head)) {
@@ -100,24 +133,14 @@ var execCallbacks = function (route, tree, msg) {
         }
         else {
             var matchTree = tree.hash.hasOwnProperty(head) && tree.hash[head];
-            return execTree(tree.hash['*'] && tree.hash['*'].hash['**'], msg)
-            .then(function (anycalled) {
-                return execTree(matchTree && matchTree.hash['**'], msg)
-                .then(function (called) {
-                    return anycalled || called;
-                });
-            })
-            .then(function (anycalled) {
-                return execCallbacks(rest, tree.hash['*'], msg)
-                .then(function (called) {
-                    return anycalled || called;
-                });
-            })
-            .then(function (anycalled) {
-                return execCallbacks(rest, matchTree, msg)
-                .then(function (called) {
-                    return anycalled || called;
-                });
+            return chainExecutions(function () {
+                return execTree(tree.hash['*'] && tree.hash['*'].hash['**'], msg);
+            }, function () {
+                return execTree(matchTree && matchTree.hash['**'], msg);
+            }, function () {
+                return execCallbacks(rest, tree.hash['*'], msg);
+            }, function () {
+                return execCallbacks(rest, matchTree, msg);
             });
         }
     }
@@ -129,12 +152,10 @@ var execCallbacks = function (route, tree, msg) {
                 .then(_.any);    
         }
         else {
-            return execMatch('*', tree, msg)
-            .then(function (starcalled) {
+            return chainExecutions(function () {
+                return execMatch('*', tree, msg)
+            }, function () {
                 return execMatch(head, tree, msg)
-                .then(function (headcalled) {
-                    return starcalled || headcalled;
-                });
             });
         }
     }
@@ -232,13 +253,13 @@ _.extend(EventEmitter.prototype, {
     }
     , emit: function (route, msg) {
         var _this = this;
-        return execTree(_this._eventTree.hash['**'], msg)
-        .then(function (l) {
-            return execCallbacks(route, _this._eventTree, msg)
-            .then(function (r) {
-                return l || r;
+        return chainExecutions(
+            function () {
+                return execTree(_this._eventTree.hash['**'], msg);
+            }
+            , function () {
+                return execCallbacks(route, _this._eventTree, msg);
             });
-        });
     } 
     , removeListener: function (route, f) {
         removeCallback(route, this._eventTree, f);

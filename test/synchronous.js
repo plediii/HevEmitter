@@ -86,7 +86,7 @@ describe('HevEmitter on synchronous listener ', function () {
     it('should trigger synchronous "name"/** events synchronously', function () {
         var h = new H();
         var called = false;
-        h.on(['come', '*'], function () {
+        h.on(['come', '**'], function () {
             called = true;
         });
         h.emit(['come', 'in', 'enterprise']);
