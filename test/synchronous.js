@@ -115,5 +115,19 @@ describe('HevEmitter on synchronous listener ', function () {
         assert(called);
     });
 
+    it('should trigger sequential synchronous "name" events synchronously', function () {
+        var h = new H();
+        var called = 0;
+        h.on(['laforge'], function () {
+            called++; 
+        });
+        h.on(['laforge'], function () {
+            called++;
+        });
+        h.emit(['laforge']);
+        assert.equal(2, called);
+    });
+
+
 
 });
