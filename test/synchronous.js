@@ -129,5 +129,31 @@ describe('HevEmitter on synchronous listener ', function () {
     });
 
 
+    it('should trigger sequential synchronous "*" events synchronously', function () {
+        var h = new H();
+        var called = 0;
+        h.on(['*'], function () {
+            called++; 
+        });
+        h.on(['*'], function () {
+            called++;
+        });
+        h.emit(['beaucopu']);
+        assert.equal(2, called);
+    });
+
+    it('should trigger sequential synchronous "**" events synchronously', function () {
+        var h = new H();
+        var called = 0;
+        h.on(['**'], function () {
+            called++; 
+        });
+        h.on(['**'], function () {
+            called++;
+        });
+        h.emit(['longer']);
+        assert.equal(2, called);
+    });
+
 
 });
