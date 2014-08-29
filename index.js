@@ -13,35 +13,24 @@ var eventTree = function () {
 
 var chainExecutions = function () {
     var ps = _.toArray(arguments);
-    if (ps.length === 1) {
-        return (ps[0])();
-    }
-    var head = _.head(ps);
-    var rest = _.rest(ps);
-    var headResult = head();
-    if (headResult.isFulfilled()) {
-        var l = headResult.value();
-        var restResult  = chainExecutions.apply(null, rest);
-        if (restResult.isPending()) {
-            return restResult.then(function (r) {
-                return l || r;
+
+    var execution = Promise.reduce(ps, function (called, p) {
+        var result = p();
+        if (result.isPending()) {
+            return result.then(function (fcalled) {
+                return called || fcalled;
             });
-        }
-        if (restResult.isFulfilled()) {
-            return Promise.resolve(l || restResult.value());
         }
         else {
-            return Promise.reject(headResult.reason());
+            if (result.isRejected()) {
+                return result;
+            }
+            else {
+                return Promise.resolve(called || result.value());
+            }
         }
-    }
-    else {
-        return headResult.then(function (l) {
-            return chainExecutions.apply(null, rest)
-            .then(function (r) {
-                return l || r;
-            });
-        });
-    }
+    }, false);
+    return execution;
 };
 
 var addCallback = function (route, tree, cb) {
