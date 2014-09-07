@@ -155,5 +155,32 @@ describe('HevEmitter on synchronous listener ', function () {
         assert.equal(2, called);
     });
 
+    it('should trigger second level "*" events after first level "**" events synchronously', function () {
+        var h = new H();
+        var called = 0;
+        h.on(['darthon', '*'], function () {
+            called++; 
+        });
+        h.on(['**'], function () {
+            called++;
+        });
+        h.emit(['darthon', 'realm']);
+        assert.equal(2, called);
+    });
+
+    it('should "name" events followed by "*" events synchrnously when emitting "**" events', function () {
+        var h = new H();
+        var called = 0;
+        h.on(['allies'], function () {
+            called++; 
+        });
+        h.on(['*'], function () {
+            called++;
+        });
+        h.emit(['**']);
+        assert.equal(2, called);
+    });
+
+
 
 });
