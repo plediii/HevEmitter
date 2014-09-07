@@ -83,12 +83,16 @@ var applySubTrees = function (tree, method) {
 
 
 var execAll = function (tree, msg) {
-    var subTreeExecution = applySubTrees(tree, function (subtree) {
-        return execAll(subtree, msg);
-    });
-    return Promise.join(execTree(tree, msg)
-                       , subTreeExecution)
-        .then(_.any);
+    return chainExecutions(
+        function () {
+            return execTree(tree, msg);
+        }
+        , function () {
+            return applySubTrees(tree, function (subtree) {
+                return execAll(subtree, msg);
+            });
+        }
+    );
 };
 
 var execMatch = function (target, tree, msg) {
