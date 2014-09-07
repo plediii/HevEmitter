@@ -248,6 +248,7 @@ var EventEmitter = function (options) {
     });
     this._eventTree = eventTree();
     this.delimiter = options.delimiter;
+    this.newListeners = [];
 };
 
 _.extend(EventEmitter.prototype, {
@@ -261,6 +262,10 @@ _.extend(EventEmitter.prototype, {
     }
     , on: function (route, cb) {
         route = this.parseRoute(route);
+        this.emit(['newListener'], {
+            event: route
+            , listener: cb
+        });
         return addCallback(route, this._eventTree, adaptCallback(cb));
     }
     , emit: function (route, msg) {
@@ -287,6 +292,10 @@ _.extend(EventEmitter.prototype, {
             return f(msg);
         };
         g.listener = cb;
+        this.emit(['newListener'], {
+            event: route
+            , listener: cb
+        });
         return addCallback(route, this._eventTree, g);
     }
     , removeAllListeners: function (route) {
