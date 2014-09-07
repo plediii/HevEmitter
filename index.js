@@ -152,9 +152,9 @@ var execCallbacks = function (route, tree, msg) {
         }
         else {
             return chainExecutions(function () {
-                return execMatch('*', tree, msg)
+                return execMatch('*', tree, msg);
             }, function () {
-                return execMatch(head, tree, msg)
+                return execMatch(head, tree, msg);
             });
         }
     }
