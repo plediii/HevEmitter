@@ -11,6 +11,28 @@ var eventTree = function () {
     };
 };
 
+var chainExecutions = function () {
+    var ps = _.toArray(arguments);
+
+    var execution = Promise.reduce(ps, function (called, p) {
+        var result = p();
+        if (result.isPending()) {
+            return result.then(function (fcalled) {
+                return called || fcalled;
+            });
+        }
+        else {
+            if (result.isRejected()) {
+                return result;
+            }
+            else {
+                return Promise.resolve(called || result.value());
+            }
+        }
+    }, false);
+    return execution;
+};
+
 var addCallback = function (route, tree, cb) {
     var head = _.head(route);
     if (!tree.hash.hasOwnProperty(head)) {
@@ -30,14 +52,20 @@ var execTree = function (tree, msg) {
         return Promise.resolve(false);
     }
     var funcs = tree.funcs;
-    return (function execution () {
-        if (funcs.length === 0) {
-            return true;
+    var execution = Promise.reduce(funcs, function (called, f) {
+        return f(msg);
+    }, false);
+    if (execution.isPending()) {
+        return execution.then(true);
+    }
+    else {
+        if (execution.isRejected()) {
+            return execution;
         }
-        var f = funcs[0];
-        funcs = funcs.slice(1);
-        return f(msg).then(execution);
-    })();
+        else {
+            return Promise.resolve(true);
+        }
+    }
 };
 
 var applySubTrees = function (tree, method) {
@@ -55,12 +83,16 @@ var applySubTrees = function (tree, method) {
 
 
 var execAll = function (tree, msg) {
-    var subTreeExecution = applySubTrees(tree, function (subtree) {
-        return execAll(subtree, msg);
-    });
-    return Promise.join(execTree(tree, msg)
-                       , subTreeExecution)
-        .then(_.any);
+    return chainExecutions(
+        function () {
+            return execTree(tree, msg);
+        }
+        , function () {
+            return applySubTrees(tree, function (subtree) {
+                return execAll(subtree, msg);
+            });
+        }
+    );
 };
 
 var execMatch = function (target, tree, msg) {
@@ -100,24 +132,14 @@ var execCallbacks = function (route, tree, msg) {
         }
         else {
             var matchTree = tree.hash.hasOwnProperty(head) && tree.hash[head];
-            return execTree(tree.hash['*'] && tree.hash['*'].hash['**'], msg)
-            .then(function (anycalled) {
-                return execTree(matchTree && matchTree.hash['**'], msg)
-                .then(function (called) {
-                    return anycalled || called;
-                });
-            })
-            .then(function (anycalled) {
-                return execCallbacks(rest, tree.hash['*'], msg)
-                .then(function (called) {
-                    return anycalled || called;
-                });
-            })
-            .then(function (anycalled) {
-                return execCallbacks(rest, matchTree, msg)
-                .then(function (called) {
-                    return anycalled || called;
-                });
+            return chainExecutions(function () {
+                return execTree(tree.hash['*'] && tree.hash['*'].hash['**'], msg);
+            }, function () {
+                return execTree(matchTree && matchTree.hash['**'], msg);
+            }, function () {
+                return execCallbacks(rest, tree.hash['*'], msg);
+            }, function () {
+                return execCallbacks(rest, matchTree, msg);
             });
         }
     }
@@ -129,12 +151,10 @@ var execCallbacks = function (route, tree, msg) {
                 .then(_.any);    
         }
         else {
-            return execMatch('*', tree, msg)
-            .then(function (starcalled) {
-                return execMatch(head, tree, msg)
-                .then(function (headcalled) {
-                    return starcalled || headcalled;
-                });
+            return chainExecutions(function () {
+                return execMatch('*', tree, msg);
+            }, function () {
+                return execMatch(head, tree, msg);
             });
         }
     }
@@ -232,13 +252,13 @@ _.extend(EventEmitter.prototype, {
     }
     , emit: function (route, msg) {
         var _this = this;
-        return execTree(_this._eventTree.hash['**'], msg)
-        .then(function (l) {
-            return execCallbacks(route, _this._eventTree, msg)
-            .then(function (r) {
-                return l || r;
+        return chainExecutions(
+            function () {
+                return execTree(_this._eventTree.hash['**'], msg);
+            }
+            , function () {
+                return execCallbacks(route, _this._eventTree, msg);
             });
-        });
     } 
     , removeListener: function (route, f) {
         removeCallback(route, this._eventTree, f);
