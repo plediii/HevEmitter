@@ -242,16 +242,30 @@ var adaptCallback = function (cb) {
     return f;
 };
 
-var EventEmitter = function () {
+var EventEmitter = function (options) {
+    options = _.defaults({}, options, {
+        delimiter: '/'
+    });
     this._eventTree = eventTree();
+    this.delimiter = options.delimiter;
 };
 
 _.extend(EventEmitter.prototype, {
-    on: function (route, cb) {
+    parseRoute: function (route) {
+        if (_.isString(route))  {
+            return route.split(this.delimiter);
+        }
+        else {
+            return route;        
+        }
+    }
+    , on: function (route, cb) {
+        route = this.parseRoute(route);
         return addCallback(route, this._eventTree, adaptCallback(cb));
     }
     , emit: function (route, msg) {
         var _this = this;
+        route = this.parseRoute(route);
         return chainExecutions(
             function () {
                 return execTree(_this._eventTree.hash['**'], msg);
@@ -261,9 +275,11 @@ _.extend(EventEmitter.prototype, {
             });
     } 
     , removeListener: function (route, f) {
+        route = this.parseRoute(route);
         removeCallback(route, this._eventTree, f);
     }
     , once: function (route, cb) {
+        route = this.parseRoute(route);
         var _this = this;
         var f = adaptCallback(cb);
         var g = function (msg) {
@@ -274,6 +290,7 @@ _.extend(EventEmitter.prototype, {
         return addCallback(route, this._eventTree, g);
     }
     , removeAllListeners: function (route) {
+        route = this.parseRoute(route);
         if (route[0] === '**') {
             this._eventTree = eventTree();
         }
