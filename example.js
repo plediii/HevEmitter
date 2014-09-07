@@ -38,6 +38,9 @@ h.removeAllListeners(['finn', '**']);
 console.log("// waiting on ['finn', 'the', '*'] emission");
 h.emit(['finn', 'the', '*'], 'EventEmitter');
 
+console.log('### Using delimited strings');
+h.emit('neil/the/tyson', 'cosmos');
+
 console.log('###Short circuiting');
 h.on(['**'], function (msg, next) {
     if (msg === 'picard') {

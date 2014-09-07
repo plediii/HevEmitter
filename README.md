@@ -96,6 +96,18 @@ Removing `*` removes only `*` listeners and `'name'` listeners.
 
 Removing `'name'` listeners removes only `'name'` listeners.
 
+### Using delimited strings
+Event routes can be specified by delimited strings in addition to arrays.  
+For example
+```javascript
+h.emit('neil/the/tyson', 'cosmos');
+```
+will invoke the previously mounted `['*', 'the', '*']` listener, outputting
+```
+Hello cosmos
+```
+
+
 ### Short circuiting
 
 If the event listener has a second argument, it must be a callback
@@ -124,5 +136,4 @@ This will output only
 Hello picard
 ```
 The message to Commander Riker will be blocked.
-
 
