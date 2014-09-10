@@ -95,7 +95,7 @@ describe('HevEmitter removeListener event ', function () {
     });
 
     describe('on sub events', function () {
-        it('should be triggered when a listener is removed from a "newlistener/route" event', function (done) {
+        it('should be triggered when a listener is added to a specific "removeListener/route" event', function (done) {
             var h = new H();
             h.on(['alright'], function () {});
             h.on(['removeListener', 'powersurge'], function () {
@@ -106,6 +106,7 @@ describe('HevEmitter removeListener event ', function () {
             });
             h.removeAllListeners(['alright']);
         });
+
     });
 
 });
