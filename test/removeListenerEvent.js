@@ -107,6 +107,27 @@ describe('HevEmitter removeListener event ', function () {
             h.removeAllListeners(['alright']);
         });
 
+        it('should be triggered with the original "name" listening route when removed by *', function (done) {
+            var h = new H();
+            h.on(['romulus'], function () {});
+            h.on(['removeListener', 'romulus'], function (data) {
+                assert.deepEqual(data.event, ['romulus']);
+                done();
+            });
+            h.removeAllListeners(['*']);
+        });
+
+        it('should be triggered with the original "*" listening route when removed by *', function (done) {
+            var h = new H();
+            h.on(['*'], function () {});
+            h.on(['removeListener', 'romulus'], function (data) {
+                assert.deepEqual(data.event, ['*']);
+                done();
+            });
+            h.removeAllListeners(['*']);
+        });
+
+
     });
 
 });
