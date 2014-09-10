@@ -253,15 +253,17 @@ var EventEmitter = function (options) {
 _.extend(EventEmitter.prototype, {
     parseRoute: function (route) {
         if (_.isString(route))  {
-            return route.split(this.delimiter);
+            route = route.split(this.delimiter);
         }
-        else {
-            return route;        
-        }
+        return route;
     }
     , on: function (route, cb) {
         route = this.parseRoute(route);
-        this.emit(['newListener'], {
+        if (route.length === 1 
+            && route[0] === 'newListener') {
+            route = ['newListener', '**'];
+        }
+        this.emit(['newListener'].concat(route), {
             event: route
             , listener: cb
         });
@@ -272,7 +274,7 @@ _.extend(EventEmitter.prototype, {
         route = this.parseRoute(route);
         if (route[0] === 'newListener') {
             if (_this._eventTree.hash.newListener) {
-                return execTree(_this._eventTree.hash.newListener, msg);
+                return execCallbacks(route, _this._eventTree, msg);
             }
         }
         else {
