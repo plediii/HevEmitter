@@ -86,4 +86,17 @@ describe('HevEmitter newlistener', function () {
         });
     });
 
+    describe('on sub events', function () {
+        it('should be triggered when a listener is added to a "newlistener/route" event', function (done) {
+            var h = new H();
+            h.on(['newListener', 'powersurge'], function () {
+                done(true);
+            });
+            h.on(['newListener', 'alright'], function () {
+                done();
+            });
+            h.on(['alright'], function () {});
+        });
+    });
+
 });
