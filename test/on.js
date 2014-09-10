@@ -69,6 +69,16 @@ describe('HevEmitter on', function () {
                 });
         });
 
+        it('should trigger "name"/** on "name" event', function (done) {
+            var h = new H();
+            h.on(['base', '**'], function () {});
+            h.emit(['base'])
+                .then(function (called) {
+                    assert(called);
+                    done();
+                });
+        });
+
 
     });
 
