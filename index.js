@@ -253,26 +253,39 @@ var EventEmitter = function (options) {
 _.extend(EventEmitter.prototype, {
     parseRoute: function (route) {
         if (_.isString(route))  {
-            return route.split(this.delimiter);
+            route = route.split(this.delimiter);
         }
-        else {
-            return route;        
-        }
+        return route;
     }
     , on: function (route, cb) {
         route = this.parseRoute(route);
+        if (route.length === 1 
+            && route[0] === 'newListener') {
+            route = ['newListener', '**'];
+        }
+        this.emit(['newListener'].concat(route), {
+            event: route
+            , listener: cb
+        });
         return addCallback(route, this._eventTree, adaptCallback(cb));
     }
     , emit: function (route, msg) {
         var _this = this;
         route = this.parseRoute(route);
-        return chainExecutions(
-            function () {
-                return execTree(_this._eventTree.hash['**'], msg);
-            }
-            , function () {
+        if (route[0] === 'newListener') {
+            if (_this._eventTree.hash.newListener) {
                 return execCallbacks(route, _this._eventTree, msg);
-            });
+            }
+        }
+        else {
+            return chainExecutions(
+                function () {
+                    return execTree(_this._eventTree.hash['**'], msg);
+                }
+                , function () {
+                    return execCallbacks(route, _this._eventTree, msg);
+                });
+        }
     } 
     , removeListener: function (route, f) {
         route = this.parseRoute(route);
@@ -287,6 +300,10 @@ _.extend(EventEmitter.prototype, {
             return f(msg);
         };
         g.listener = cb;
+        this.emit(['newListener'], {
+            event: route
+            , listener: cb
+        });
         return addCallback(route, this._eventTree, g);
     }
     , removeAllListeners: function (route) {
