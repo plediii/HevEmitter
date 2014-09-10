@@ -248,7 +248,6 @@ var EventEmitter = function (options) {
     });
     this._eventTree = eventTree();
     this.delimiter = options.delimiter;
-    this.newListeners = [];
 };
 
 _.extend(EventEmitter.prototype, {
@@ -271,13 +270,20 @@ _.extend(EventEmitter.prototype, {
     , emit: function (route, msg) {
         var _this = this;
         route = this.parseRoute(route);
-        return chainExecutions(
-            function () {
-                return execTree(_this._eventTree.hash['**'], msg);
+        if (route[0] === 'newListener') {
+            if (_this._eventTree.hash.newListener) {
+                return execTree(_this._eventTree.hash.newListener, msg);
             }
-            , function () {
-                return execCallbacks(route, _this._eventTree, msg);
-            });
+        }
+        else {
+            return chainExecutions(
+                function () {
+                    return execTree(_this._eventTree.hash['**'], msg);
+                }
+                , function () {
+                    return execCallbacks(route, _this._eventTree, msg);
+                });
+        }
     } 
     , removeListener: function (route, f) {
         route = this.parseRoute(route);
