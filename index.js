@@ -231,12 +231,25 @@ var removeCallback = function (route, tree, f) {
 var adaptCallback = function (cb) {
     var f;
     if (cb.length === 2) {
-        f = Promise.promisify(cb);
+        f = function (msg) {
+            return new Promise(function (resolve, reject) {
+                return cb(msg, function (abort) {
+                    if (abort) {
+                        reject({
+                            message: abort
+                        });
+                    }
+                    else {
+                        resolve(true);
+                    }
+                });
+            });
+        };
     }
     else {
         f = function (msg) {
             cb(msg);
-            return Promise.resolve(false);
+            return Promise.resolve(true);
         };
     }
     f.listener = cb;
