@@ -27,7 +27,17 @@ describe('HevEmitter on', function () {
                 });
         });
 
-
+        it('should report called even when callback is deferred', function (done) {
+            var h = new H();
+            h.on(['flip'], function (msg, cb) {
+                process.nextTick(cb);
+            });
+            h.emit(['flip'])
+                .then(function (called) {
+                    assert(called);
+                    done();
+                });
+        });
 
         describe('two star', function () {
 
