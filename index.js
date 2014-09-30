@@ -1,4 +1,5 @@
 /*jslint node: true */
+/* global -Promise */
 "use strict";
 
 var _ = require('underscore');
@@ -254,6 +255,7 @@ var listenerFuncs = function (funcs) {
 
 var listeners = function (route, eventTree) {
     var head = _.head(route);
+    var starListeners;
     if (route.length > 1) {
         var rest = _.rest(route);
         if (head == '*') {
@@ -270,7 +272,7 @@ var listeners = function (route, eventTree) {
             }
         }
         else {
-            var starListeners = [];
+            starListeners = [];
             if (eventTree.hash.hasOwnProperty('**')) {
                 starListeners = starListeners.concat(listeners(rest, eventTree.hash['**']));
             }
@@ -282,7 +284,7 @@ var listeners = function (route, eventTree) {
                     return starListeners.concat(allListeners(eventTree.hash[head]));
                 }
                 else {
-                    return starListeners.concat(listeners(rest, eventTree.hash[head]))
+                    return starListeners.concat(listeners(rest, eventTree.hash[head]));
                 }
             }
             else {
@@ -302,7 +304,7 @@ var listeners = function (route, eventTree) {
             }));
         }
         else {
-            var starListeners = [];
+            starListeners = [];
             if (eventTree.hash.hasOwnProperty('*')) {
                 starListeners = starListeners.concat(eventTree.hash['*'].funcs);
             }
