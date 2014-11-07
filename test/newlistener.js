@@ -17,6 +17,31 @@ describe('HevEmitter newlistener', function () {
             h.on(['star'], function () {});
         });
 
+        it('should *NOT* trigger * listeners', function (done) {
+            var h = new H();
+            h.on(['*'], function () {
+                done(true);
+            });
+            h.on(['newListener'], function () {
+                done();
+            });
+            h.on(['star'], function () {});
+            h.emit(['newListener']);
+        });
+
+        it('should *NOT* trigger ** listeners', function (done) {
+            var h = new H();
+            h.on(['**'], function () {
+                done(true);
+            });
+            h.on(['newListener'], function () {
+                done();
+            });
+            h.on(['star'], function () {});
+        });
+
+
+
         it('should be triggered when a listener is added to a "name" event, with data', function (done) {
             var h = new H();
             h.on(['newListener'], function (data) {
