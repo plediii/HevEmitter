@@ -7,7 +7,7 @@
   },
   "dependencies": {
     "bluebird": "^2.2.2",
-    "underscore": "^1.6.0"
+    "lodash": "^2.4.1"
   },
   "devDependencies": {
     "mocha": "^1.21.4",

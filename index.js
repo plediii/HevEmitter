@@ -2,7 +2,7 @@
 /* global -Promise */
 "use strict";
 
-var _ = require('underscore');
+var _ = require('lodash');
 var Promise = require('bluebird');
 
 var eventTree = function () {
