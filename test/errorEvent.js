@@ -15,22 +15,18 @@ describe('HevEmitter error', function () {
         h.emit(['error']);
     });
 
-    it('should NOT trigger * listeners', function (done) {
+    it('should *NOT* trigger * listeners', function (done) {
         var h = new H();
-        h.on(['*'], function (msg) {
-            console.log('trigger *', msg);
-            if (msg !== 'new') done(true);
+        h.on(['*'], function () {
+            done(true);
+        });
+        h.on(['*', '*'], function () {
+            done(true);
         });
         h.on(['error'], function () {
-            console.log('trigger error');
             done();
         });
-        h.on(['newListener'], function () {
-            console.log('newListener triggered');
-        });
-        h.emit(['newListener'], 'new');
-        h.emit(['error']);
-
+        h.emit(['error'], function () {});
     });
 
     it('should NOT trigger ** events', function (done) {
