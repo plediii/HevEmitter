@@ -19,14 +19,13 @@ describe('HevEmitter newlistener', function () {
 
         it('should *NOT* trigger * listeners', function (done) {
             var h = new H();
-            h.on(['*'], function () {
+            h.on(['*', '*'], function () {
                 done(true);
             });
             h.on(['newListener'], function () {
                 done();
             });
             h.on(['star'], function () {});
-            h.emit(['newListener']);
         });
 
         it('should *NOT* trigger ** listeners', function (done) {
