@@ -2,7 +2,7 @@
 "use strict";
 
 var H = require('../index').EventEmitter;
-var _ = require('underscore');
+var _ = require('lodash');
 var assert = require('assert');
 
 describe('HevEmitter error', function () {
