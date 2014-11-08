@@ -380,10 +380,10 @@ _.extend(EventEmitter.prototype, {
         route = this.parseRoute(route);
         if (route[0] === 'newListener') {
             // why even allow this?
-            emit(_this.newListenerTree, route.slice(1), msg);
+            return emit(_this.newListenerTree, route.slice(1), msg);
         }
         else {
-            emit(_this._eventTree, route, msg);
+            return emit(_this._eventTree, route, msg);
         }
     } 
     , removeListener: function (route, f) {
