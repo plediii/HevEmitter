@@ -348,6 +348,7 @@ var EventEmitter = function (options) {
     });
     this._eventTree = eventTree();
     this._newListenerTree = eventTree();
+    this._errorTree = eventTree();
     this.delimiter = options.delimiter;
 };
 
@@ -361,8 +362,9 @@ _.extend(EventEmitter.prototype, {
     , on: function (route, cb) {
         route = this.parseRoute(route);
         if (route.length === 1
-            && route[0] === 'newListener') {
-            route = ['newListener', '**'];
+            && (route[0] === 'newListener'
+                || route[0] === 'error')) {
+            route = route.concat('**');
         }
         emit(this._newListenerTree, route, {
             event: route
@@ -370,6 +372,9 @@ _.extend(EventEmitter.prototype, {
         });
         if (route[0] === 'newListener') {
             addCallback(route.slice(1), this._newListenerTree, adaptCallback(cb));
+        }
+        else if (route[0] === 'error') {
+            addCallback(route.slice(1), this._errorTree, adaptCallback(cb));
         }
         else {
             addCallback(route, this._eventTree, adaptCallback(cb));
@@ -379,8 +384,21 @@ _.extend(EventEmitter.prototype, {
         var _this = this;
         route = this.parseRoute(route);
         if (route[0] === 'newListener') {
-            // why even allow this?
             return emit(_this.newListenerTree, route.slice(1), msg);
+        }
+        else if (route[0] === 'error') {
+            return emit(_this._errorTree, route.slice(1), msg)
+            .then(function (called) {
+                if (!called) {
+                    if (msg instanceof Error) {
+                        throw msg; // Unhandled 'error' event
+                    }
+                    else {
+                        throw new Error('Uncaught unspecified error event.');
+                    }
+                }
+                return true;
+            });
         }
         else {
             return emit(_this._eventTree, route, msg);
