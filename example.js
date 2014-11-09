@@ -52,3 +52,7 @@ console.log("// waiting on ['data', 'the', 'android'] and ['geordi', 'the', 'eng
 h.emit(['data', 'the', 'android'], 'picard');
 h.emit(['geordi', 'the', 'engineer'], 'riker');
 
+
+console.log('List of active routes: ');
+console.log(h.list().join('\n'));
+
