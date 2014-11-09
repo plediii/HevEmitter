@@ -342,6 +342,16 @@ var emit = function (eventTree, route, msg) {
         });
 };
 
+var list = function (eventTree, parent) {
+    var l = [];
+    if (eventTree.funcs.length > 0) {
+        l = [parent.join('/')];
+    }
+    return [].concat.apply(l, _.map(eventTree.hash, function (subtree, name) {
+        return list(subtree, parent.concat(name));
+    }));
+};
+
 var EventEmitter = function (options) {
     options = _.defaults({}, options, {
         delimiter: '/'
@@ -444,6 +454,9 @@ _.extend(EventEmitter.prototype, {
             }
             return listenerFuncs(starListeners.concat(listeners(route, this._eventTree)));
         }
+    }
+    , list: function () {
+        return list(this._eventTree, []);
     }
 });
 
