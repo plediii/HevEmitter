@@ -1,11 +1,22 @@
 {
   "name": "hevemitter",
-  "version": "0.9.1",
+  "version": "0.9.2",
   "private": false,
   "author": "Paul J. Ledbetter III",
-  "scripts": {
-    "start": "node app"
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/plediii/HevEmitter.git"
   },
+  "scripts": {
+    "test": "mocha"
+  },
+  "keywords": [
+    "hierarchical",
+    "event",
+    "emitter",
+    "router"
+  ],
   "dependencies": {
     "bluebird": "^2.2.2",
     "lodash": "^2.4.1"
