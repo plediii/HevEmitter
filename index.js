@@ -252,7 +252,7 @@ var adaptCallback = function (cb) {
             return Promise.resolve(true);
         };
     }
-    f.listener = cb;
+    f.listener = cb.listener || cb;
     return f;
 };
 
