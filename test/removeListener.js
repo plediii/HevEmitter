@@ -378,6 +378,22 @@ describe('HevEmitter on', function () {
 
         });
 
+        describe('alternate listener handle', function () {
+
+            it('should be used to remove when provided', function (done) {
+                var h = new H();
+                var f = function () {
+                    assert(false);
+                };
+                var listener = f.listener = 'house';
+                h.on(['son'], f);
+                h.removeListener(['son'], listener);
+                h.emit(['son'])
+                    .then(function () { done(); });
+            });
+
+        });
+
     });
 
 });
