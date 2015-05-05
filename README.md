@@ -107,33 +107,3 @@ will invoke the previously mounted `['*', 'the', '*']` listener, outputting
 Hello cosmos
 ```
 
-
-### Short circuiting
-
-If the event listener has a second argument, it must be a callback
-function indicating whether the listeners to descendant events should
-be invoked.  If the callback function is not invoked, or invoked with
-a truthy argument, no further listeners will not be invoked.
-
-The order of callback at every level is `**` events first, then `*`
-events, then `'name'` events (in no particular order), followed by
-descendant events.
-
-Currently, we have only the `['*', 'the', '*']` listener.  We can
-enforce that only greetings to Captain Picard are allowed:
-```javascript
-h.on(['**'], function (msg, next) {
-  if (msg === 'picard') {
-    return next();
-  }
-});
-
-h.emit(['data', 'the', 'android'], 'picard');
-h.emit(['geordi', 'the', 'engineer'], 'riker');
-```
-This will output only
-```
-Hello picard
-```
-The message to Commander Riker will be blocked.
-
