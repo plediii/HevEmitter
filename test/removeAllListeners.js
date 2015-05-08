@@ -10,7 +10,7 @@ describe('HevEmitter on', function () {
     describe('removeAllListeners', function () {
 
         describe('.on callbacks', function () {
-            it('should NOT trigger one level method after one level removal', function (done) {
+            it('should NOT trigger one level method after one level removal', function () {
                 var h = new H();
                 var f = function () {
                     assert(false);
