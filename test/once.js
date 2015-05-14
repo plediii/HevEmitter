@@ -28,7 +28,7 @@ describe('HevEmitter once', function () {
                 assert(!h.emit(['storage']));
                 assert.equal(1, emitted);
             });
-            assert(emit(['storage']));
+            assert(h.emit(['storage']));
             assert.equal(1, emitted);
             assert(!h.emit(['storage']));
             assert.equal(1, emitted);
@@ -40,7 +40,6 @@ describe('HevEmitter once', function () {
             h.once(['**'], function () {
                 emitted += 1;
                 assert(!h.emit(['storage']));
-                assert(!called);
                 assert.equal(1, emitted);
             });
             assert(h.emit(['storage']));
@@ -180,7 +179,7 @@ describe('HevEmitter once', function () {
                 emitted += 1;
             });
             h.emit(['emry', '**']);
-            h.emit(['emry', '**'])
+            h.emit(['emry', '**']);
             assert.equal(1, emitted);
         });
 

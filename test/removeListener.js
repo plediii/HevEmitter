@@ -220,7 +220,7 @@ describe('HevEmitter on', function () {
                 var f = function () {};
                 h.once(['cash', 'act'], f);
                 h.removeListener(['**'], function () {});
-                assert(h.emit(['cash', 'act'])):
+                assert(h.emit(['cash', 'act']));
             });
 
         });
