@@ -246,6 +246,35 @@ describe('HevEmitter listeners', function () {
                 assert(_.contains(l, g));
             });
 
+            it('should return specific and * listeners', function () {
+                var f = function () {};
+                var g = function () {};
+                h.on(['command'], f);
+                h.on(['*'], g);
+                var l = h.listeners(['*']);
+                assert.equal(2, l.length);
+                assert(_.contains(l, f));
+                assert(_.contains(l, g));
+            });
+
+            it('should return specific and * listeners in order', function () {
+                var f = function () {};
+                var g = function () {};
+                h.on(['command'], f);
+                h.on(['*'], g);
+                var l = h.listeners(['*']);
+                assert(_.indexOf(l, g) < _.indexOf(l, f));
+            });
+
+            it('should return specific and * listeners in order specified in opposite', function () {
+                var f = function () {};
+                var g = function () {};
+                h.on(['*'], g);
+                h.on(['command'], f);
+                var l = h.listeners(['*']);
+                assert(_.indexOf(l, g) < _.indexOf(l, f));
+            });
+
             it('should return two "on" listeners in order', function () {
                 var f = function () {};
                 var g = function () {};
@@ -260,7 +289,7 @@ describe('HevEmitter listeners', function () {
                 var g = function () {};
                 h.on(['command'], f);
                 h.on(['me'], g);
-                var l = h.listeners(['command']);
+                var l = h.listeners(['*']);
                 assert.equal(2, l.length);
                 assert(_.contains(l, f));
                 assert(_.contains(l, g));
@@ -303,10 +332,97 @@ describe('HevEmitter listeners', function () {
                 var g = function () {};
                 h.on(['command'], f);
                 h.on(['me'], g);
-                var l = h.listeners(['command']);
+                var l = h.listeners(['**']);
                 assert.equal(2, l.length);
                 assert(_.contains(l, f));
                 assert(_.contains(l, g));
+            });
+
+            it('should return specific and * listeners', function () {
+                var f = function () {};
+                var g = function () {};
+                h.on(['command'], f);
+                h.on(['*'], g);
+                var l = h.listeners(['**']);
+                assert.equal(2, l.length);
+                assert(_.contains(l, f));
+                assert(_.contains(l, g));
+            });
+
+            it('should return specific and * listeners in order', function () {
+                var f = function () {};
+                var g = function () {};
+                h.on(['command'], f);
+                h.on(['*'], g);
+                var l = h.listeners(['**']);
+                assert(_.indexOf(l, g) < _.indexOf(l, f));
+            });
+
+            it('should return specific and * listeners in order specified in opposite', function () {
+                var f = function () {};
+                var g = function () {};
+                h.on(['*'], g);
+                h.on(['command'], f);
+                var l = h.listeners(['**']);
+                assert(_.indexOf(l, g) < _.indexOf(l, f));
+            });
+
+            it('should return ** and * listeners', function () {
+                var f = function () {};
+                var g = function () {};
+                h.on(['**'], f);
+                h.on(['*'], g);
+                var l = h.listeners(['**']);
+                assert.equal(2, l.length);
+                assert(_.contains(l, f));
+                assert(_.contains(l, g));
+            });
+
+            it('should return ** and * listeners in order', function () {
+                var f = function () {};
+                var g = function () {};
+                h.on(['**'], f);
+                h.on(['*'], g);
+                var l = h.listeners(['**']);
+                assert(_.indexOf(l, f) < _.indexOf(l, g));
+            });
+
+            it('should return ** and * listeners in order specified in opposite', function () {
+                var f = function () {};
+                var g = function () {};
+                h.on(['*'], g);
+                h.on(['**'], f);
+                var l = h.listeners(['**']);
+                assert(_.indexOf(l, f) < _.indexOf(l, g));
+            });
+
+            it('should return specific and ** listeners', function () {
+                var f = function () {};
+                var g = function () {};
+                h.on(['command'], f);
+                h.on(['**'], g);
+                var l = h.listeners(['**']);
+                assert.equal(2, l.length);
+                assert(_.contains(l, f));
+                assert(_.contains(l, g));
+            });
+
+            it('should return specific and ** listeners in order', function () {
+                var f = function () {};
+                var g = function () {};
+                h.on(['command'], f);
+                h.on(['**'], g);
+                var l = h.listeners(['**']);
+                assert(_.indexOf(l, g) < _.indexOf(l, f));
+            });
+
+            it('should return specific and ** listeners in order specified in opposite', function () {
+                var f = function () {};
+                var g = function () {};
+                h.on(['**'], g);
+                h.on(['command'], f);
+                var l = h.listeners(['**']);
+                assert(_.indexOf(l, g) < _.indexOf(l, f));
             });
 
         });
