@@ -321,7 +321,7 @@ describe('HevEmitter on', function () {
                 assert(!h.emit(['cash', 'act']));
             });
 
-            it('SHOULD trigger two level method after two star removal of different function', function (done) {
+            it('SHOULD trigger two level method after two star removal of different function', function () {
                 var h = new H();
                 var f = function (msg, cb) {};
                 h.on(['cash', 'act'], f);
@@ -333,7 +333,7 @@ describe('HevEmitter on', function () {
 
         describe('alternate listener handle', function () {
 
-            it('should be used to remove when provided', function (done) {
+            it('should be used to remove when provided', function () {
                 var h = new H();
                 var f = function () {
                     assert(false);

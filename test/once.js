@@ -348,7 +348,7 @@ describe('HevEmitter once', function () {
             h.once(['**'], function () {
                 emitted += 1;
             });
-            h.emit(['giant'])(done);
+            h.emit(['giant']);
             h.emit(['giant']);
             assert.equal(1, emitted);
         });
