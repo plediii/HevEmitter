@@ -10,7 +10,7 @@
   },
   "scripts": {
     "test": "mocha",
-      "ci-test": "mocha -R mocha-istanbul && istanbul report clover"
+      "ci-test": "istanbul cover _mocha -- -R tap \"./test/*.js\" && istanbul report clover"
   },
   "keywords": [
     "hierarchical",
@@ -28,7 +28,6 @@
     "istanbul": "^0.3.14",
     "jshint-stylish": "^0.4.0",
     "mocha": "^1.21.4",
-    "mocha-istanbul": "^0.2.0",
     "tape": "^4.0.0"
   }
 }
