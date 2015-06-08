@@ -9,7 +9,8 @@
     "url": "https://github.com/plediii/HevEmitter.git"
   },
   "scripts": {
-    "test": "mocha"
+    "test": "mocha",
+      "ci-test": "mocha -R mocha-istanbul && istanbul report clover"
   },
   "keywords": [
     "hierarchical",
@@ -22,9 +23,12 @@
     "lodash": "^2.4.1"
   },
   "devDependencies": {
-    "mocha": "^1.21.4",
     "gulp": "^3.8.7",
     "gulp-jshint": "^1.8.4",
-    "jshint-stylish": "^0.4.0"
+    "istanbul": "^0.3.14",
+    "jshint-stylish": "^0.4.0",
+    "mocha": "^1.21.4",
+    "mocha-istanbul": "^0.2.0",
+    "tape": "^4.0.0"
   }
 }
