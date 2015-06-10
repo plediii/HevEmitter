@@ -11,15 +11,14 @@ describe('HevEmitter on', function () {
 
         describe('.on listener ', function () {
 
-            it('should NOT trigger one level method after one level removal', function (done) {
+            it('should NOT trigger one level method after one level removal', function () {
                 var h = new H();
                 var f = function () {
                     assert(false);
                 };
                 h.on(['son'], f);
                 h.removeListener(['son'], f);
-                h.emit(['son'])
-                    .then(function () { done(); });
+                assert(!h.emit(['son']));
             });
 
             it('should NOT leak after one level removal', function () {
@@ -35,114 +34,98 @@ describe('HevEmitter on', function () {
             });
 
 
-            it('SHOULD trigger one level method after one level removal of different function', function (done) {
+            it('SHOULD trigger one level method after one level removal of different function', function () {
                 var h = new H();
-                var f = function () {
-                    done();
-                };
+                var f = function () {};
                 h.on(['son'], f);
                 h.removeListener(['son'], function () {});
-                h.emit(['son']);
+                assert(!h.emit(['son']));
             });
 
-
-            it('should NOT trigger one level method after one star removal', function (done) {
+            it('should NOT trigger one level method after one star removal', function () {
                 var h = new H();
                 var f = function () {
                     assert(false);
                 };
                 h.on(['circus'], f);
                 h.removeListener(['*'], f);
-                h.emit(['circus'])
-                    .then(function () { done(); });
+                assert(!h.emit(['circus']));
             });
 
-            it('SHOULD trigger one level method after one star removal of different function ', function (done) {
+            it('SHOULD trigger one level method after one star removal of different function ', function () {
                 var h = new H();
-                var f = function () {
-                    done();
-                };
+                var f = function () {};
                 h.on(['circus'], f);
                 h.removeListener(['*'], function () {});
-                h.emit(['circus']);
+                assert(h.emit(['circus']));
             });
 
-            it('SHOULD trigger two level method after one star removal', function (done) {
+            it('SHOULD trigger two level method after one star removal', function () {
                 var h = new H();
-                var f = function () {
-                    done();
-                };
+                var f = function () {};
                 h.on(['gore', 'leena'], f);
                 h.removeListener(['*'], f);
-                h.emit(['gore', 'leena']);
+                assert(h.emit(['gore', 'leena']));
             });
 
-            it('should NOT trigger two level method after one star removal', function (done) {
+            it('should NOT trigger two level method after one star removal', function () {
                 var h = new H();
                 var f = function () {
                     assert(false);
                 };
                 h.on(['squirrel', 'snake'], f);
                 h.removeListener(['*', 'snake'], f);
-                h.emit(['squirrel', 'snake'])
-                    .then(function () { done(); });
+                assert(!h.emit(['squirrel', 'snake']));
             });
 
-            it('SHOULD trigger two level method after one star removal of different function', function (done) {
+            it('SHOULD trigger two level method after one star removal of different function', function () {
                 var h = new H();
-                var f = function () {
-                    done();
-                };
+                var f = function () {};
                 h.on(['squirrel', 'snake'], f);
                 h.removeListener(['*', 'snake'], function () {});
-                h.emit(['squirrel', 'snake']);
+                assert(!h.emit(['squirrel', 'snake']));
             });
 
-            it('should NOT trigger one level method after two star removal', function (done) {
+            it('should NOT trigger one level method after two star removal', function () {
                 var h = new H();
                 var f = function () {
                     assert(false);
                 };
                 h.on(['sadface'], f);
                 h.removeListener(['**'], f);
-                h.emit(['sadface'])
-                    .then(function () { done(); });
+                assert(!h.emit(['sadface']));
             });
 
-            it('should NOT trigger two level method after two star removal', function (done) {
+            it('should NOT trigger two level method after two star removal', function () {
                 var h = new H();
                 var f = function () {
                     assert(false);
                 };
                 h.on(['cash', 'act'], f);
                 h.removeListener(['**'], f);
-                h.emit(['cash', 'act'])
-                    .then(function () { done(); });
+                assert(!h.emit(['cash', 'act']));
             });
 
-            it('SHOULD trigger two level method after two star removal of different function', function (done) {
+            it('SHOULD trigger two level method after two star removal of different function', function () {
                 var h = new H();
-                var f = function () {
-                    done();
-                };
+                var f = function () {};
                 h.on(['cash', 'act'], f);
                 h.removeListener(['**'], function () {});
-                h.emit(['cash', 'act']);
+                assert(h.emit(['cash', 'act']));
             });
 
         });
 
         describe('.once listener ', function () {
 
-            it('should NOT trigger one level method after one level removal', function (done) {
+            it('should NOT trigger one level method after one level removal', function () {
                 var h = new H();
                 var f = function () {
                     assert(false);
                 };
                 h.once(['son'], f);
                 h.removeListener(['son'], f);
-                h.emit(['son'])
-                    .then(function () { done(); });
+                assert(!h.emit(['son']));
             });
 
             it('should NOT leak after one level removal', function () {
@@ -158,114 +141,100 @@ describe('HevEmitter on', function () {
             });
 
 
-            it('SHOULD trigger one level method after one level removal of different function', function (done) {
+            it('SHOULD trigger one level method after one level removal of different function', function () {
                 var h = new H();
-                var f = function () {
-                    done();
-                };
+                var f = function () {};
                 h.once(['son'], f);
                 h.removeListener(['son'], function () {});
-                h.emit(['son']);
+                assert(!h.emit(['son']));
             });
 
 
-            it('should NOT trigger one level method after one star removal', function (done) {
+            it('should NOT trigger one level method after one star removal', function () {
                 var h = new H();
                 var f = function () {
                     assert(false);
                 };
                 h.once(['circus'], f);
                 h.removeListener(['*'], f);
-                h.emit(['circus'])
-                    .then(function () { done(); });
+                assert(!h.emit(['circus']));
             });
 
-            it('SHOULD trigger one level method after one star removal of different function ', function (done) {
+            it('SHOULD trigger one level method after one star removal of different function ', function () {
                 var h = new H();
-                var f = function () {
-                    done();
-                };
+                var f = function () {};
                 h.once(['circus'], f);
                 h.removeListener(['*'], function () {});
-                h.emit(['circus']);
+                assert(h.emit(['circus']));
             });
 
-            it('SHOULD trigger two level method after one star removal', function (done) {
+            it('SHOULD trigger two level method after one star removal', function () {
                 var h = new H();
-                var f = function () {
-                    done();
-                };
+                var f = function () {};
                 h.once(['gore', 'leena'], f);
                 h.removeListener(['*'], f);
-                h.emit(['gore', 'leena']);
+                assert(h.emit(['gore', 'leena']));
             });
 
-            it('should NOT trigger two level method after one star removal', function (done) {
+            it('should NOT trigger two level method after one star removal', function () {
                 var h = new H();
                 var f = function () {
                     assert(false);
                 };
                 h.once(['squirrel', 'snake'], f);
                 h.removeListener(['*', 'snake'], f);
-                h.emit(['squirrel', 'snake'])
-                    .then(function () { done(); });
+                assert(!h.emit(['squirrel', 'snake']));
             });
 
-            it('SHOULD trigger two level method after one star removal of different function', function (done) {
+            it('SHOULD trigger two level method after one star removal of different function', function () {
                 var h = new H();
                 var f = function () {
-                    done();
                 };
                 h.once(['squirrel', 'snake'], f);
                 h.removeListener(['*', 'snake'], function () {});
-                h.emit(['squirrel', 'snake']);
+                assert(h.emit(['squirrel', 'snake']));
             });
 
-            it('should NOT trigger one level method after two star removal', function (done) {
+            it('should NOT trigger one level method after two star removal', function () {
                 var h = new H();
                 var f = function () {
                     assert(false);
                 };
                 h.once(['sadface'], f);
                 h.removeListener(['**'], f);
-                h.emit(['sadface'])
-                    .then(function () { done(); });
+                assert(!h.emit(['sadface']));
             });
 
-            it('should NOT trigger two level method after two star removal', function (done) {
+            it('should NOT trigger two level method after two star removal', function () {
                 var h = new H();
                 var f = function () {
                     assert(false);
                 };
                 h.once(['cash', 'act'], f);
                 h.removeListener(['**'], f);
-                h.emit(['cash', 'act'])
-                    .then(function () { done(); });
+                assert(!h.emit(['cash', 'act']));
             });
 
-            it('SHOULD trigger two level method after two star removal of different function', function (done) {
+            it('SHOULD trigger two level method after two star removal of different function', function () {
                 var h = new H();
-                var f = function () {
-                    done();
-                };
+                var f = function () {};
                 h.once(['cash', 'act'], f);
                 h.removeListener(['**'], function () {});
-                h.emit(['cash', 'act']);
+                assert(h.emit(['cash', 'act']));
             });
 
         });
 
         describe('promise listener ', function () {
 
-            it('should NOT trigger one level method after one level removal', function (done) {
+            it('should NOT trigger one level method after one level removal', function () {
                 var h = new H();
                 var f = function (msg, cb) {
                     assert(false);
                 };
                 h.on(['son'], f);
                 h.removeListener(['son'], f);
-                h.emit(['son'])
-                    .then(function () { done(); });
+                assert(h.emit(['son']));
             });
 
             it('should NOT leak after one level removal', function () {
@@ -281,106 +250,90 @@ describe('HevEmitter on', function () {
             });
 
 
-            it('SHOULD trigger one level method after one level removal of different function', function (done) {
+            it('SHOULD trigger one level method after one level removal of different function', function () {
                 var h = new H();
-                var f = function (msg, cb) {
-                    done();
-                };
+                var f = function (msg, cb) {};
                 h.on(['son'], f);
                 h.removeListener(['son'], function () {});
-                h.emit(['son']);
+                assert(h.emit(['son']));
             });
 
 
-            it('should NOT trigger one level method after one star removal', function (done) {
+            it('should NOT trigger one level method after one star removal', function () {
                 var h = new H();
                 var f = function (msg, cb) {
                     assert(false);
                 };
                 h.on(['circus'], f);
                 h.removeListener(['*'], f);
-                h.emit(['circus'])
-                    .then(function () { done(); });
+                assert(!h.emit(['circus']));
             });
 
-            it('SHOULD trigger one level method after one star removal of different function ', function (done) {
+            it('SHOULD trigger one level method after one star removal of different function ', function () {
                 var h = new H();
-                var f = function (msg, cb) {
-                    done();
-                };
+                var f = function (msg, cb) {};
                 h.on(['circus'], f);
                 h.removeListener(['*'], function () {});
-                h.emit(['circus']);
+                assert(h.emit(['circus']));
             });
 
-            it('SHOULD trigger two level method after one star removal', function (done) {
+            it('SHOULD trigger two level method after one star removal', function () {
                 var h = new H();
-                var f = function (msg, cb) {
-                    done();
-                };
+                var f = function (msg, cb) {};
                 h.on(['gore', 'leena'], f);
                 h.removeListener(['*'], f);
-                h.emit(['gore', 'leena']);
+                assert(h.emit(['gore', 'leena']));
             });
 
-            it('should NOT trigger two level method after one star removal', function (done) {
+            it('should NOT trigger two level method after one star removal', function () {
                 var h = new H();
                 var f = function (msg, cb) {
                     assert(false);
                 };
                 h.on(['squirrel', 'snake'], f);
                 h.removeListener(['*', 'snake'], f);
-                h.emit(['squirrel', 'snake'])
-                    .then(function () { done(); });
+                assert(!h.emit(['squirrel', 'snake']));
             });
 
-            it('SHOULD trigger two level method after one star removal of different function', function (done) {
+            it('SHOULD trigger two level method after one star removal of different function', function () {
                 var h = new H();
-                var f = function (msg, cb) {
-                    done();
-                };
+                var f = function (msg, cb) {};
                 h.on(['squirrel', 'snake'], f);
                 h.removeListener(['*', 'snake'], function () {});
-                h.emit(['squirrel', 'snake']);
+                assert(h.emit(['squirrel', 'snake']));
             });
 
-            it('should NOT trigger one level method after two star removal', function (done) {
+            it('should NOT trigger one level method after two star removal', function () {
                 var h = new H();
-                var f = function (msg, cb) {
-                    assert(false);
-                };
+                var f = function (msg, cb) {};
                 h.on(['sadface'], f);
                 h.removeListener(['**'], f);
-                h.emit(['sadface'])
-                    .then(function () { done(); });
+                assert(h.emit(['sadface']));
             });
 
-            it('should NOT trigger two level method after two star removal', function (done) {
+            it('should NOT trigger two level method after two star removal', function () {
                 var h = new H();
                 var f = function (msg, cb) {
                     assert(false);
                 };
                 h.on(['cash', 'act'], f);
                 h.removeListener(['**'], f);
-                h.emit(['cash', 'act'])
-                    .then(function () { done(); });
+                assert(!h.emit(['cash', 'act']));
             });
 
-            it('SHOULD trigger two level method after two star removal of different function', function (done) {
+            it('SHOULD trigger two level method after two star removal of different function', function () {
                 var h = new H();
-                var f = function (msg, cb) {
-                    done();
-                };
+                var f = function (msg, cb) {};
                 h.on(['cash', 'act'], f);
                 h.removeListener(['**'], function () {});
-                h.emit(['cash', 'act']);
+                assert(h.emit(['cash', 'act']));
             });
 
         });
 
         describe('alternate listener handle', function () {
 
-            it('should be used to remove when provided', function (done) {
+            it('should be used to remove when provided', function () {
                 var h = new H();
                 var f = function () {
                     assert(false);
@@ -388,8 +341,7 @@ describe('HevEmitter on', function () {
                 var listener = f.listener = 'house';
                 h.on(['son'], f);
                 h.removeListener(['son'], listener);
-                h.emit(['son'])
-                    .then(function () { done(); });
+                assert(!h.emit(['son']));
             });
 
         });

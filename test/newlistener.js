@@ -39,8 +39,6 @@ describe('HevEmitter newlistener', function () {
             h.on(['star'], function () {});
         });
 
-
-
         it('should be triggered when a listener is added to a "name" event, with data', function (done) {
             var h = new H();
             h.on(['newListener'], function (data) {
@@ -49,7 +47,6 @@ describe('HevEmitter newlistener', function () {
             });
             h.on(['star'], function () {});
         });
-
 
         it('should be triggered when a listener is added to a "name" event, with data.event equal to the listened to event', function (done) {
             var h = new H();

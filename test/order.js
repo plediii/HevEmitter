@@ -7,7 +7,7 @@ var assert = require('assert');
 
 describe('HevEmitter callback order', function () {
 
-    it('should trigger .on/.once callback in order of addition', function (done) {
+    it('should trigger .on/.once callback in order of addition', function () {
         var h = new H();
         var reports = [];
         h.on(['duras'], function () {
@@ -16,14 +16,11 @@ describe('HevEmitter callback order', function () {
         h.once(['duras'], function () {
             reports.push('once');
         });
-        h.emit(['duras'])
-        .then(function () {
-            assert.deepEqual(['on', 'once'], reports);
-            done();
-        });
+        h.emit(['duras']);
+        assert.deepEqual(['on', 'once'], reports);
     });
 
-    it('should trigger .once/.on callback in order of addition', function (done) {
+    it('should trigger .once/.on callback in order of addition', function () {
         var h = new H();
         var reports = [];
         h.once(['duras'], function () {
@@ -32,81 +29,60 @@ describe('HevEmitter callback order', function () {
         h.on(['duras'], function () {
             reports.push('on');
         });
-        h.emit(['duras'])
-        .then(function () {
-            assert.deepEqual(['once', 'on'], reports);
-            done();
-        });
+        h.emit(['duras']);
+        assert.deepEqual(['once', 'on'], reports);
     });
 
-    it('should trigger .on/promise callback in order of addition', function (done) {
+    it('should trigger .on/promise callback in order of addition', function () {
         var h = new H();
         var reports = [];
         h.on(['kales'], function () {
             reports.push('on');
         });
-        h.on(['kales'], function (msg, cb) {
+        h.on(['kales'], function () {
             reports.push('promise');
-            cb();
         });
-        h.emit(['kales'])
-        .then(function () {
-            assert.deepEqual(['on', 'promise'], reports);
-            done();
-        });
+        h.emit(['kales']);
+        assert.deepEqual(['on', 'promise'], reports);
     });
 
-    it('should trigger promise/.on callback in order of addition', function (done) {
+    it('should trigger promise/.on callback in order of addition', function () {
         var h = new H();
         var reports = [];
-        h.on(['kales'], function (msg, cb) {
+        h.on(['kales'], function () {
             reports.push('promise');
-            cb();
         });
         h.on(['kales'], function () {
             reports.push('on');
         });
-        h.emit(['kales'])
-        .then(function () {
-            assert.deepEqual(['promise', 'on'], reports);
-            done();
-        });
+        h.emit(['kales']);
+        assert.deepEqual(['promise', 'on'], reports);
     });
 
 
-    it('should trigger .once/promise callback in order of addition', function (done) {
+    it('should trigger .once/promise callback in order of addition', function () {
         var h = new H();
         var reports = [];
         h.once(['kitamer'], function () {
             reports.push('once');
         });
-        h.on(['kitamer'], function (msg, cb) {
+        h.on(['kitamer'], function () {
             reports.push('promise');
-            cb();
         });
-        h.emit(['kitamer'])
-        .then(function () {
-            assert.deepEqual(['once', 'promise'], reports);
-            done();
-        });
+        h.emit(['kitamer']);
+        assert.deepEqual(['once', 'promise'], reports);
     });
 
-    it('should trigger promise/.once callback in order of addition', function (done) {
+    it('should trigger promise/.once callback in order of addition', function () {
         var h = new H();
         var reports = [];
-        h.on(['kitamer'], function (msg, cb) {
+        h.on(['kitamer'], function () {
             reports.push('promise');
-            cb();
         });
         h.once(['kitamer'], function () {
             reports.push('once');
         });
-        h.emit(['kitamer'])
-        .then(function () {
-            assert.deepEqual(['promise', 'once'], reports);
-            done();
-        });
+        h.emit(['kitamer']);
+        assert.deepEqual(['promise', 'once'], reports);
     });
-
-
 });

@@ -10,18 +10,17 @@ describe('HevEmitter on', function () {
     describe('removeAllListeners', function () {
 
         describe('.on callbacks', function () {
-            it('should NOT trigger one level method after one level removal', function (done) {
+            it('should NOT trigger one level method after one level removal', function () {
                 var h = new H();
                 var f = function () {
                     assert(false);
                 };
                 h.on(['son'], f);
                 h.removeAllListeners(['son']);
-                h.emit(['son'])
-                    .then(function () { done(); });
+                assert(h.emit(['son']));
             });
 
-            it('should NOT trigger a second one level method after one level removal', function (done) {
+            it('should NOT trigger a second one level method after one level removal', function () {
                 var h = new H();
                 var f = function () {
                     assert(false);
@@ -32,55 +31,49 @@ describe('HevEmitter on', function () {
                 h.on(['son'], f);
                 h.on(['son'], g);
                 h.removeAllListeners(['son']);
-                h.emit(['son'])
-                    .then(function () { done();});
+                assert(h.emit(['son']));
             });
 
 
-            it('should NOT trigger one level method after one star removal', function (done) {
+            it('should NOT trigger one level method after one star removal', function () {
                 var h = new H();
                 var f = function () {
                     assert(false);
                 };
                 h.on(['circus'], f);
                 h.removeAllListeners(['*']);
-                h.emit(['circus'])
-                    .then(function () { done();});
+                assert(h.emit(['circus']));
             });
 
-            it('SHOULD trigger two level method after one star removal', function (done) {
+            it('SHOULD trigger two level method after one star removal', function () {
                 var h = new H();
-                var f = function () {
-                    done();
-                };
+                var f = function () {};
                 h.on(['gore', 'leena'], f);
                 h.removeAllListeners(['*']);
-                h.emit(['gore', 'leena']);
+                assert(h.emit(['gore', 'leena']));
             });
 
-            it('should NOT trigger two level method after one star removal', function (done) {
+            it('should NOT trigger two level method after one star removal', function () {
                 var h = new H();
                 var f = function () {
                     assert(false);
                 };
                 h.on(['squirrel', 'snake'], f);
                 h.removeAllListeners(['*', 'snake']);
-                h.emit(['squirrel', 'snake'])
-                    .then(function () { done();});
+                assert(!h.emit(['squirrel', 'snake']));
             });
 
-            it('should NOT trigger one level method after two star removal', function (done) {
+            it('should NOT trigger one level method after two star removal', function () {
                 var h = new H();
                 var f = function () {
                     assert(false);
                 };
                 h.on(['sadface'], f);
                 h.removeAllListeners(['**']);
-                h.emit(['sadface'])
-                    .then(function () { done();});
+                assert(h.emit(['sadface']));
             });
 
-            it('should NOT trigger a second two level method after two star removal', function (done) {
+            it('should NOT trigger a second two level method after two star removal', function () {
                 var h = new H();
                 var f = function () {
                     assert(false);
@@ -91,24 +84,22 @@ describe('HevEmitter on', function () {
                 h.on(['cash', 'act'], f);
                 h.on(['cash', 'act'], g);
                 h.removeAllListeners(['**']);
-                h.emit(['cash', 'act'])
-                    .then(function () { done();});
+                assert(!h.emit(['cash', 'act']));
             });
         });
 
         describe('.once callbacks', function () {
-            it('should NOT trigger one level method after one level removal', function (done) {
+            it('should NOT trigger one level method after one level removal', function () {
                 var h = new H();
                 var f = function () {
                     assert(false);
                 };
                 h.once(['son'], f);
                 h.removeAllListeners(['son']);
-                h.emit(['son'])
-                    .then(function () { done(); });
+                assert(!h.emit(['son']));
             });
 
-            it('should NOT trigger a second one level method after one level removal', function (done) {
+            it('should NOT trigger a second one level method after one level removal', function () {
                 var h = new H();
                 var f = function () {
                     assert(false);
@@ -119,55 +110,49 @@ describe('HevEmitter on', function () {
                 h.once(['son'], f);
                 h.once(['son'], g);
                 h.removeAllListeners(['son']);
-                h.emit(['son'])
-                    .then(function () { done();});
+                assert(!h.emit(['son']));
             });
 
 
-            it('should NOT trigger one level method after one star removal', function (done) {
+            it('should NOT trigger one level method after one star removal', function () {
                 var h = new H();
                 var f = function () {
                     assert(false);
                 };
                 h.once(['circus'], f);
                 h.removeAllListeners(['*']);
-                h.emit(['circus'])
-                    .then(function () { done();});
+                assert(!h.emit(['circus']));
             });
 
-            it('SHOULD trigger two level method after one star removal', function (done) {
+            it('SHOULD trigger two level method after one star removal', function () {
                 var h = new H();
-                var f = function () {
-                    done();
-                };
+                var f = function () {};
                 h.once(['gore', 'leena'], f);
                 h.removeAllListeners(['*']);
-                h.emit(['gore', 'leena']);
+                assert(h.emit(['gore', 'leena']));
             });
 
-            it('should NOT trigger two level method after one star removal', function (done) {
+            it('should NOT trigger two level method after one star removal', function () {
                 var h = new H();
                 var f = function () {
                     assert(false);
                 };
                 h.once(['squirrel', 'snake'], f);
                 h.removeAllListeners(['*', 'snake']);
-                h.emit(['squirrel', 'snake'])
-                    .then(function () { done();});
+                assert(!h.emit(['squirrel', 'snake']));
             });
 
-            it('should NOT trigger one level method after two star removal', function (done) {
+            it('should NOT trigger one level method after two star removal', function () {
                 var h = new H();
                 var f = function () {
                     assert(false);
                 };
                 h.once(['sadface'], f);
                 h.removeAllListeners(['**']);
-                h.emit(['sadface'])
-                    .then(function () { done();});
+                assert(!h.emit(['sadface']));
             });
 
-            it('should NOT trigger a second two level method after two star removal', function (done) {
+            it('should NOT trigger a second two level method after two star removal', function () {
                 var h = new H();
                 var f = function () {
                     assert(false);
@@ -178,8 +163,7 @@ describe('HevEmitter on', function () {
                 h.once(['cash', 'act'], f);
                 h.once(['cash', 'act'], g);
                 h.removeAllListeners(['**']);
-                h.emit(['cash', 'act'])
-                    .then(function () { done();});
+                assert(!h.emit(['cash', 'act']));
             });
         });
 
