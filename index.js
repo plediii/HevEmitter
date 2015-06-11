@@ -274,34 +274,32 @@ var listeners = function (route, eventTree) {
         return [];
     } else {
         var hash = eventTree.hash;
-        console.log('one route');
         if (head === '*') {
             var starListeners = [];
-            console.log('mapping over hash');
             var funcs = [].concat.apply([], _.map(hash, function (subtree, key) {
                 if (key === '*') {
-                    console.log('found start listeners', subtree.funcs);
-                    starListeners = subtree.funcs;
+                    starListeners = subtree.funcs.concat(starListeners);
+                    return [];
+                } if (key == '**') {
+                    starListeners = starListeners.concat(subtree.funcs);
                     return [];
                 } else {
-                    console.log('found funcs', subtree.funcs);
                     return subtree.funcs;
                 }
             }));
-            console.log('star = ', starListeners);
-            console.log('fucns = ', funcs);
             return [].concat.apply(starListeners, funcs);
         } else {
-            console.log('non star');
             var hash = eventTree.hash;
             var starListeners = [];
+            if (hash.hasOwnProperty('**')) {
+                starListeners = hash['**'].funcs;
+            }
             if (hash.hasOwnProperty('*')) {
-                starListeners = hash['*'].funcs;
+                starListeners = starListeners.concat(hash['*'].funcs);
             }
             if (hash.hasOwnProperty(head)) {
                 return starListeners.concat(hash[head].funcs);
             } else {
-                console.log('hash does not have head');
                 return starListeners;
             }
         }
