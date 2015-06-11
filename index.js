@@ -271,7 +271,30 @@ var listeners = function (route, eventTree) {
     if (head === '**') {
         return allListeners(eventTree);
     } else if (route.length > 1) {
-        return [];
+        var hash = eventTree.hash;
+        var rest = _.rest(route);
+        if (head === '*') {
+            var starListeners = [];
+            var funcs = [].concat.apply([], _.map(hash, function (subtree, key) {
+                // if (key === '*') {
+                //     starListeners = subtree.funcs.concat(starListeners);
+                //     return [];
+                // } if (key == '**') {
+                //     starListeners = starListeners.concat(subtree.funcs);
+                //     return [];
+                // } else {
+                    return listeners(rest, subtree);
+                // }
+            }));
+            return [].concat.apply(starListeners, funcs);
+        } else {
+            if (hash.hasOwnProperty(head)) {
+                return listeners(rest, hash[head]);
+            }
+            else {
+                return [];
+            }
+        }
     } else {
         var hash = eventTree.hash;
         if (head === '*') {
