@@ -34,6 +34,7 @@ describe('HevEmitter listeners', function () {
         h.on(['*'], listener);
         var listeners = h.listeners(['*']);
         assert.equal(1, listeners.length);
+        console.log('listeners = ', listeners);
         assert(_.contains(listeners, listener));
     });
 

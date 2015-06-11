@@ -268,7 +268,46 @@ var listenerFuncs = function (funcs) {
 
 var listeners = function (route, eventTree) {
     var head = _.head(route);
-    var starListeners;
+    if (head === '**') {
+        return allListeners(eventTree);
+    } else if (route.length > 1) {
+        return [];
+    } else {
+        var hash = eventTree.hash;
+        console.log('one route');
+        if (head === '*') {
+            var starListeners = [];
+            console.log('mapping over hash');
+            var funcs = [].concat.apply([], _.map(hash, function (subtree, key) {
+                if (key === '*') {
+                    console.log('found start listeners', subtree.funcs);
+                    starListeners = subtree.funcs;
+                    return [];
+                } else {
+                    console.log('found funcs', subtree.funcs);
+                    return subtree.funcs;
+                }
+            }));
+            console.log('star = ', starListeners);
+            console.log('fucns = ', funcs);
+            return [].concat.apply(starListeners, funcs);
+        } else {
+            console.log('non star');
+            var hash = eventTree.hash;
+            var starListeners = [];
+            if (hash.hasOwnProperty('*')) {
+                starListeners = hash['*'].funcs;
+            }
+            if (hash.hasOwnProperty(head)) {
+                return starListeners.concat(hash[head].funcs);
+            } else {
+                console.log('hash does not have head');
+                return starListeners;
+            }
+        }
+    }
+
+
     if (route.length > 1) {
         var rest = _.rest(route);
         if (head == '*') {
@@ -381,13 +420,13 @@ _.extend(EventEmitter.prototype, {
             , listener: cb
         });
         if (route[0] === 'newListener') {
-            addCallback(route.slice(1), this._newListenerTree, adaptCallback(cb));
+            addCallback(route.slice(1), this._newListenerTree, cb);
         }
         else if (route[0] === 'error') {
-            addCallback(route.slice(1), this._errorTree, adaptCallback(cb));
+            addCallback(route.slice(1), this._errorTree, cb);
         }
         else {
-            addCallback(route, this._eventTree, adaptCallback(cb));
+            addCallback(route, this._eventTree, cb);
         }
     }
     , emit: function (route, msg) {
@@ -444,16 +483,7 @@ _.extend(EventEmitter.prototype, {
     }
     , listeners: function (route) {
         route = this.parseRoute(route);
-        if (route[0] == '**') {
-            return listenerFuncs(allListeners(this._eventTree));
-        }
-        else {
-            var starListeners = [];
-            if (this._eventTree.hash.hasOwnProperty('**')) {
-                starListeners = this._eventTree.hash['**'].funcs;
-            }
-            return listenerFuncs(starListeners.concat(listeners(route, this._eventTree)));
-        }
+        return listeners(route, this._eventTree);
     }
     , list: function () {
         return list(this._eventTree, []);
