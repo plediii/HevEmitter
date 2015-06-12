@@ -12,22 +12,90 @@ describe('HevEmitter listeners', function () {
         h = new H();
     });
 
+    var listenerShouldMatch = function (listenerRoute, matchRoute) {
+        it('"' + listenerRoute.join('/') + '" should be returned by listeners of "' + matchRoute.join('/') + '"', function () {
+            var f = function () {};
+            h.on(listenerRoute, f);
+            var l = h.listeners(matchRoute);
+            assert.equal(1, listeners.length);
+            assert(_.contains(l, f));
+        });
+    };
 
-    it('should return a "name" listener for "name"', function () {
-        var listener = function () {};
-        h.on(['tiger'], listener);
-        var listeners = h.listeners(['tiger']);
-        assert.equal(1, listeners.length);
-        assert(_.contains(listeners, listener));
+    var listenerShouldNotMatch = function (listenerRoute, matchRoute) {
+        it('"' + listenerRoute.join('/') + '" should be returned by listeners of "' + matchRoute.join('/') + '"', function () {
+            var f = function () {};
+            h.on(listenerRoute, f);
+            var l = h.listeners(matchRoute);
+            assert.equal(0, listeners.length);
+        });
+    };
+
+    _.each([
+        [['name'], ['name']]
+        , [['name'], ['*']]
+        , [['name'], ['**']]
+        , [['*'], ['name']]
+        , [['*'], ['*']]
+        , [['*'], ['**']]
+        , [['**'], ['name']]
+        , [['**'], ['*']]
+        , [['**'], ['**']]
+
+        , [['name', 'name2'], ['name', 'name2']]
+        , [['name', 'name2'], ['*', 'name2']]
+        , [['name', 'name2'], ['name', '*']]
+        , [['name', 'name2'], ['**']]
+        , [['name', 'name2'], ['name', '**']]
+
+        , [['*', 'name2'], ['name', 'name2']]
+        , [['*', 'name2'], ['*', 'name2']]
+        , [['*', 'name2'], ['name', '*']]
+        , [['*', 'name2'], ['**']]
+        , [['*', 'name2'], ['name', '**']]
+
+        , [['name', '*'], ['name', 'name2']]
+        , [['name', '*'], ['*', 'name2']]
+        , [['name', '*'], ['name', '*']]
+        , [['name', '*'], ['**']]
+        , [['name', '*'], ['name', '**']]
+
+        , [['**'], ['name', 'name2']]
+        , [['**'], ['*', 'name2']]
+        , [['**'], ['name', '*']]
+        , [['**'], ['**']]
+        , [['**'], ['name', '**']]
+    ], function (args) {
+        listenerShouldMatch.apply(args);
     });
 
-    it('should return not return a "name" listener for different "name"', function () {
-        var listener = function () {};
-        h.on(['quarters'], listener);
-        var listeners = h.listeners(['way']);
-        assert.equal(0, listeners.length);
+    _.each([
+        [['name'], ['otherName']]
+        , [['name'], ['name', '**']]
+
+        , [['name', 'otherName'], ['name', 'anotherName']]
+        , [['otherName', 'name'], ['anotherName', 'name']]
+        , [['name', 'name2'], ['*', 'anotherName']]
+        , [['name', 'name2'], ['anotherName', '*']]
+        , [['name', 'name2'], ['anotherName', '**']]
+
+        , [['*', 'name2'], ['name', 'anotherName']]
+        , [['*', 'name2'], ['*', 'anotherName']]
+
+        , [['name', '*'], ['anotherName', 'name2']]
+        , [['name', '*'], ['anotherName', '*']]
+        , [['name', '*'], ['**']]
+        , [['name', '*'], ['anotherName', '**']]
+
+    ], function (args) {
+        listenerShouldMatch.apply(args);
     });
 
+    _.each([
+        ['name'], ['otherName']
+    ], function (args) {
+        listenerNotShouldMatch.apply(args);
+    });
 
     it('should return a "*" listener for "*"', function () {
         var listener = function () {};
