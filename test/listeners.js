@@ -87,12 +87,36 @@ describe('HevEmitter listeners', function () {
         , [['name', '*'], ['**']]
         , [['name', '*'], ['anotherName', '**']]
 
-    ], function (args) {
-        listenerShouldMatch.apply(args);
-    });
+        , [['name', 'name2'], ['name', 'name2', '**']]
+        , [['name', 'name2'], ['*', 'name2', '**']]
+        , [['name', 'name2'], ['name', '*', '**']]
 
-    _.each([
-        ['name'], ['otherName']
+        , [['*', 'name2'], ['name', 'name2', '**']]
+        , [['*', 'name2'], ['*', 'name2', '**']]
+        , [['*', 'name2'], ['name', '*', '**']]
+
+        , [['name', '*'], ['name', 'name2', '**']]
+        , [['name', '*'], ['*', 'name2', '**']]
+        , [['name', '*'], ['name', '*', '**']]
+
+        , [['name', 'name2', '**'], ['name', 'name2']]
+        , [['name', 'name2', '**'], ['*', 'name2']]
+        , [['name', 'name2', '**'], ['name', '*']]
+        , [['name', 'name2', '**'], ['**']]
+        , [['name', 'name2', '**'], ['name', '**']]
+
+        , [['*', 'name2', '**'], ['name', 'name2']]
+        , [['*', 'name2', '**'], ['*', 'name2']]
+        , [['*', 'name2', '**'], ['name', '*']]
+        , [['*', 'name2', '**'], ['**']]
+        , [['*', 'name2', '**'], ['name', '**']]
+
+        , [['name', '*', '**'], ['name', 'name2']]
+        , [['name', '*', '**'], ['*', 'name2']]
+        , [['name', '*', '**'], ['name', '*']]
+        , [['name', '*', '**'], ['**']]
+        , [['name', '*', '**'], ['name', '**']]
+
     ], function (args) {
         listenerNotShouldMatch.apply(args);
     });
