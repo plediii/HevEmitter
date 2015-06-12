@@ -295,7 +295,7 @@ var listeners = function (route, eventTree) {
                         starListeners = listeners(rest, subtree).concat(starListeners);
                         return [];
                     } if (key == '**') {
-                        starListeners = allListeners(subtree).concat(starListeners);
+                        starListeners = subtree.funcs.concat(starListeners);
                         return [];
                     } else {
                         return listeners(rest, subtree);
