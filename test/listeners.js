@@ -211,6 +211,8 @@ describe('HevEmitter listeners', function () {
                 h.on(['command'], f);
                 h.on(['command'], g);
                 var l = h.listeners(['command']);
+                assert(_.contains(l, f));
+                assert(_.contains(l, g));
                 assert(_.indexOf(l, f) < _.indexOf(l, g));
             });
 
@@ -264,6 +266,8 @@ describe('HevEmitter listeners', function () {
                 h.on(['*'], g);
                 h.on(['command'], f);
                 var l = h.listeners(['*']);
+                assert(_.contains(l, f));
+                assert(_.contains(l, g));
                 assert(_.indexOf(l, g) < _.indexOf(l, f));
             });
 
@@ -273,6 +277,8 @@ describe('HevEmitter listeners', function () {
                 h.on(['command'], f);
                 h.on(['*'], g);
                 var l = h.listeners(['*']);
+                assert(_.contains(l, f));
+                assert(_.contains(l, g));
                 assert(_.indexOf(l, g) < _.indexOf(l, f));
             });
 
@@ -282,6 +288,8 @@ describe('HevEmitter listeners', function () {
                 h.on(['*', 'professor'], g);
                 h.on(['command', 'professor'], f);
                 var l = h.listeners(['*', 'professor']);
+                assert(_.contains(l, f));
+                assert(_.contains(l, g));
                 assert(_.indexOf(l, g) < _.indexOf(l, f));
             });
 
@@ -291,7 +299,32 @@ describe('HevEmitter listeners', function () {
                 h.on(['command', 'professor'], f);
                 h.on(['*', 'professor'], g);
                 var l = h.listeners(['*', 'professor']);
+                assert(_.contains(l, f));
+                assert(_.contains(l, g));
                 assert(_.indexOf(l, g) < _.indexOf(l, f));
+            });
+
+
+            it('should return ** and * listeners in order on two level *', function () {
+                var f = function () {};
+                var g = function () {};
+                h.on(['available', 'professor'], g);
+                h.on(['**'], f);
+                var l = h.listeners(['*', 'professor']);
+                assert(_.contains(l, f));
+                assert(_.contains(l, g));
+                assert(_.indexOf(l, f) < _.indexOf(l, g));
+            });
+
+            it('should return ** and * listeners in order specified in opposite', function () {
+                var f = function () {};
+                var g = function () {};
+                h.on(['**'], f);
+                h.on(['available', 'professor'], g);
+                var l = h.listeners(['*', 'professor']);
+                assert(_.contains(l, f));
+                assert(_.contains(l, g));
+                assert(_.indexOf(l, f) < _.indexOf(l, g));
             });
 
             it('should return two "on" listeners in order', function () {
