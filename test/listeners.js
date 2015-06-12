@@ -34,7 +34,6 @@ describe('HevEmitter listeners', function () {
         h.on(['*'], listener);
         var listeners = h.listeners(['*']);
         assert.equal(1, listeners.length);
-        console.log('listeners = ', listeners);
         assert(_.contains(listeners, listener));
     });
 
@@ -142,13 +141,14 @@ describe('HevEmitter listeners', function () {
         assert(_.contains(listeners, listener));
     });
 
-    it('should return a "name/name" listener for "name/name/**"', function () {
-        var listener = function () {};
-        h.on(['wouldnt', 'let'], listener);
-        var listeners = h.listeners(['wouldnt', 'let', '**']);
-        assert.equal(1, listeners.length);
-        assert(_.contains(listeners, listener));
-    });
+    // ** shoud no longer match empty set
+    // it('should return a "name/name" listener for "name/name/**"', function () {
+    //     var listener = function () {};
+    //     h.on(['wouldnt', 'let'], listener);
+    //     var listeners = h.listeners(['wouldnt', 'let', '**']);
+    //     assert.equal(1, listeners.length);
+    //     assert(_.contains(listeners, listener));
+    // });
 
     it('should return a "name/name" listener for "name/*"', function () {
         var listener = function () {};
