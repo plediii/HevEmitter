@@ -257,7 +257,21 @@ var adaptCallback = function (cb) {
 };
 
 var allListeners = function (eventTree) {
-    return [].concat.apply(eventTree.funcs, _.map(eventTree.hash, allListeners));
+    var listeners = [];
+    var hash = eventTree.hash;
+    if (hash.hasOwnProperty('**')) {
+        listeners = hash['**'].funcs;
+    }
+    if (hash.hasOwnProperty('*')) {
+        listeners = listeners.concat(hash['*'].funcs);
+    }
+    return [].concat.apply(listeners, _.map(eventTree.hash, function (subtree, key) {
+        if (key !== '**' && key != '*') {
+            return [].concat.apply(subtree.funcs, allListeners(subtree));
+        } else {
+            return [];
+        }
+    }));
 };
 
 var listenerFuncs = function (funcs) {
