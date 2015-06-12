@@ -270,64 +270,69 @@ var listeners = function (route, eventTree) {
     var head = _.head(route);
     if (head === '**') {
         return allListeners(eventTree);
-    } else if (route.length > 1) {
-        var hash = eventTree.hash;
-        var rest = _.rest(route);
-        if (head === '*') {
-            var starListeners = [];
-            var funcs = [].concat.apply([], _.map(hash, function (subtree, key) {
-                // if (key === '*') {
-                //     starListeners = subtree.funcs.concat(starListeners);
-                //     return [];
-                // } if (key == '**') {
-                //     starListeners = starListeners.concat(subtree.funcs);
-                //     return [];
-                // } else {
-                    return listeners(rest, subtree);
-                // }
-            }));
-            return [].concat.apply(starListeners, funcs);
-        } else {
-            if (hash.hasOwnProperty(head)) {
-                return listeners(rest, hash[head]);
-            }
-            else {
-                return [];
-            }
-        }
     } else {
-        var hash = eventTree.hash;
-        if (head === '*') {
-            var starListeners = [];
-            var funcs = [].concat.apply([], _.map(hash, function (subtree, key) {
-                if (key === '*') {
-                    starListeners = subtree.funcs.concat(starListeners);
-                    return [];
-                } if (key == '**') {
-                    starListeners = starListeners.concat(subtree.funcs);
-                    return [];
-                } else {
-                    return subtree.funcs;
+        if (route.length > 1) {
+            var hash = eventTree.hash;
+            var rest = _.rest(route);
+            if (head === '*') {
+                var starListeners = [];
+                var funcs = [].concat.apply([], _.map(hash, function (subtree, key) {
+                    // if (key === '*') {
+                    //     starListeners = subtree.funcs.concat(starListeners);
+                    //     return [];
+                    // } if (key == '**') {
+                    //     starListeners = starListeners.concat(subtree.funcs);
+                    //     return [];
+                    // } else {
+                    return listeners(rest, subtree);
+                    // }
+                }));
+                return [].concat.apply(starListeners, funcs);
+            } else {
+                var starListeners = [];
+                if (hash.hasOwnProperty('**')) {
+                    starListeners = hash['**'].funcs;
                 }
-            }));
-            return [].concat.apply(starListeners, funcs);
+                if (hash.hasOwnProperty(head)) {
+                    return listeners(rest, hash[head]);
+                }
+                else {
+                    return starListeners;
+                }
+            }
         } else {
             var hash = eventTree.hash;
-            var starListeners = [];
-            if (hash.hasOwnProperty('**')) {
-                starListeners = hash['**'].funcs;
-            }
-            if (hash.hasOwnProperty('*')) {
-                starListeners = starListeners.concat(hash['*'].funcs);
-            }
-            if (hash.hasOwnProperty(head)) {
-                return starListeners.concat(hash[head].funcs);
+            if (head === '*') {
+                var starListeners = [];
+                var funcs = [].concat.apply([], _.map(hash, function (subtree, key) {
+                    if (key === '*') {
+                        starListeners = subtree.funcs.concat(starListeners);
+                        return [];
+                    } if (key == '**') {
+                        starListeners = starListeners.concat(subtree.funcs);
+                        return [];
+                    } else {
+                        return subtree.funcs;
+                    }
+                }));
+                return [].concat.apply(starListeners, funcs);
             } else {
-                return starListeners;
+                var hash = eventTree.hash;
+                var starListeners = [];
+                if (hash.hasOwnProperty('**')) {
+                    starListeners = hash['**'].funcs;
+                }
+                if (hash.hasOwnProperty('*')) {
+                    starListeners = starListeners.concat(hash['*'].funcs);
+                }
+                if (hash.hasOwnProperty(head)) {
+                    return starListeners.concat(hash[head].funcs);
+                } else {
+                    return starListeners;
+                }
             }
         }
     }
-
 
     if (route.length > 1) {
         var rest = _.rest(route);
