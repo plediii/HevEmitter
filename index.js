@@ -291,15 +291,15 @@ var listeners = function (route, eventTree) {
             if (head === '*') {
                 var starListeners = [];
                 var funcs = [].concat.apply([], _.map(hash, function (subtree, key) {
-                    // if (key === '*') {
-                    //     starListeners = subtree.funcs.concat(starListeners);
-                    //     return [];
+                    if (key === '*') {
+                        starListeners = listeners(rest, subtree).concat(starListeners);
+                        return [];
                     // } if (key == '**') {
                     //     starListeners = starListeners.concat(subtree.funcs);
                     //     return [];
-                    // } else {
-                    return listeners(rest, subtree);
-                    // }
+                    } else {
+                        return listeners(rest, subtree);
+                    }
                 }));
                 return [].concat.apply(starListeners, funcs);
             } else {
