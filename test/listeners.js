@@ -481,4 +481,556 @@ describe('HevEmitter listeners', function () {
 
     });
 
+    describe('2 level listener', function () {
+
+        describe('name/name', function () {
+
+            it('should be returned for name/name', function () {
+                var f = function () {};
+                h.on(['bug', 'covers'], f);
+                var l = h.listeners(['bug', 'covers']);
+                assert.equal(1, l.length);
+                assert(_.contains(l, f));
+            });
+
+            it('should not be returned for name/othername', function () {
+                var f = function () {};
+                h.on(['bug', 'coverz'], f);
+                var l = h.listeners(['bug', 'covers']);
+                assert.equal(0, l.length);
+            });
+
+            it('should not be returned for othername/name', function () {
+                var f = function () {};
+                h.on(['bugz', 'coverz'], f);
+                var l = h.listeners(['bug', 'coverz']);
+                assert.equal(0, l.length);
+            });
+
+            it('should be returned for name/*', function () {
+                var f = function () {};
+                h.on(['bugz', 'coverz'], f);
+                var l = h.listeners(['bugz', '*']);
+                assert.equal(1, l.length);
+                assert(_.contains(l, f));
+            });
+
+            it('should be returned for name/*, after name/*', function () {
+                var f = function () {};
+                var g = function () {};
+                h.on(['bugz', 'coverz'], f);
+                h.on(['bugz', '*'], g);
+                var l = h.listeners(['bugz', '*']);
+                assert.equal(2, l.length);
+                assert(_.contains(l, f));
+                assert(_.contains(l, g));
+                assert(_.indexOf(l, g) < _.indexOf(l, f));
+            });
+
+            it('should be returned for name/*, after name/* (opposite order)', function () {
+                var f = function () {};
+                var g = function () {};
+                h.on(['bugz', 'coverz'], f);
+                h.on(['bugz', '*'], g);
+                var l = h.listeners(['bugz', '*']);
+                assert.equal(2, l.length);
+                assert(_.contains(l, f));
+                assert(_.contains(l, g));
+                assert(_.indexOf(l, g) < _.indexOf(l, f));
+            });
+
+
+            it('should be returned for name/*, after */name', function () {
+                var f = function () {};
+                var g = function () {};
+                h.on(['bugz', 'coverz'], f);
+                h.on(['*', 'coverz'], g);
+                var l = h.listeners(['bugz', '*']);
+                assert.equal(2, l.length);
+                assert(_.contains(l, f));
+                assert(_.contains(l, g));
+                assert(_.indexOf(l, g) < _.indexOf(l, f));
+            });
+
+            it('should be returned for name/*, after */name, (opposite order)', function () {
+                var f = function () {};
+                var g = function () {};
+                h.on(['*', 'coverz'], g);
+                h.on(['bugz', 'coverz'], f);
+                var l = h.listeners(['bugz', '*']);
+                assert.equal(2, l.length);
+                assert(_.contains(l, f));
+                assert(_.contains(l, g));
+                assert(_.indexOf(l, g) < _.indexOf(l, f));
+            });
+
+            it('should be returned for name/*, after */**', function () {
+                var f = function () {};
+                var g = function () {};
+                h.on(['bugz', 'coverz'], f);
+                h.on(['*', '**'], g);
+                var l = h.listeners(['bugz', '*']);
+                assert.equal(2, l.length);
+                assert(_.contains(l, f));
+                assert(_.contains(l, g));
+                assert(_.indexOf(l, g) < _.indexOf(l, f));
+            });
+
+            it('should be returned for name/*, after */**, (opposite order)', function () {
+                var f = function () {};
+                var g = function () {};
+                h.on(['*', '**'], g);
+                h.on(['bugz', 'coverz'], f);
+                var l = h.listeners(['bugz', '*']);
+                assert.equal(2, l.length);
+                assert(_.contains(l, f));
+                assert(_.contains(l, g));
+                assert(_.indexOf(l, g) < _.indexOf(l, f));
+            });
+
+            it('should be returned for name/*, after **', function () {
+                var f = function () {};
+                var g = function () {};
+                h.on(['bugz', 'coverz'], f);
+                h.on(['**'], g);
+                var l = h.listeners(['bugz', '*']);
+                assert.equal(2, l.length);
+                assert(_.contains(l, f));
+                assert(_.contains(l, g));
+                assert(_.indexOf(l, g) < _.indexOf(l, f));
+            });
+
+            it('should be returned for name/*, after */**, (opposite order)', function () {
+                var f = function () {};
+                var g = function () {};
+                h.on(['**'], g);
+                h.on(['bugz', 'coverz'], f);
+                var l = h.listeners(['bugz', '*']);
+                assert.equal(2, l.length);
+                assert(_.contains(l, f));
+                assert(_.contains(l, g));
+                assert(_.indexOf(l, g) < _.indexOf(l, f));
+            });
+
+
+            it('should be returned for */name', function () {
+                var f = function () {};
+                h.on(['bugz', 'coverz'], f);
+                var l = h.listeners(['*', 'coverz']);
+                assert.equal(1, l.length);
+                assert(_.contains(l, f));
+            });
+
+
+            it('should be returned for */name, after name/*', function () {
+                var f = function () {};
+                var g = function () {};
+                h.on(['bugz', 'coverz'], f);
+                h.on(['bugz', '*'], g);
+                var l = h.listeners(['*', 'coverz']);
+                assert.equal(2, l.length);
+                assert(_.contains(l, f));
+                assert(_.contains(l, g));
+                assert(_.indexOf(l, g) < _.indexOf(l, f));
+            });
+
+            it('should be returned for */name, after name/* (opposite order)', function () {
+                var f = function () {};
+                var g = function () {};
+                h.on(['bugz', 'coverz'], f);
+                h.on(['bugz', '*'], g);
+                var l = h.listeners(['*', 'coverz']);
+                assert.equal(2, l.length);
+                assert(_.contains(l, f));
+                assert(_.contains(l, g));
+                assert(_.indexOf(l, g) < _.indexOf(l, f));
+            });
+
+
+            it('should be returned for */name, after */name', function () {
+                var f = function () {};
+                var g = function () {};
+                h.on(['bugz', 'coverz'], f);
+                h.on(['bugz', '*'], g);
+                var l = h.listeners(['*', 'coverz']);
+                assert.equal(2, l.length);
+                assert(_.contains(l, f));
+                assert(_.contains(l, g));
+                assert(_.indexOf(l, g) < _.indexOf(l, f));
+            });
+
+            it('should be returned for */name, after */name, (opposite order)', function () {
+                var f = function () {};
+                var g = function () {};
+                h.on(['bugz', '*'], g);
+                h.on(['bugz', 'coverz'], f);
+                var l = h.listeners(['*', 'coverz']);
+                assert.equal(2, l.length);
+                assert(_.contains(l, f));
+                assert(_.contains(l, g));
+                assert(_.indexOf(l, g) < _.indexOf(l, f));
+            });
+
+            it('should be returned for */name, after */**', function () {
+                var f = function () {};
+                var g = function () {};
+                h.on(['bugz', 'coverz'], f);
+                h.on(['*', '**'], g);
+                var l = h.listeners(['*', 'coverz']);
+                assert.equal(2, l.length);
+                assert(_.contains(l, f));
+                assert(_.contains(l, g));
+                assert(_.indexOf(l, g) < _.indexOf(l, f));
+            });
+
+            it('should be returned for */name, after */**, (opposite order)', function () {
+                var f = function () {};
+                var g = function () {};
+                h.on(['*', '**'], g);
+                h.on(['bugz', 'coverz'], f);
+                var l = h.listeners(['*', 'coverz']);
+                assert.equal(2, l.length);
+                assert(_.contains(l, f));
+                assert(_.contains(l, g));
+                assert(_.indexOf(l, g) < _.indexOf(l, f));
+            });
+            
+            it('should be returned for */name, after **', function () {
+                var f = function () {};
+                var g = function () {};
+                h.on(['bugz', 'coverz'], f);
+                h.on(['**'], g);
+                var l = h.listeners(['*', 'coverz']);
+                assert.equal(2, l.length);
+                assert(_.contains(l, f));
+                assert(_.contains(l, g));
+                assert(_.indexOf(l, g) < _.indexOf(l, f));
+            });
+
+            it('should be returned for */name, after */**, (opposite order)', function () {
+                var f = function () {};
+                var g = function () {};
+                h.on(['**'], g);
+                h.on(['bugz', 'coverz'], f);
+                var l = h.listeners(['*', 'coverz']);
+                assert.equal(2, l.length);
+                assert(_.contains(l, f));
+                assert(_.contains(l, g));
+                assert(_.indexOf(l, g) < _.indexOf(l, f));
+            });
+
+            it('should be returned for name/**', function () {
+                var f = function () {};
+                h.on(['bugz', 'coverz'], f);
+                var l = h.listeners(['bugz', '**']);
+                assert.equal(1, l.length);
+                assert(_.contains(l, f));
+            });
+
+            it('should be returned for **', function () {
+                var f = function () {};
+                h.on(['bugz', 'coverz'], f);
+                var l = h.listeners(['**']);
+                assert.equal(1, l.length);
+                assert(_.contains(l, f));
+            });
+
+            describe('ordering', function () {
+
+                it('should come after name/*', function () {
+                    var f = function () {};
+                    var g = function () {};
+                    h.on(['busy', '*'], g);
+                    h.on(['busy', 'bug'], f);
+                    var l = h.listeners(['**']);
+                    assert(_.indexOf(l, g) < _.indexOf(l, f));
+                });
+
+                it('should come after name/* (other insertion order)', function () {
+                    var f = function () {};
+                    var g = function () {};
+                    h.on(['busy', 'bug'], f);
+                    h.on(['busy', '*'], g);
+                    var l = h.listeners(['**']);
+                    assert(_.indexOf(l, g) < _.indexOf(l, f));
+                });
+
+                it('should come after */name', function () {
+                    var f = function () {};
+                    var g = function () {};
+                    h.on(['*', 'bug'], g);
+                    h.on(['busy', 'bug'], f);
+                    var l = h.listeners(['**']);
+                    assert(_.indexOf(l, g) < _.indexOf(l, f));
+                });
+
+                it('should come after name/* (other insertion order)', function () {
+                    var f = function () {};
+                    var g = function () {};
+                    h.on(['busy', 'bug'], f);
+                    h.on(['busy', '*'], g);
+                    var l = h.listeners(['**']);
+                    assert(_.indexOf(l, g) < _.indexOf(l, f));
+                });
+
+            });
+
+        });
+
+        describe('*/name', function () {
+
+            it('should be returned for name/name', function () {
+                var f = function () {};
+                h.on(['*', 'covers'], f);
+                var l = h.listeners(['bug', 'covers']);
+                assert.equal(1, l.length);
+                assert(_.contains(l, f));
+            });
+
+            it('should not be returned for name/othername', function () {
+                var f = function () {};
+                h.on(['*', 'coverz'], f);
+                var l = h.listeners(['bug', 'covers']);
+                assert.equal(0, l.length);
+            });
+
+            it('should be returned for othername/name', function () {
+                var f = function () {};
+                h.on(['*', 'coverz'], f);
+                var l = h.listeners(['bugz', 'coverz']);
+                assert.equal(0, l.length);
+            });
+
+            it('should be returned for name/*', function () {
+                var f = function () {};
+                h.on(['*', 'coverz'], f);
+                var l = h.listeners(['bugz', '*']);
+                assert.equal(1, l.length);
+                assert(_.contains(l, f));
+            });
+
+            it('should be returned for */name', function () {
+                var f = function () {};
+                h.on(['*', 'coverz'], f);
+                var l = h.listeners(['*', 'coverz']);
+                assert.equal(1, l.length);
+                assert(_.contains(l, f));
+            });
+
+            it('should be returned for name/**', function () {
+                var f = function () {};
+                h.on(['*', 'coverz'], f);
+                var l = h.listeners(['bugz', '**']);
+                assert.equal(1, l.length);
+                assert(_.contains(l, f));
+            });
+
+            it('should be returned for **', function () {
+                var f = function () {};
+                h.on(['*', 'coverz'], f);
+                var l = h.listeners(['**']);
+                assert.equal(1, l.length);
+                assert(_.contains(l, f));
+            });
+
+        });
+
+        describe('name/*', function () {
+
+            it('should be returned for name/name', function () {
+                var f = function () {};
+                h.on(['bug', '*'], f);
+                var l = h.listeners(['bug', 'covers']);
+                assert.equal(1, l.length);
+                assert(_.contains(l, f));
+            });
+
+            it('should be returned for name/othername', function () {
+                var f = function () {};
+                h.on(['bug', '*'], f);
+                var l = h.listeners(['bug', 'covers']);
+                assert.equal(1, l.length);
+            });
+
+            it('should not be returned for othername/name', function () {
+                var f = function () {};
+                h.on(['bug', '*'], f);
+                var l = h.listeners(['bugz', 'coverz']);
+                assert.equal(0, l.length);
+            });
+
+            it('should be returned for name/*', function () {
+                var f = function () {};
+                h.on(['bug', '*'], f);
+                var l = h.listeners(['bug', '*']);
+                assert.equal(1, l.length);
+                assert(_.contains(l, f));
+            });
+
+            it('should be returned for */name', function () {
+                var f = function () {};
+                h.on(['bug', '*'], f);
+                var l = h.listeners(['*', 'coverz']);
+                assert.equal(1, l.length);
+                assert(_.contains(l, f));
+            });
+
+            it('should be returned for name/**', function () {
+                var f = function () {};
+                h.on(['bug', '*'], f);
+                var l = h.listeners(['bug', '**']);
+                assert.equal(1, l.length);
+                assert(_.contains(l, f));
+            });
+
+            it('should be returned for **', function () {
+                var f = function () {};
+                h.on(['bug', '*'], f);
+                var l = h.listeners(['**']);
+                assert.equal(1, l.length);
+                assert(_.contains(l, f));
+            });
+
+        });
+
+        describe('name/*', function () {
+
+            it('should be returned for name/name', function () {
+                var f = function () {};
+                h.on(['bug', '**'], f);
+                var l = h.listeners(['bug', 'covers']);
+                assert.equal(1, l.length);
+                assert(_.contains(l, f));
+            });
+
+            it('should be returned for name/othername', function () {
+                var f = function () {};
+                h.on(['bug', '**'], f);
+                var l = h.listeners(['bug', 'covers']);
+                assert.equal(1, l.length);
+            });
+
+            it('should not be returned for othername/name', function () {
+                var f = function () {};
+                h.on(['bug', '**'], f);
+                var l = h.listeners(['bugz', 'coverz']);
+                assert.equal(0, l.length);
+            });
+
+            it('should be returned for name/*', function () {
+                var f = function () {};
+                h.on(['bug', '**'], f);
+                var l = h.listeners(['bug', '*']);
+                assert.equal(1, l.length);
+                assert(_.contains(l, f));
+            });
+
+            it('should be returned for */name', function () {
+                var f = function () {};
+                h.on(['bug', '**'], f);
+                var l = h.listeners(['*', 'coverz']);
+                assert.equal(1, l.length);
+                assert(_.contains(l, f));
+            });
+
+            it('should be returned for name/**', function () {
+                var f = function () {};
+                h.on(['bug', '**'], f);
+                var l = h.listeners(['bug', '**']);
+                assert.equal(1, l.length);
+                assert(_.contains(l, f));
+            });
+
+            it('should be returned for **', function () {
+                var f = function () {};
+                h.on(['bug', '**'], f);
+                var l = h.listeners(['**']);
+                assert.equal(1, l.length);
+                assert(_.contains(l, f));
+            });
+
+        });
+
+        describe('*/**', function () {
+
+            it('should be returned for name/name', function () {
+                var f = function () {};
+                h.on(['*', '**'], f);
+                var l = h.listeners(['bug', 'covers']);
+                assert.equal(1, l.length);
+                assert(_.contains(l, f));
+            });
+
+            it('should be returned for name/othername', function () {
+                var f = function () {};
+                h.on(['*', '**'], f);
+                var l = h.listeners(['bug', 'covers']);
+                assert.equal(1, l.length);
+            });
+
+            it('should be returned for name/*', function () {
+                var f = function () {};
+                h.on(['*', '**'], f);
+                var l = h.listeners(['bug', '*']);
+                assert.equal(1, l.length);
+                assert(_.contains(l, f));
+            });
+
+            it('should be returned for */name', function () {
+                var f = function () {};
+                h.on(['*', '**'], f);
+                var l = h.listeners(['*', 'coverz']);
+                assert.equal(1, l.length);
+                assert(_.contains(l, f));
+            });
+
+            it('should be returned for name/**', function () {
+                var f = function () {};
+                h.on(['*', '**'], f);
+                var l = h.listeners(['bug', '**']);
+                assert.equal(1, l.length);
+                assert(_.contains(l, f));
+            });
+
+            it('should be returned for **', function () {
+                var f = function () {};
+                h.on(['*', '**'], f);
+                var l = h.listeners(['**']);
+                assert.equal(1, l.length);
+                assert(_.contains(l, f));
+            });
+
+            it('should not be returned for **', function () {
+                var f = function () {};
+                h.on(['*', '**'], f);
+                var l = h.listeners(['*']);
+                assert.equal(0, l.length);
+            });
+
+        });
+
+        describe('ordering', function () {
+
+            /*
+
+            name,* < name,name
+            *,name < name,name
+            *,** < name,name
+            ** < name,name
+
+            *, name < name,*
+            *,** < name,*
+            ** < name,*
+
+            *,** < *,name 
+            ** < *,name
+            
+            ** < *,**
+            
+              */
+
+        });
+
+    });
+
 });
