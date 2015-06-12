@@ -261,8 +261,8 @@ describe('HevEmitter listeners', function () {
             it('should return specific and * listeners in order', function () {
                 var f = function () {};
                 var g = function () {};
-                h.on(['command'], f);
                 h.on(['*'], g);
+                h.on(['command'], f);
                 var l = h.listeners(['*']);
                 assert(_.indexOf(l, g) < _.indexOf(l, f));
             });
@@ -270,9 +270,27 @@ describe('HevEmitter listeners', function () {
             it('should return specific and * listeners in order specified in opposite', function () {
                 var f = function () {};
                 var g = function () {};
-                h.on(['*'], g);
                 h.on(['command'], f);
+                h.on(['*'], g);
                 var l = h.listeners(['*']);
+                assert(_.indexOf(l, g) < _.indexOf(l, f));
+            });
+
+            it('should return specific and * listeners in order on two level *', function () {
+                var f = function () {};
+                var g = function () {};
+                h.on(['*', 'professor'], g);
+                h.on(['command', 'professor'], f);
+                var l = h.listeners(['*', 'professor']);
+                assert(_.indexOf(l, g) < _.indexOf(l, f));
+            });
+
+            it('should return specific and * listeners in order specified in opposite', function () {
+                var f = function () {};
+                var g = function () {};
+                h.on(['command', 'professor'], f);
+                h.on(['*', 'professor'], g);
+                var l = h.listeners(['*', 'professor']);
                 assert(_.indexOf(l, g) < _.indexOf(l, f));
             });
 
@@ -353,7 +371,7 @@ describe('HevEmitter listeners', function () {
             it('should return specific and * listeners in order', function () {
                 var f = function () {};
                 var g = function () {};
-                h.on(['command'], f);
+                h.on(['Command'], f);
                 h.on(['*'], g);
                 var l = h.listeners(['**']);
                 assert(_.indexOf(l, g) < _.indexOf(l, f));
@@ -363,7 +381,7 @@ describe('HevEmitter listeners', function () {
                 var f = function () {};
                 var g = function () {};
                 h.on(['*'], g);
-                h.on(['command'], f);
+                h.on(['Command'], f);
                 var l = h.listeners(['**']);
                 assert(_.indexOf(l, g) < _.indexOf(l, f));
             });
