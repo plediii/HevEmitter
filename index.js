@@ -257,21 +257,21 @@ var adaptCallback = function (cb) {
 };
 
 var allListeners = function (eventTree) {
-    var listeners = [];
     var hash = eventTree.hash;
-    if (hash.hasOwnProperty('**')) {
-        listeners = hash['**'].funcs;
-    }
-    if (hash.hasOwnProperty('*')) {
-        listeners = listeners.concat(hash['*'].funcs);
-    }
-    return [].concat.apply(listeners, _.map(eventTree.hash, function (subtree, key) {
-        if (key !== '**' && key != '*') {
-            return [].concat.apply(subtree.funcs, allListeners(subtree));
-        } else {
+    var starListeners = [];
+    var funcs = _.map(eventTree.hash, function (subtree, key) {
+        if (key === '**') {
+            starListeners = subtree.funcs.concat(starListeners);
             return [];
         }
-    }));
+        else if (key === '*') {
+            starListeners = starListeners.concat(allListeners(subtree));
+            return [];
+        } else {
+            return allListeners(subtree);
+        }
+    });
+    return [].concat.apply(eventTree.funcs.concat(starListeners), funcs);
 };
 
 var listenerFuncs = function (funcs) {
@@ -294,9 +294,9 @@ var listeners = function (route, eventTree) {
                     if (key === '*') {
                         starListeners = listeners(rest, subtree).concat(starListeners);
                         return [];
-                    // } if (key == '**') {
-                    //     starListeners = starListeners.concat(subtree.funcs);
-                    //     return [];
+                    } if (key == '**') {
+                        starListeners = allListeners(subtree).concat(starListeners);
+                        return [];
                     } else {
                         return listeners(rest, subtree);
                     }
@@ -344,68 +344,6 @@ var listeners = function (route, eventTree) {
                 } else {
                     return starListeners;
                 }
-            }
-        }
-    }
-
-    if (route.length > 1) {
-        var rest = _.rest(route);
-        if (head == '*') {
-            var funcs = eventTree.funcs;
-            if (rest[0] == '**') {
-                return [].concat.apply(funcs, _.map(eventTree.hash, function (subtree) {
-                    return allListeners(subtree);
-                }));                
-            }
-            else {
-                return [].concat.apply(funcs, _.map(eventTree.hash, function (subtree) {
-                    return listeners(rest, subtree);
-                }));
-            }
-        }
-        else {
-            starListeners = [];
-            if (eventTree.hash.hasOwnProperty('**')) {
-                starListeners = starListeners.concat(listeners(rest, eventTree.hash['**']));
-            }
-            if (eventTree.hash.hasOwnProperty('*')) {
-                starListeners = starListeners.concat(listeners(rest, eventTree.hash['*']));
-            }
-            if (eventTree.hash.hasOwnProperty(head)) {
-                if (rest[0] == '**') {
-                    return starListeners.concat(allListeners(eventTree.hash[head]));
-                }
-                else {
-                    return starListeners.concat(listeners(rest, eventTree.hash[head]));
-                }
-            }
-            else {
-                return starListeners;
-            }
-        }
-    }
-    else {
-        if (head == '*') {
-            return [].concat.apply(eventTree.funcs, _.map(eventTree.hash, function (subtree, name) {
-                if (name == '**') {
-                    return [];
-                }
-                else {
-                    return subtree.funcs;
-                }
-            }));
-        }
-        else {
-            starListeners = [];
-            if (eventTree.hash.hasOwnProperty('*')) {
-                starListeners = starListeners.concat(eventTree.hash['*'].funcs);
-            }
-
-            if (eventTree.hash.hasOwnProperty(head)) {
-                return starListeners.concat(eventTree.hash[head].funcs);
-            }
-            else {
-                return starListeners;
             }
         }
     }
