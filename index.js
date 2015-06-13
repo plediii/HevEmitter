@@ -410,7 +410,7 @@ _.extend(EventEmitter.prototype, {
             addCallback(route, this._eventTree, cb);
         }
     }
-    , emit: function (route, msg) {
+    , emit: function (route) {
         var _this = this;
         route = this.parseRoute(route);
         if (route[0] === 'newListener') {
@@ -432,8 +432,9 @@ _.extend(EventEmitter.prototype, {
         }
         else {
             var ls = listeners(route, _this._eventTree);
+            var args = _.toArray(arguments).slice(1);
             _.each(ls, function (f) {
-                f(msg);
+                f.apply(null, args);
             });
             return ls.length > 0;
         }
