@@ -396,10 +396,6 @@ _.extend(EventEmitter.prototype, {
                 || route[0] === 'error')) {
             route = route.concat('**');
         }
-        emit(this._newListenerTree, route, {
-            event: route
-            , listener: cb
-        });
         if (route[0] === 'newListener') {
             addCallback(route.slice(1), this._newListenerTree, cb);
         }
@@ -407,6 +403,7 @@ _.extend(EventEmitter.prototype, {
             addCallback(route.slice(1), this._errorTree, cb);
         }
         else {
+            emit(this._newListenerTree, route, [route, cb]);
             addCallback(route, this._eventTree, cb);
         }
     }
@@ -415,7 +412,7 @@ _.extend(EventEmitter.prototype, {
         route = this.parseRoute(route);
         var args = _.toArray(arguments).slice(1);
         if (route[0] === 'newListener') {
-            return emit(_this.newListenerTree, route.slice(1), msg);
+            return emit(_this._newListenerTree, route.slice(1), msg);
         }
         else if (route[0] === 'error') {
             if (!emit(_this._errorTree, route.slice(1), args)) {
@@ -429,13 +426,17 @@ _.extend(EventEmitter.prototype, {
     } 
     , removeListener: function (route, f) {
         route = this.parseRoute(route);
-        if (route.length === 1
-            && (route[0] === 'newListener'
-                || route[0] === 'error')) {
-            route = route.concat('**');
-        }
         if (route[0] === 'error') {
+            if (route.length === 1) {
+                route = route.concat('**');
+            }
             removeCallback(route.slice(1), this._errorTree, f);
+        }
+        else if (route[0] === 'newListener') {
+            if (route.length === 1) {
+                route = route.concat('**');
+            }
+            removeCallback(route.slice(1), this._newListenerTree, f);
         }
         else {
             removeCallback(route, this._eventTree, f);
@@ -453,13 +454,7 @@ _.extend(EventEmitter.prototype, {
         return this.on(route, g);
     }
     , removeAllListeners: function (route) {
-        route = this.parseRoute(route);
-        if (route[0] === '**') {
-            this._eventTree = eventTree();
-        }
-        else {
-            removeCallback(route, this._eventTree);
-        }
+        this.removeListener(route);
     }
     , listeners: function (route) {
         route = this.parseRoute(route);
