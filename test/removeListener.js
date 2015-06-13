@@ -69,11 +69,12 @@ describe('HevEmitter removeListener', function () {
         });
     };
 
-    _.each(routes.matchRoutes, function (args) {
+    _.each(routes.deleteRoutes, function (args) {
         shouldBeDeletedAt.apply(null, args);
     });
 
-    _.each(routes.notMatchRoutes, function (args) {
+    _.each(routes.notDeleteRoutes, function (args) {
+        console.log('not delete ', args);
         shouldNotBeDeletedAt.apply(null, args);
     });
 
