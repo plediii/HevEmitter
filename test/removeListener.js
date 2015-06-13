@@ -1,351 +1,80 @@
 /*jslint node: true */
 "use strict";
 
-var H = require('../index').EventEmitter;
 var _ = require('lodash');
 var assert = require('assert');
 
-describe('HevEmitter on', function () {
+var H = require('../index').EventEmitter;
+var routes = require('./routes');
 
-    describe('removeListener', function () {
+describe('HevEmitter removeListener', function () {
 
-        describe('.on listener ', function () {
+    var h;
+    beforeEach(function () {
+        h = new H();
+    });
 
-            it('should NOT trigger one level method after one level removal', function () {
-                var h = new H();
-                var f = function () {
-                    assert(false);
-                };
-                h.on(['son'], f);
-                h.removeListener(['son'], f);
-                assert(!h.emit(['son']));
-            });
-
-            it('should NOT leak after one level removal', function () {
-                var h = new H();
-                var f = function () {
-                    assert(false);
-                };
-                assert(_.isEmpty(h._eventTree.hash));
-                h.on(['son'], f);
-                assert(!_.isEmpty(h._eventTree.hash));
-                h.removeListener(['son'], f);
-                assert(_.isEmpty(h._eventTree.hash));
-            });
-
-
-            it('SHOULD trigger one level method after one level removal of different function', function () {
-                var h = new H();
-                var f = function () {};
-                h.on(['son'], f);
-                h.removeListener(['son'], function () {});
-                assert(!h.emit(['son']));
-            });
-
-            it('should NOT trigger one level method after one star removal', function () {
-                var h = new H();
-                var f = function () {
-                    assert(false);
-                };
-                h.on(['circus'], f);
-                h.removeListener(['*'], f);
-                assert(!h.emit(['circus']));
-            });
-
-            it('SHOULD trigger one level method after one star removal of different function ', function () {
-                var h = new H();
-                var f = function () {};
-                h.on(['circus'], f);
-                h.removeListener(['*'], function () {});
-                assert(h.emit(['circus']));
-            });
-
-            it('SHOULD trigger two level method after one star removal', function () {
-                var h = new H();
-                var f = function () {};
-                h.on(['gore', 'leena'], f);
-                h.removeListener(['*'], f);
-                assert(h.emit(['gore', 'leena']));
-            });
-
-            it('should NOT trigger two level method after one star removal', function () {
-                var h = new H();
-                var f = function () {
-                    assert(false);
-                };
-                h.on(['squirrel', 'snake'], f);
-                h.removeListener(['*', 'snake'], f);
-                assert(!h.emit(['squirrel', 'snake']));
-            });
-
-            it('SHOULD trigger two level method after one star removal of different function', function () {
-                var h = new H();
-                var f = function () {};
-                h.on(['squirrel', 'snake'], f);
-                h.removeListener(['*', 'snake'], function () {});
-                assert(!h.emit(['squirrel', 'snake']));
-            });
-
-            it('should NOT trigger one level method after two star removal', function () {
-                var h = new H();
-                var f = function () {
-                    assert(false);
-                };
-                h.on(['sadface'], f);
-                h.removeListener(['**'], f);
-                assert(!h.emit(['sadface']));
-            });
-
-            it('should NOT trigger two level method after two star removal', function () {
-                var h = new H();
-                var f = function () {
-                    assert(false);
-                };
-                h.on(['cash', 'act'], f);
-                h.removeListener(['**'], f);
-                assert(!h.emit(['cash', 'act']));
-            });
-
-            it('SHOULD trigger two level method after two star removal of different function', function () {
-                var h = new H();
-                var f = function () {};
-                h.on(['cash', 'act'], f);
-                h.removeListener(['**'], function () {});
-                assert(h.emit(['cash', 'act']));
-            });
-
+    var shouldBeDeletedAt = function (onRoute, deleteRoute) {
+        it('should not receive at ' + '"' + onRoute.join('/') + '" after deleting at "' + deleteRoute.join('/') + '"', function () {
+            var msg = { emitted: 0 };
+            var f = function (msg) {
+                msg.emitted += 1;
+            };
+            h.on(onRoute, f);
+            assert(h.emit(onRoute, msg), 'did not emit to start with');
+            assert.equal(1, msg.emitted, 'was not called to start with');
+            h.removeListener(deleteRoute, f);
+            assert(!h.emit(onRoute, msg), 'unexpectedly emitted after removal');
+            assert.equal(1, msg.emitted, 'unexpectedly called after removal');
         });
 
-        describe('.once listener ', function () {
-
-            it('should NOT trigger one level method after one level removal', function () {
-                var h = new H();
-                var f = function () {
-                    assert(false);
-                };
-                h.once(['son'], f);
-                h.removeListener(['son'], f);
-                assert(!h.emit(['son']));
-            });
-
-            it('should NOT leak after one level removal', function () {
-                var h = new H();
-                var f = function () {
-                    assert(false);
-                };
-                assert(_.isEmpty(h._eventTree.hash));
-                h.once(['son'], f);
-                assert(!_.isEmpty(h._eventTree.hash));
-                h.removeListener(['son'], f);
-                assert(_.isEmpty(h._eventTree.hash));
-            });
-
-
-            it('SHOULD trigger one level method after one level removal of different function', function () {
-                var h = new H();
-                var f = function () {};
-                h.once(['son'], f);
-                h.removeListener(['son'], function () {});
-                assert(!h.emit(['son']));
-            });
-
-
-            it('should NOT trigger one level method after one star removal', function () {
-                var h = new H();
-                var f = function () {
-                    assert(false);
-                };
-                h.once(['circus'], f);
-                h.removeListener(['*'], f);
-                assert(!h.emit(['circus']));
-            });
-
-            it('SHOULD trigger one level method after one star removal of different function ', function () {
-                var h = new H();
-                var f = function () {};
-                h.once(['circus'], f);
-                h.removeListener(['*'], function () {});
-                assert(h.emit(['circus']));
-            });
-
-            it('SHOULD trigger two level method after one star removal', function () {
-                var h = new H();
-                var f = function () {};
-                h.once(['gore', 'leena'], f);
-                h.removeListener(['*'], f);
-                assert(h.emit(['gore', 'leena']));
-            });
-
-            it('should NOT trigger two level method after one star removal', function () {
-                var h = new H();
-                var f = function () {
-                    assert(false);
-                };
-                h.once(['squirrel', 'snake'], f);
-                h.removeListener(['*', 'snake'], f);
-                assert(!h.emit(['squirrel', 'snake']));
-            });
-
-            it('SHOULD trigger two level method after one star removal of different function', function () {
-                var h = new H();
-                var f = function () {
-                };
-                h.once(['squirrel', 'snake'], f);
-                h.removeListener(['*', 'snake'], function () {});
-                assert(h.emit(['squirrel', 'snake']));
-            });
-
-            it('should NOT trigger one level method after two star removal', function () {
-                var h = new H();
-                var f = function () {
-                    assert(false);
-                };
-                h.once(['sadface'], f);
-                h.removeListener(['**'], f);
-                assert(!h.emit(['sadface']));
-            });
-
-            it('should NOT trigger two level method after two star removal', function () {
-                var h = new H();
-                var f = function () {
-                    assert(false);
-                };
-                h.once(['cash', 'act'], f);
-                h.removeListener(['**'], f);
-                assert(!h.emit(['cash', 'act']));
-            });
-
-            it('SHOULD trigger two level method after two star removal of different function', function () {
-                var h = new H();
-                var f = function () {};
-                h.once(['cash', 'act'], f);
-                h.removeListener(['**'], function () {});
-                assert(h.emit(['cash', 'act']));
-            });
-
+        it('should not receive at ' + '"' + onRoute.join('/') + '" after deleting at "' + deleteRoute.join('/') + '" when deleting by handle', function () {
+            var msg = { emitted: 0 };
+            var f = function (msg) {
+                msg.emitted += 1;
+            };
+            var g = f.listener = function () {};
+            h.on(onRoute, f);
+            assert(h.emit(onRoute, msg), 'did not emit to start with');
+            assert.equal(1, msg.emitted, 'was not called to start with');
+            h.removeListener(deleteRoute, g);
+            assert(!h.emit(deleteRoute, msg), 'unexpectedly emitted after removal');
+            assert.equal(1, msg.emitted, 'unexpectedly called after removal');
         });
 
-        describe('promise listener ', function () {
-
-            it('should NOT trigger one level method after one level removal', function () {
-                var h = new H();
-                var f = function (msg, cb) {
-                    assert(false);
-                };
-                h.on(['son'], f);
-                h.removeListener(['son'], f);
-                assert(h.emit(['son']));
-            });
-
-            it('should NOT leak after one level removal', function () {
-                var h = new H();
-                var f = function (msg , cb) {
-                    assert(false);
-                };
-                assert(_.isEmpty(h._eventTree.hash));
-                h.on(['son'], f);
-                assert(!_.isEmpty(h._eventTree.hash));
-                h.removeListener(['son'], f);
-                assert(_.isEmpty(h._eventTree.hash));
-            });
-
-
-            it('SHOULD trigger one level method after one level removal of different function', function () {
-                var h = new H();
-                var f = function (msg, cb) {};
-                h.on(['son'], f);
-                h.removeListener(['son'], function () {});
-                assert(h.emit(['son']));
-            });
-
-
-            it('should NOT trigger one level method after one star removal', function () {
-                var h = new H();
-                var f = function (msg, cb) {
-                    assert(false);
-                };
-                h.on(['circus'], f);
-                h.removeListener(['*'], f);
-                assert(!h.emit(['circus']));
-            });
-
-            it('SHOULD trigger one level method after one star removal of different function ', function () {
-                var h = new H();
-                var f = function (msg, cb) {};
-                h.on(['circus'], f);
-                h.removeListener(['*'], function () {});
-                assert(h.emit(['circus']));
-            });
-
-            it('SHOULD trigger two level method after one star removal', function () {
-                var h = new H();
-                var f = function (msg, cb) {};
-                h.on(['gore', 'leena'], f);
-                h.removeListener(['*'], f);
-                assert(h.emit(['gore', 'leena']));
-            });
-
-            it('should NOT trigger two level method after one star removal', function () {
-                var h = new H();
-                var f = function (msg, cb) {
-                    assert(false);
-                };
-                h.on(['squirrel', 'snake'], f);
-                h.removeListener(['*', 'snake'], f);
-                assert(!h.emit(['squirrel', 'snake']));
-            });
-
-            it('SHOULD trigger two level method after one star removal of different function', function () {
-                var h = new H();
-                var f = function (msg, cb) {};
-                h.on(['squirrel', 'snake'], f);
-                h.removeListener(['*', 'snake'], function () {});
-                assert(h.emit(['squirrel', 'snake']));
-            });
-
-            it('should NOT trigger one level method after two star removal', function () {
-                var h = new H();
-                var f = function (msg, cb) {};
-                h.on(['sadface'], f);
-                h.removeListener(['**'], f);
-                assert(h.emit(['sadface']));
-            });
-
-            it('should NOT trigger two level method after two star removal', function () {
-                var h = new H();
-                var f = function (msg, cb) {
-                    assert(false);
-                };
-                h.on(['cash', 'act'], f);
-                h.removeListener(['**'], f);
-                assert(!h.emit(['cash', 'act']));
-            });
-
-            it('SHOULD trigger two level method after two star removal of different function', function () {
-                var h = new H();
-                var f = function (msg, cb) {};
-                h.on(['cash', 'act'], f);
-                h.removeListener(['**'], function () {});
-                assert(h.emit(['cash', 'act']));
-            });
-
+        it('should not leak when deleting listeners ' + '"' + onRoute.join('/') + '" by route "' + deleteRoute.join('/') + '"', function () {
+            var msg = { emitted: 0 };
+            var f = function (msg) {
+                msg.emitted += 1;
+            };
+            assert(_.isEmpty(h._eventTree.hash), 'was not empty to start with');
+            h.on(onRoute, f);
+            h.removeListener(deleteRoute, f);
+            assert(_.isEmpty(h._eventTree.hash), 'was not empty after removal');
         });
+    };
 
-        describe('alternate listener handle', function () {
-
-            it('should be used to remove when provided', function () {
-                var h = new H();
-                var f = function () {
-                    assert(false);
-                };
-                var listener = f.listener = 'house';
-                h.on(['son'], f);
-                h.removeListener(['son'], listener);
-                assert(!h.emit(['son']));
-            });
-
+    var shouldNotBeDeletedAt = function (onRoute, deleteRoute) {
+        it('should receive at ' + '"' + onRoute.join('/') + '" after deleting at "' + deleteRoute.join('/') + '"', function () {
+            var msg = { emitted: 0 };
+            var f = function (msg) {
+                msg.emitted += 1;
+            };
+            h.on(onRoute, f);
+            assert(h.emit(onRoute, msg), 'did not emit to start with');
+            assert.equal(1, msg.emitted, 'was not called to start with');
+            h.removeListener(deleteRoute, f);
+            assert(h.emit(onRoute, msg), 'was not emitted after mismatching removal');
+            assert.equal(2, msg.emitted, 'was not called after mismatching removal');
         });
+    };
 
+    _.each(routes.matchRoutes, function (args) {
+        shouldBeDeletedAt.apply(null, args);
+    });
+
+    _.each(routes.notMatchRoutes, function (args) {
+        shouldNotBeDeletedAt.apply(null, args);
     });
 
 });
