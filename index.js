@@ -429,7 +429,18 @@ _.extend(EventEmitter.prototype, {
     } 
     , removeListener: function (route, f) {
         route = this.parseRoute(route);
-        removeCallback(route, this._eventTree, f);
+        if (route.length === 1
+            && (route[0] === 'newListener'
+                || route[0] === 'error')) {
+            route = route.concat('**');
+        }
+        if (route[0] === 'error') {
+            removeCallback(route.slice(1), this._errorTree, f);
+        }
+        else {
+            removeCallback(route, this._eventTree, f);
+        }
+        
     }
     , once: function (route, f) {
         route = this.parseRoute(route);
