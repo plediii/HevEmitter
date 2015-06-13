@@ -265,7 +265,7 @@ var allSubListeners = function (eventTree) {
             return [];
         }
         else if (key === '*') {
-            starListeners = starListeners.concat(allSubListeners(subtree));
+            starListeners = starListeners.concat(subtree.funcs.concat(allSubListeners(subtree)));
             return [];
         } else {
             return subtree.funcs.concat(allSubListeners(subtree));
@@ -303,7 +303,6 @@ var listeners = function (route, eventTree) {
                 }));
                 return [].concat.apply(starListeners, funcs);
             } else {
-                console.log('route two ', head, ' in ', route); 
                 var starListeners = [];
                 if (hash.hasOwnProperty('**')) {
                     starListeners = hash['**'].funcs;
@@ -312,11 +311,9 @@ var listeners = function (route, eventTree) {
                     starListeners = starListeners.concat(listeners(rest, hash['*']));
                 }
                 if (hash.hasOwnProperty(head)) {
-                    console.log('matching subroute match of ', head, listeners(rest, hash[head]), hash[head]);
                     return starListeners.concat(listeners(rest, hash[head]));
                 }
                 else {
-                    console.log('no exact match ', starListeners);
                     return starListeners;
                 }
             }
