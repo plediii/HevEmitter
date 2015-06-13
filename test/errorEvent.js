@@ -52,7 +52,7 @@ describe('HevEmitter error', function () {
         }
     });
 
-    it('should be removable', function (done) {
+    it('should be specifically removable', function (done) {
         var f = function () {
             done(true);
         };
@@ -65,7 +65,18 @@ describe('HevEmitter error', function () {
         }
     });
 
-
+    it('should be removable when removing all listeners', function (done) {
+        var f = function () {
+            done(true);
+        };
+        h.on(['error'], f);
+        h.removeAllListeners(['error'], f);
+        try {
+            h.emit(['error']);
+        } catch (e) {
+            done();
+        }
+    });
 
 
     it('should allow sub listeners', function (done) {
