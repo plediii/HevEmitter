@@ -172,7 +172,6 @@ describe('HevEmitter listeners', function () {
         , [['**'], ['name', '*'], ['name', 'name']]
 
         , [['*', '*'], ['*', 'name'], ['name', 'name']]
-        , [['name', '**'], ['*', 'name'], ['name', 'name']]
         , [['*', '**'], ['*', 'name'], ['name', 'name']]
         , [['**'], ['*', 'name'], ['name', 'name']]
 
@@ -194,7 +193,6 @@ describe('HevEmitter listeners', function () {
         , [['**'], ['name', '*'], ['name', '*']]
 
         , [['*', '*'], ['*', 'name'], ['name', '*']]
-        , [['name', '**'], ['*', 'name'], ['name', '*']]
         , [['*', '**'], ['*', 'name'], ['name', '*']]
         , [['**'], ['*', 'name'], ['name', '*']]
 
@@ -216,7 +214,6 @@ describe('HevEmitter listeners', function () {
         , [['**'], ['name', '*'], ['*', 'name']]
 
         , [['*', '*'], ['*', 'name'], ['*', 'name']]
-        , [['name', '**'], ['*', 'name'], ['*', 'name']]
         , [['*', '**'], ['*', 'name'], ['*', 'name']]
         , [['**'], ['*', 'name'], ['*', 'name']]
 
