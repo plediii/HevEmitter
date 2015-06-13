@@ -7,18 +7,66 @@ var assert = require('assert');
 
 describe('HevEmitter newlistener', function () {
 
+    var h;
+    beforeEach(function () {
+        h = new H();
+    });
 
     describe('on events', function () {
-        it('should be triggered when a listener is added to a "name" event', function (done) {
-            var h = new H();
+
+        it('should be triggered when a listener is added to a "name" event', function () {
+            var called = 0;
             h.on(['newListener'], function () {
-                done();
+                called++;
             });
+            assert.equal(0, called, 'bad initial state');
             h.on(['star'], function () {});
+            assert.equal(1, called, 'newListener was not called');
         });
 
+        it('should *not* be triggered after removing specific listener', function () {
+            var called = 0;
+            var f = function () {
+                called++;
+            }
+            h.on(['newListener'], f);
+            assert.equal(0, called, 'bad initial state');
+            h.removeListener(['newListener'], f);
+            assert.equal(0, called, 'bad initial state');
+            h.on(['star'], function () {});
+            assert.equal(0, called, 'newListener was called after removal');
+        });
+
+        it('should *not* be triggered after removing all listeners', function () {
+            var called = 0;
+            var f = function () {
+                called++;
+            }
+            h.on(['newListener'], f);
+            assert.equal(0, called, 'bad initial state');
+            h.removeAllListeners(['newListener'], f);
+            assert.equal(0, called, 'bad initial state');
+            h.on(['star'], function () {});
+            assert.equal(0, called, 'newListener was called after removal');
+        });
+
+
+        it('should be triggered before listener is available', function () {
+            var called = 0;
+            var route = ['four'];
+            assert.equal(0, h.listeners(route), 'initially found listener');
+            var f = function () {
+                assert.equal(0, h.listeners(route).length, 'found  listener prematurely');
+                called++;
+            };
+            h.on(['newListener'], f);
+            h.on(route, function () {});
+            assert.equal(1, called, 'newListener event was not called');
+            assert.equal(1, h.listeners(route).length, 'did not find listener after adding');
+        });
+
+
         it('should *NOT* trigger * listeners', function (done) {
-            var h = new H();
             h.on(['*', '*'], function () {
                 done(true);
             });
@@ -29,7 +77,6 @@ describe('HevEmitter newlistener', function () {
         });
 
         it('should *NOT* trigger ** listeners', function (done) {
-            var h = new H();
             h.on(['**'], function () {
                 done(true);
             });
@@ -40,7 +87,6 @@ describe('HevEmitter newlistener', function () {
         });
 
         it('should be triggered when a listener is added to a "name" event, with data', function (done) {
-            var h = new H();
             h.on(['newListener'], function (data) {
                 assert(data);
                 done();
@@ -48,63 +94,25 @@ describe('HevEmitter newlistener', function () {
             h.on(['star'], function () {});
         });
 
-        it('should be triggered when a listener is added to a "name" event, with data.event equal to the listened to event', function (done) {
-            var h = new H();
+        it('should be triggered with listener route as first argument', function (done) {
+            var route = ['five', 'ten'];
             h.on(['newListener'], function (data) {
-                assert.deepEqual(data.event, ['star']);
+                assert.deepEqual(route, data);
                 done();
             });
-            h.on(['star'], function () {});
+            h.on(route, function () {});
         });
 
-        it('should be triggered when a listener is added to a "name" event, with data.listener equal to the listener function', function (done) {
-            var h = new H();
-            var listener = function () {};
-            h.on(['newListener'], function (data) {
-                assert.equal(data.listener, listener);
+        it('should be triggered with listener function as second argument', function (done) {
+            var route = ['five', 'ten'];
+            var f = function () {};
+            h.on(['newListener'], function (data, cb) {
+                assert.equal(cb, f, 'did not receive callback function as second argument');
                 done();
             });
-            h.on(['star'], listener);
-        });
-    });
-
-    describe('once events', function () {
-        it('should be triggered when a listener is added to a "name" event', function (done) {
-            var h = new H();
-            h.on(['newListener'], function () {
-                done();
-            });
-            h.once(['star'], function () {});
+            h.on(route, f);
         });
 
-        it('should be triggered when a listener is added to a "name" event, with data', function (done) {
-            var h = new H();
-            h.on(['newListener'], function (data) {
-                assert(data);
-                done();
-            });
-            h.once(['star'], function () {});
-        });
-
-
-        it('should be triggered when a listener is added to a "name" event, with data.event equal to the listened to event', function (done) {
-            var h = new H();
-            h.on(['newListener'], function (data) {
-                assert.deepEqual(data.event, ['star']);
-                done();
-            });
-            h.once(['star'], function () {});
-        });
-
-        it('should be triggered when a listener is added to a "name" event, with data.listener equal to the listener function', function (done) {
-            var h = new H();
-            var listener = function () {};
-            h.on(['newListener'], function (data) {
-                assert.equal(data.listener, listener);
-                done();
-            });
-            h.once(['star'], listener);
-        });
     });
 
     describe('on sub events', function () {
