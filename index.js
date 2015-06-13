@@ -292,7 +292,7 @@ var listeners = function (route, eventTree) {
                 var starListeners = [];
                 var funcs = [].concat.apply([], _.map(hash, function (subtree, key) {
                     if (key === '*') {
-                        starListeners = listeners(rest, subtree).concat(starListeners);
+                        starListeners = starListeners.concat(listeners(rest, subtree));
                         return [];
                     } if (key == '**') {
                         starListeners = subtree.funcs.concat(starListeners);
