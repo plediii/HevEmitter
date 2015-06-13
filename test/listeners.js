@@ -5,6 +5,8 @@ var H = require('../index').EventEmitter;
 var _ = require('lodash');
 var assert = require('assert');
 
+var routes = require('./routes');
+
 describe('HevEmitter listeners', function () {
     var h;
 
@@ -59,189 +61,15 @@ describe('HevEmitter listeners', function () {
         });
     };
 
-
-    _.each([
-        [['name'], ['name']]
-        , [['name'], ['*']]
-        , [['name'], ['**']]
-        , [['*'], ['name']]
-        , [['*'], ['*']]
-        , [['*'], ['**']]
-        , [['**'], ['name']]
-        , [['**'], ['*']]
-        , [['**'], ['**']]
-
-        , [['name', 'name2'], ['name', 'name2']]
-        , [['name', 'name2'], ['*', 'name2']]
-        , [['name', 'name2'], ['name', '*']]
-        , [['name', 'name2'], ['**']]
-        , [['name', 'name2'], ['name', '**']]
-
-        , [['*', 'name2'], ['name', 'name2']]
-        , [['*', 'name2'], ['*', 'name2']]
-        , [['*', 'name2'], ['name', '*']]
-        , [['*', 'name2'], ['**']]
-        , [['*', 'name2'], ['name', '**']]
-
-        , [['name', '*'], ['name', 'name2']]
-        , [['name', '*'], ['*', 'name2']]
-        , [['name', '*'], ['name', '*']]
-        , [['name', '*'], ['**']]
-        , [['name', '*'], ['name', '**']]
-
-        , [['**'], ['name', 'name2']]
-        , [['**'], ['*', 'name2']]
-        , [['**'], ['name', '*']]
-        , [['**'], ['**']]
-        , [['**'], ['name', '**']]
-    ], function (args) {
+    _.each(routes.matchRoutes, function (args) {
         listenerShouldMatch.apply(null, args);
     });
 
-    _.each([
-        [['name'], ['otherName']]
-        , [['name'], ['name', '**']]
-
-        , [['name', 'otherName'], ['name', 'anotherName']]
-        , [['otherName', 'name'], ['anotherName', 'name']]
-        , [['name', 'name2'], ['*', 'anotherName']]
-        , [['name', 'name2'], ['anotherName', '*']]
-        , [['name', 'name2'], ['anotherName', '**']]
-
-        , [['*', 'name2'], ['name', 'anotherName']]
-        , [['*', 'name2'], ['*', 'anotherName']]
-
-        , [['name', '*'], ['anotherName', 'name2']]
-        , [['name', '*'], ['anotherName', '*']]
-        , [['name', '*'], ['anotherName', '**']]
-
-        , [['name', 'name2'], ['name', 'name2', '**']]
-        , [['name', 'name2'], ['*', 'name2', '**']]
-        , [['name', 'name2'], ['name', '*', '**']]
-
-        , [['*', 'name2'], ['name', 'name2', '**']]
-        , [['*', 'name2'], ['*', 'name2', '**']]
-        , [['*', 'name2'], ['name', '*', '**']]
-
-        , [['name', '*'], ['name', 'name2', '**']]
-        , [['name', '*'], ['*', 'name2', '**']]
-        , [['name', '*'], ['name', '*', '**']]
-
-        , [['name', 'name2', '**'], ['name', 'name2']]
-        , [['name', 'name2', '**'], ['*', 'name2']]
-        , [['name', 'name2', '**'], ['name', '*']]
-
-        , [['*', 'name2', '**'], ['name', 'name2']]
-        , [['*', 'name2', '**'], ['*', 'name2']]
-        , [['*', 'name2', '**'], ['name', '*']]
-
-        , [['name', '*', '**'], ['name', 'name2']]
-        , [['name', '*', '**'], ['*', 'name2']]
-        , [['name', '*', '**'], ['name', '*']]
-
-    ], function (args) {
+    _.each(routes.notMatchRoutes, function (args) {
         listenerShouldNotMatch.apply(null, args);
     });
 
-
-    _.each([
-        [['*'], ['name'], ['name']]
-        , [['**'], ['name'], ['name']]
-        , [['**'], ['*'], ['name']]
-
-        , [['*'], ['name'], ['*']]
-        , [['**'], ['name'], ['*']]
-        , [['**'], ['*'], ['*']]
-
-        , [['*'], ['name'], ['**']]
-        , [['**'], ['name'], ['**']]
-        , [['**'], ['*'], ['**']]
-
-
-        , [['name', '*'], ['name', 'name'], ['name', 'name']]
-        , [['*', 'name'], ['name', 'name'], ['name', 'name']]
-        , [['*', '*'], ['name', 'name'], ['name', 'name']]
-        , [['name', '**'], ['name', 'name'], ['name', 'name']]
-        , [['*', '**'], ['name', 'name'], ['name', 'name']]
-        , [['**'], ['name', 'name'], ['name', 'name']]
-
-        , [['*', 'name'], ['name', '*'], ['name', 'name']]
-        , [['*', '*'], ['name', '*'], ['name', 'name']]
-        , [['name', '**'], ['name', '*'], ['name', 'name']]
-        , [['*', '**'], ['name', '*'], ['name', 'name']]
-        , [['**'], ['name', '*'], ['name', 'name']]
-
-        , [['*', '*'], ['*', 'name'], ['name', 'name']]
-        , [['*', '**'], ['*', 'name'], ['name', 'name']]
-        , [['**'], ['*', 'name'], ['name', 'name']]
-
-        , [['*', '**'], ['name', '**'], ['name', 'name']]
-        , [['**'], ['name', '**'], ['name', 'name']]
-
-
-        , [['name', '*'], ['name', 'name'], ['name', '*']]
-        , [['*', 'name'], ['name', 'name'], ['name', '*']]
-        , [['*', '*'], ['name', 'name'], ['name', '*']]
-        , [['name', '**'], ['name', 'name'], ['name', '*']]
-        , [['*', '**'], ['name', 'name'], ['name', '*']]
-        , [['**'], ['name', 'name'], ['name', '*']]
-
-        , [['*', 'name'], ['name', '*'], ['name', '*']]
-        , [['*', '*'], ['name', '*'], ['name', '*']]
-        , [['name', '**'], ['name', '*'], ['name', '*']]
-        , [['*', '**'], ['name', '*'], ['name', '*']]
-        , [['**'], ['name', '*'], ['name', '*']]
-
-        , [['*', '*'], ['*', 'name'], ['name', '*']]
-        , [['*', '**'], ['*', 'name'], ['name', '*']]
-        , [['**'], ['*', 'name'], ['name', '*']]
-
-        , [['*', '**'], ['name', '**'], ['name', '*']]
-        , [['**'], ['name', '**'], ['name', '*']]
-
-
-        , [['name', '*'], ['name', 'name'], ['*', 'name']]
-        , [['*', 'name'], ['name', 'name'], ['*', 'name']]
-        , [['*', '*'], ['name', 'name'], ['*', 'name']]
-        , [['name', '**'], ['name', 'name'], ['*', 'name']]
-        , [['*', '**'], ['name', 'name'], ['*', 'name']]
-        , [['**'], ['name', 'name'], ['*', 'name']]
-
-        , [['*', 'name'], ['name', '*'], ['*', 'name']]
-        , [['*', '*'], ['name', '*'], ['*', 'name']]
-        , [['name', '**'], ['name', '*'], ['*', 'name']]
-        , [['*', '**'], ['name', '*'], ['*', 'name']]
-        , [['**'], ['name', '*'], ['*', 'name']]
-
-        , [['*', '*'], ['*', 'name'], ['*', 'name']]
-        , [['*', '**'], ['*', 'name'], ['*', 'name']]
-        , [['**'], ['*', 'name'], ['*', 'name']]
-
-        , [['*', '**'], ['name', '**'], ['*', 'name']]
-        , [['**'], ['name', '**'], ['*', 'name']]
-
-
-
-        , [['name', '*'], ['name', 'name'], ['**']]
-        , [['*', 'name'], ['name', 'name'], ['**']]
-        , [['*', '*'], ['name', 'name'], ['**']]
-        , [['name', '**'], ['name', 'name'], ['**']]
-        , [['*', '**'], ['name', 'name'], ['**']]
-        , [['**'], ['name', 'name'], ['**']]
-
-        , [['*', 'name'], ['name', '*'], ['**']]
-        , [['*', '*'], ['name', '*'], ['**']]
-        , [['name', '**'], ['name', '*'], ['**']]
-        , [['*', '**'], ['name', '*'], ['**']]
-        , [['**'], ['name', '*'], ['**']]
-
-        , [['*', '*'], ['*', 'name'], ['**']]
-        , [['*', '**'], ['*', 'name'], ['**']]
-        , [['**'], ['*', 'name'], ['**']]
-
-        , [['*', '**'], ['name', '**'], ['**']]
-        , [['**'], ['name', '**'], ['**']]
-    ], function (args) {
+    _.each(routes.matchOrders, function (args) {
         shouldPrecedeInMatch.apply(null, args);
     });
 
