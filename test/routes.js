@@ -208,8 +208,6 @@ var routes = module.exports = {
         , [['**'], ['name']]
         , [['**'], ['*']]
 
-        , [['name', 'name2'], ['*', 'name2']]
-
         , [['*', 'name2'], ['name', 'name2']]
         , [['*', 'name2'], ['name', '*']]
         , [['*', 'name2'], ['name', '**']]
@@ -219,7 +217,6 @@ var routes = module.exports = {
         , [['**'], ['name', 'name2']]
         , [['**'], ['*', 'name2']]
         , [['**'], ['name', '*']]
-        , [['**'], ['**']]
         , [['**'], ['name', '**']]
 
         , [['name'], ['otherName']]
