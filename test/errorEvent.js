@@ -52,6 +52,22 @@ describe('HevEmitter error', function () {
         }
     });
 
+    it('should be removable', function (done) {
+        var f = function () {
+            done(true);
+        };
+        h.on(['error'], f);
+        h.removeListener(['error'], f);
+        try {
+            h.emit(['error']);
+        } catch (e) {
+            done();
+        }
+    });
+
+
+
+
     it('should allow sub listeners', function (done) {
         h.on(['error', 'smith'], function () {
             done(false);
