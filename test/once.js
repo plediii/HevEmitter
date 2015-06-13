@@ -27,7 +27,19 @@ describe('HevEmitter once listener', function () {
             assert.equal(1, msg.emitted, 'method was called a second time');
         });
 
-        it('should receive at ' + '"' + onRoute.join('/') + '" messages emitted with multiple arguments to "' + emitRoute.join('/') + '"', function () {
+        it('should not be able to nested trigger at ' + '"' + onRoute.join('/') + '" messages emitted to "' + emitRoute.join('/') + '"', function () {
+            var msg = { emitted: 0 };
+            h.once(onRoute, function (msg) {
+                assert.equal(0, msg.emitted, 'method was called more than once');
+                msg.emitted += 1;
+                assert(!h.emit(emitRoute, msg), 'unexpectedly emitted a nested call');
+            });
+            assert.equal(0, msg.emitted, 'bad initial state');
+            assert(h.emit(emitRoute, msg), 'did not emit as expected');
+            assert.equal(1, msg.emitted, 'method was not called once');
+        });
+
+        it('should receive once at ' + '"' + onRoute.join('/') + '" messages emitted with multiple arguments to "' + emitRoute.join('/') + '"', function () {
             var msg = { emitted: 0 };
             h.once(onRoute, function (a, msg) {
                 assert.equal(a, 'a');
