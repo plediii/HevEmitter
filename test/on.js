@@ -24,6 +24,17 @@ describe('HevEmitter on listener', function () {
             assert(h.emit(emitRoute, msg));
             assert.equal(2, msg.emitted);
         });
+
+        it('should receive at ' + '"' + onRoute.join('/') + '" messages emitted with multiple arguments to "' + emitRoute.join('/') + '"', function () {
+            var msg = { emitted: 0 };
+            h.on(onRoute, function (a, msg) {
+                assert.equal(a, 'a');
+                msg.emitted += 1;
+            });
+            assert(h.emit(emitRoute, 'a', msg));
+            assert(h.emit(emitRoute, 'a', msg));
+            assert.equal(2, msg.emitted);
+        });
     };
 
     var shouldReceiveInOrder = function (firstRoute, secondRoute, emitRoute) {
