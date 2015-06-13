@@ -39,10 +39,10 @@ describe('HevEmitter listeners', function () {
             h.on(firstRoute, f);
             h.on(secondRoute, g);
             var l = h.listeners(matchRoute);
-            assert.equal(2, l.length);
-            assert(_.contains(l, f));
-            assert(_.contains(l, g));
-            assert(_.indexOf(l, f) < _.indexOf(l, g));
+            assert.equal(2, l.length, 'did not contain two functions');
+            assert(_.contains(l, f), 'did not contain first function');
+            assert(_.contains(l, g), 'did not contain second function');
+            assert(_.indexOf(l, f) < _.indexOf(l, g), 'wrong order');
         });
 
         it('"' + firstRoute.join('/') + '" should precede "' + secondRoute.join('/')
@@ -52,10 +52,10 @@ describe('HevEmitter listeners', function () {
             h.on(secondRoute, g);
             h.on(firstRoute, f);
             var l = h.listeners(matchRoute);
-            assert.equal(2, l.length);
-            assert(_.contains(l, f));
-            assert(_.contains(l, g));
-            assert(_.indexOf(l, f) < _.indexOf(l, g));
+            assert.equal(2, l.length, 'did not contain two functions');
+            assert(_.contains(l, f), 'did not contain first function');
+            assert(_.contains(l, g), 'did not contain second function');
+            assert(_.indexOf(l, f) < _.indexOf(l, g), 'wrong order');
         });
     };
 
