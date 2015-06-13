@@ -23,13 +23,42 @@ describe('HevEmitter listeners', function () {
     };
 
     var listenerShouldNotMatch = function (listenerRoute, matchRoute) {
-        it('"' + listenerRoute.join('/') + '" should be returned by listeners of "' + matchRoute.join('/') + '"', function () {
+        it('"' + listenerRoute.join('/') + '" *not* should be returned by listeners of "' + matchRoute.join('/') + '"', function () {
             var f = function () {};
             h.on(listenerRoute, f);
             var l = h.listeners(matchRoute);
             assert.equal(0, listeners.length);
         });
     };
+
+    var shouldPrecedeInMatch = function (firstRoute, secondRoute, matchRoute) {
+        it('"' + firstRoute.join('/') + '" should precede "' + secondRoute.joion('/')
+           + '"  by listeners of "' + matchRoute.join('/') + '"', function () {
+            var f = function () {};
+            var g = function () {};
+            h.on(listenerRoute, f);
+            h.on(listenerRoute, g);
+            var l = h.listeners(matchRoute);
+            assert.equal(2, listeners.length);
+            assert(_.contains(l, f));
+            assert(_.contains(l, g));
+            assert(_.indexOf(l, f) < _.indexOf(l, g));
+        });
+
+        it('"' + firstRoute.join('/') + '" should precede "' + secondRoute.joion('/')
+           + '"  by listeners of "' + matchRoute.join('/') + '" (opposite order)', function () {
+            var f = function () {};
+            var g = function () {};
+            h.on(listenerRoute, g);
+            h.on(listenerRoute, f);
+            var l = h.listeners(matchRoute);
+            assert.equal(2, listeners.length);
+            assert(_.contains(l, f));
+            assert(_.contains(l, g));
+            assert(_.indexOf(l, f) < _.indexOf(l, g));
+        });
+    };
+
 
     _.each([
         [['name'], ['name']]
@@ -119,6 +148,70 @@ describe('HevEmitter listeners', function () {
 
     ], function (args) {
         listenerNotShouldMatch.apply(args);
+    });
+
+
+    _.each([
+        [['*'], ['name'], ['name']]
+        , [['**'], ['name'], ['name']]
+        , [['**'], ['*'], ['name']]
+
+        , [['*'], ['name'], ['*']]
+        , [['**'], ['name'], ['*']]
+        , [['**'], ['*'], ['*']]
+
+        , [['*'], ['name'], ['**']]
+        , [['**'], ['name'], ['**']]
+        , [['**'], ['*'], ['**']]
+
+
+        , [['name', '*'], ['name', 'name'], ['name', 'name']]
+        , [['*', 'name'], ['name', 'name'], ['name', 'name']]
+        , [['*', '*'], ['name', 'name'], ['name', 'name']]
+        , [['name', '**'], ['name', 'name'], ['name', 'name']]
+        , [['*', '**'], ['name', 'name'], ['name', 'name']]
+        , [['**'], ['name', 'name'], ['name', 'name']]
+
+        , [['*', 'name'], ['name', '*'], ['name', 'name']]
+        , [['*', '*'], ['name', '*'], ['name', 'name']]
+        , [['name', '**'], ['name', '*'], ['name', 'name']]
+        , [['*', '**'], ['name', '*'], ['name', 'name']]
+        , [['**'], ['name', '*'], ['name', 'name']]
+
+        , [['*', '*'], ['*', 'name'], ['name', 'name']]
+        , [['name', '**'], ['*', 'name'], ['name', 'name']]
+        , [['*', '**'], ['*', 'name'], ['name', 'name']]
+        , [['**'], ['*', 'name'], ['name', 'name']]
+
+        , [['*', '**'], ['name', '**'], ['name', 'name']]
+        , [['**'], ['name', '**'], ['name', 'name']]
+
+
+
+        , [['name', '*'], ['name', 'name'], ['name', '*']]
+        , [['*', 'name'], ['name', 'name'], ['name', '*']]
+        , [['*', '*'], ['name', 'name'], ['name', '*']]
+        , [['name', '**'], ['name', 'name'], ['name', '*']]
+        , [['*', '**'], ['name', 'name'], ['name', '*']]
+        , [['**'], ['name', 'name'], ['name', '*']]
+
+        , [['*', 'name'], ['name', '*'], ['name', '*']]
+        , [['*', '*'], ['name', '*'], ['name', '*']]
+        , [['name', '**'], ['name', '*'], ['name', '*']]
+        , [['*', '**'], ['name', '*'], ['name', '*']]
+        , [['**'], ['name', '*'], ['name', '*']]
+
+        , [['*', '*'], ['*', 'name'], ['name', '*']]
+        , [['name', '**'], ['*', 'name'], ['name', '*']]
+        , [['*', '**'], ['*', 'name'], ['name', '*']]
+        , [['**'], ['*', 'name'], ['name', '*']]
+
+        , [['*', '**'], ['name', '**'], ['name', '*']]
+        , [['**'], ['name', '**'], ['name', '*']]
+
+
+    ], function (args) {
+        shouldPrecedeInMatch.apply(args);
     });
 
     it('should return a "*" listener for "*"', function () {
