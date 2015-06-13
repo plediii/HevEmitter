@@ -256,7 +256,7 @@ var adaptCallback = function (cb) {
     return f;
 };
 
-var allListeners = function (eventTree) {
+var allSubListeners = function (eventTree) {
     var hash = eventTree.hash;
     var starListeners = [];
     var funcs = _.map(eventTree.hash, function (subtree, key) {
@@ -265,13 +265,13 @@ var allListeners = function (eventTree) {
             return [];
         }
         else if (key === '*') {
-            starListeners = starListeners.concat(allListeners(subtree));
+            starListeners = starListeners.concat(allSubListeners(subtree));
             return [];
         } else {
-            return allListeners(subtree);
+            return subtree.funcs.concat(allSubListeners(subtree));
         }
     });
-    return [].concat.apply(eventTree.funcs.concat(starListeners), funcs);
+    return [].concat.apply(starListeners, funcs);
 };
 
 var listenerFuncs = function (funcs) {
@@ -283,7 +283,7 @@ var listenerFuncs = function (funcs) {
 var listeners = function (route, eventTree) {
     var head = _.head(route);
     if (head === '**') {
-        return allListeners(eventTree);
+        return allSubListeners(eventTree);
     } else {
         if (route.length > 1) {
             var hash = eventTree.hash;
@@ -303,14 +303,20 @@ var listeners = function (route, eventTree) {
                 }));
                 return [].concat.apply(starListeners, funcs);
             } else {
+                console.log('route two ', head, ' in ', route); 
                 var starListeners = [];
                 if (hash.hasOwnProperty('**')) {
                     starListeners = hash['**'].funcs;
                 }
+                if (hash.hasOwnProperty('*')) {
+                    starListeners = starListeners.concat(listeners(rest, hash['*']));
+                }
                 if (hash.hasOwnProperty(head)) {
-                    return listeners(rest, hash[head]);
+                    console.log('matching subroute match of ', head, listeners(rest, hash[head]), hash[head]);
+                    return starListeners.concat(listeners(rest, hash[head]));
                 }
                 else {
+                    console.log('no exact match ', starListeners);
                     return starListeners;
                 }
             }
