@@ -49,6 +49,7 @@ describe('HevEmitter removeListener', function () {
             };
             assert(_.isEmpty(h._eventTree.hash), 'was not empty to start with');
             h.on(onRoute, f);
+            assert(!_.isEmpty(h._eventTree.hash), 'was empty even after adding listener');
             h.removeListener(deleteRoute, f);
             assert(_.isEmpty(h._eventTree.hash), 'was not empty after removal');
         });
@@ -74,7 +75,6 @@ describe('HevEmitter removeListener', function () {
     });
 
     _.each(routes.notDeleteRoutes, function (args) {
-        console.log('not delete ', args);
         shouldNotBeDeletedAt.apply(null, args);
     });
 
