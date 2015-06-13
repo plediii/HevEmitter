@@ -354,14 +354,12 @@ var listeners = function (route, eventTree) {
     }
 };
 
-var emit = function (eventTree, route, msg) {
-    return chainExecutions(
-        function () {
-            return execTree(eventTree.hash['**'], msg);
-        }
-        , function () {
-            return execCallbacks(route, eventTree, msg);
-        });
+var emit = function (eventTree, route, args) {
+    var ls = listeners(route, eventTree);
+    _.each(ls, function (f) {
+        f.apply(null, args);
+    });
+    return ls.length > 0;
 };
 
 var list = function (eventTree, parent) {
@@ -415,30 +413,18 @@ _.extend(EventEmitter.prototype, {
     , emit: function (route) {
         var _this = this;
         route = this.parseRoute(route);
+        var args = _.toArray(arguments).slice(1);
         if (route[0] === 'newListener') {
             return emit(_this.newListenerTree, route.slice(1), msg);
         }
         else if (route[0] === 'error') {
-            return emit(_this._errorTree, route.slice(1), msg)
-            .then(function (called) {
-                if (!called) {
-                    if (msg instanceof Error) {
-                        throw msg; // Unhandled 'error' event
-                    }
-                    else {
-                        throw new Error('Uncaught unspecified error event.');
-                    }
-                }
-                return true;
-            });
+            if (!emit(_this._errorTree, route.slice(1), args)) {
+                throw args[0];
+            }
+            return true;
         }
         else {
-            var ls = listeners(route, _this._eventTree);
-            var args = _.toArray(arguments).slice(1);
-            _.each(ls, function (f) {
-                f.apply(null, args);
-            });
-            return ls.length > 0;
+            return emit(_this._eventTree, route, args);
         }
     } 
     , removeListener: function (route, f) {
