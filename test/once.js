@@ -7,7 +7,7 @@ var assert = require('assert');
 var H = require('../index').EventEmitter;
 var routes = require('./routes');
 
-describe('HevEmitter on listener', function () {
+describe('HevEmitter once listener', function () {
 
     var h;
     beforeEach(function () {
@@ -39,6 +39,19 @@ describe('HevEmitter on listener', function () {
             assert(!h.emit(emitRoute, 'a', msg), 'unexpectedly emitted a second time');
             assert.equal(1, msg.emitted, 'method was called a second time');
         });
+
+        it('should not leak once listener at ' + '"' + onRoute.join('/') + '" after messages to "' + emitRoute.join('/') + '"', function () {
+            var msg = { emitted: 0 };
+            assert(_.isEmpty(h._eventTree.hash), 'was not empty to start with');
+            h.once(onRoute, function (a, msg) {
+                assert.equal(a, 'a');
+                msg.emitted += 1;
+            });
+            assert(!_.isEmpty(h._eventTree.hash), 'was not empty after adding listener');
+            assert(h.emit(emitRoute, 'a', msg), 'did not emit as expected');
+            assert(_.isEmpty(h._eventTree.hash), 'listener was leaked after triggering once');
+        });
+
     };
 
     var shouldReceiveInOrder = function (firstRoute, secondRoute, emitRoute) {
