@@ -36,8 +36,8 @@ describe('HevEmitter listeners', function () {
            + '"  by listeners of "' + matchRoute.join('/') + '"', function () {
             var f = function () {};
             var g = function () {};
-            h.on(listenerRoute, f);
-            h.on(listenerRoute, g);
+            h.on(firstRoute, f);
+            h.on(secondRoute, g);
             var l = h.listeners(matchRoute);
             assert.equal(2, l.length);
             assert(_.contains(l, f));
@@ -49,8 +49,8 @@ describe('HevEmitter listeners', function () {
            + '"  by listeners of "' + matchRoute.join('/') + '" (opposite order)', function () {
             var f = function () {};
             var g = function () {};
-            h.on(listenerRoute, g);
-            h.on(listenerRoute, f);
+            h.on(secondRoute, g);
+            h.on(firstRoute, f);
             var l = h.listeners(matchRoute);
             assert.equal(2, l.length);
             assert(_.contains(l, f));
