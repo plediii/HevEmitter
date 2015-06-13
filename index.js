@@ -431,7 +431,11 @@ _.extend(EventEmitter.prototype, {
             });
         }
         else {
-            return emit(_this._eventTree, route, msg);
+            var ls = listeners(route, _this._eventTree);
+            _.each(ls, function (f) {
+                f(msg);
+            });
+            return ls.length > 0;
         }
     } 
     , removeListener: function (route, f) {
