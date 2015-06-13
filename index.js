@@ -209,16 +209,18 @@ var removeCallback = function (route, tree, f) {
     }
     else if (route.length === 1) {
         if (head === '**')  {
-            removeFunc(tree, f);
             _.each(tree.hash, function (subtree, subhead) {
+                removeFunc(subtree, f);
                 removeCallback(route, subtree, f);
                 deleteIfEmpty(subhead, tree.hash);
             });
         }
         if (head === '*') {
             _.each(tree.hash, function (subtree, subhead) {
-                removeFunc(subtree, f);
-                deleteIfEmpty(subhead, tree.hash);
+                if (subhead != '**') {
+                    removeFunc(subtree, f);
+                    deleteIfEmpty(subhead, tree.hash);
+                }
             });
         }
         else if (tree.hash.hasOwnProperty(head)) {
