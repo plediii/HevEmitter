@@ -167,7 +167,7 @@ var execCallbacks = function (route, tree, msg) {
 var filterFuncs = function (funcs, f) {
     if (f) {
         return _.filter(funcs, function (func) {
-            return func.listener !== f;
+            return func !== f && func.listener !== f;
         });
     }
     else {
