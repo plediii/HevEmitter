@@ -113,7 +113,6 @@ describe('HevEmitter listeners', function () {
 
         , [['name', '*'], ['anotherName', 'name2']]
         , [['name', '*'], ['anotherName', '*']]
-        , [['name', '*'], ['**']]
         , [['name', '*'], ['anotherName', '**']]
 
         , [['name', 'name2'], ['name', 'name2', '**']]
@@ -131,20 +130,14 @@ describe('HevEmitter listeners', function () {
         , [['name', 'name2', '**'], ['name', 'name2']]
         , [['name', 'name2', '**'], ['*', 'name2']]
         , [['name', 'name2', '**'], ['name', '*']]
-        , [['name', 'name2', '**'], ['**']]
-        , [['name', 'name2', '**'], ['name', '**']]
 
         , [['*', 'name2', '**'], ['name', 'name2']]
         , [['*', 'name2', '**'], ['*', 'name2']]
         , [['*', 'name2', '**'], ['name', '*']]
-        , [['*', 'name2', '**'], ['**']]
-        , [['*', 'name2', '**'], ['name', '**']]
 
         , [['name', '*', '**'], ['name', 'name2']]
         , [['name', '*', '**'], ['*', 'name2']]
         , [['name', '*', '**'], ['name', '*']]
-        , [['name', '*', '**'], ['**']]
-        , [['name', '*', '**'], ['name', '**']]
 
     ], function (args) {
         listenerShouldNotMatch.apply(null, args);
