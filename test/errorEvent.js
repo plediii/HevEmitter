@@ -1,14 +1,19 @@
 /*jslint node: true */
 "use strict";
 
-var H = require('../index').EventEmitter;
 var _ = require('lodash');
 var assert = require('assert');
 
+var H = require('../index').EventEmitter;
+
 describe('HevEmitter error', function () {
+    
+    var h;
+    beforeEach(function () {
+        h = new H();
+    });
 
     it('should trigger "error" listeners', function (done) {
-        var h = new H();
         h.on(['error'], function () {
             done();
         });
@@ -16,7 +21,6 @@ describe('HevEmitter error', function () {
     });
 
     it('should *NOT* trigger * listeners', function (done) {
-        var h = new H();
         h.on(['*'], function () {
             done(true);
         });
@@ -30,7 +34,6 @@ describe('HevEmitter error', function () {
     });
 
     it('should NOT trigger ** events', function (done) {
-        var h = new H();
         h.on(['**'], function () {
             done(true);
         });
@@ -41,15 +44,15 @@ describe('HevEmitter error', function () {
     });
 
     it('should cause exception when there is no listener', function (done) {
-        var h = new H();
-        h.emit(['error'])
-        .catch(function () {
-            done();
-        });
+        try {
+            h.emit(['error']);
+            return done(true);
+        } catch (e) {
+            return done();
+        }
     });
 
     it('should allow sub listeners', function (done) {
-        var h = new H();
         h.on(['error', 'smith'], function () {
             done(false);
         });
@@ -60,7 +63,6 @@ describe('HevEmitter error', function () {
     });
 
     it('should catch sub events on error', function (done) {
-        var h = new H();
         h.on(['error'], function () {
             done();
         });
