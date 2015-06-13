@@ -445,20 +445,15 @@ _.extend(EventEmitter.prototype, {
         route = this.parseRoute(route);
         removeCallback(route, this._eventTree, f);
     }
-    , once: function (route, cb) {
+    , once: function (route, f) {
         route = this.parseRoute(route);
         var _this = this;
-        var f = adaptCallback(cb);
-        var g = function (msg) {
-            _this.removeListener(route, cb);
-            return f(msg);
+        var g = function () {
+            _this.removeListener(route, f);
+            return f.apply(null, arguments);
         };
-        g.listener = cb;
-        emit(this._newListenerTree, route, {
-            event: route
-            , listener: cb
-        });
-        return addCallback(route, this._eventTree, g);
+        g.listener = f;
+        return this.on(route, g);
     }
     , removeAllListeners: function (route) {
         route = this.parseRoute(route);
