@@ -323,10 +323,10 @@ var listeners = function (route, eventTree) {
                 var starListeners = [];
                 var funcs = [].concat.apply([], _.map(hash, function (subtree, key) {
                     if (key === '*') {
-                        starListeners = subtree.funcs.concat(starListeners);
+                        starListeners = starListeners.concat(subtree.funcs);
                         return [];
                     } if (key == '**') {
-                        starListeners = starListeners.concat(subtree.funcs);
+                        starListeners = subtree.funcs.concat(starListeners);
                         return [];
                     } else {
                         return subtree.funcs;
