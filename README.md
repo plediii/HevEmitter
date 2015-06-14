@@ -1,6 +1,6 @@
 # HevEmitter [![Build Status](http://jenkins.plediii.net:8080/buildStatus/icon?job=hevemitter&build=7)](http://jenkins.plediii.net:8080/job/hevemitter/7/)
 
-A Hierarchical event emitter with promise.  
+A Hierarchical event emitter for nodejs.
 
 ## Examples
 

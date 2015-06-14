@@ -41,13 +41,6 @@ h.emit(['finn', 'the', '*'], 'EventEmitter');
 console.log('### Using delimited strings');
 h.emit('neil/the/tyson', 'cosmos');
 
-console.log('###Short circuiting');
-h.on(['**'], function (msg, next) {
-    if (msg === 'picard') {
-        return next();
-    }
-});
-
 console.log("// waiting on ['data', 'the', 'android'] and ['geordi', 'the', 'engineer'] emissions");
 h.emit(['data', 'the', 'android'], 'picard');
 h.emit(['geordi', 'the', 'engineer'], 'riker');
