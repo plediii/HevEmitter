@@ -90,4 +90,15 @@ describe('HevEmitter on listener', function () {
     });
 
 
+    describe('undefined routes', function () {
+
+        it('should be *NOT* be able to add listeners to undefined routes', function () {
+            // this is most likely an error on the user's part
+            assert.throws(function () {
+                h.on([void 0], function () {});
+            }, /undefined/);
+        });
+        
+    });
+
 });
