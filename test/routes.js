@@ -263,6 +263,5 @@ var routes = module.exports = {
         , [['name', '*', '**'], ['name', 'name2']]
         , [['name', '*', '**'], ['*', 'name2']]
         , [['name', '*', '**'], ['name', '*']]
-
     ]
 };

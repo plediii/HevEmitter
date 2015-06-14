@@ -77,9 +77,11 @@ describe('HevEmitter newlistener', function () {
                 };
                 h.on(onRoute, f);
                 assert.equal(0, count);
-                h.on(onRoute, function () {});
+                // confusingly here, the onroutes here should always begin with newListener
+                h.on(onRoute.slice(1), function () {});
                 assert.equal(1, count, 'listener was not called to begin with');
                 h.removeListener(emitRoute, f);
+                h.on(onRoute.slice(1), function () {});
                 assert.equal(1, count, 'listener was called again after removal');
             });
 
@@ -89,10 +91,43 @@ describe('HevEmitter newlistener', function () {
                     count++;
                 });
                 assert.equal(0, count);
-                h.on(onRoute, function () {});
+                // confusingly here, the onroutes here should always begin with newListener
+                h.on(onRoute.slice(1), function () {});
                 assert.equal(1, count, 'listener was not called to begin with');
                 h.removeAllListeners(emitRoute);
+                h.on(onRoute.slice(1), function () {});
                 assert.equal(1, count, 'listener was called again after removal');
+            });
+        };
+
+        var shouldNotBeDeleted = function (onRoute, emitRoute) {
+            it('should receive at ' + '"' + onRoute.join('/') + '" when listeners are removed at "' + emitRoute.join('/') + '"', function () {
+                var count = 0;
+                var f = function (msg) {
+                    count++;
+                };
+                h.on(onRoute, f);
+                assert.equal(0, count);
+                // confusingly here, the onroutes here should always begin with newListener
+                h.on(onRoute.slice(1), function () {});
+                assert.equal(1, count, 'listener was not called to begin with');
+                h.removeListener(emitRoute, f);
+                h.on(onRoute.slice(1), function () {});
+                assert.equal(2, count, 'listener was not called again after removal');
+            });
+
+            it('should receive at ' + '"' + onRoute.join('/') + '" when listeners are removed at "' + emitRoute.join('/') + '"', function () {
+                var count = 0;
+                h.on(onRoute, function (msg) {
+                    count++;
+                });
+                assert.equal(0, count);
+                // confusingly here, the onroutes here should always begin with newListener
+                h.on(onRoute.slice(1), function () {});
+                assert.equal(1, count, 'listener was not called to begin with');
+                h.removeAllListeners(emitRoute);
+                h.on(onRoute.slice(1), function () {});
+                assert.equal(2, count, 'listener was not called again after removal');
             });
         };
 
@@ -137,6 +172,44 @@ describe('HevEmitter newlistener', function () {
             shouldNotReceiveEmit.apply(null, args);
         });
 
+        _.each([
+            [['newListener'], ['newListener']]
+            , [['newListener', 'name'], ['newListener', 'name']]
+            , [['newListener', 'name'], ['newListener', '*']]
+            , [['newListener', 'name'], ['newListener', '**']]
+            , [['newListener', '*'], ['newListener', '*']]
+            , [['newListener', '*'], ['newListener', '**']]
+            , [['newListener', '**'], ['newListener', '**']]
+            , [['newListener', 'name', 'name2'], ['newListener', 'name', 'name2']]
+            , [['newListener', 'name', 'name2'], ['newListener', 'name', '*']]
+            , [['newListener', 'name', 'name2'], ['newListener', '*', 'name2']]
+            , [['newListener', 'name', 'name2'], ['newListener', '*', '*']]
+            , [['newListener', 'name', 'name2'], ['newListener', '*', '**']]
+            , [['newListener', 'name', 'name2'], ['newListener', '**']]
+            , [['newListener', '*', 'name2'], ['newListener', '*', 'name2']]
+            , [['newListener', '*', 'name2'], ['newListener', '*', '*']]
+            , [['newListener', '*', 'name2'], ['newListener', '*', '**']]
+            , [['newListener', '*', 'name2'], ['newListener', '**']]
+            , [['newListener', 'name', '*'], ['newListener', 'name', '*']]
+            , [['newListener', 'name', '*'], ['newListener', 'name', '**']]
+            , [['newListener', 'name', '*'], ['newListener', '*', '*']]
+            , [['newListener', 'name', '*'], ['newListener', '*', '**']]
+            , [['newListener', 'name', '*'], ['newListener', '**']]
+        ], function (args) {
+            var listenRoute = args[0];
+            shouldBeDeleted.apply(null, args);
+        });
+
+        _.each([
+            [['newListener'], ['*']]
+            , [['newListener'], ['**']]
+            , [['newListener', 'name'], ['*', '*']]
+            , [['newListener', 'name'], ['*', '**']]
+            , [['newListener', 'name'], ['**']]
+        ], function (args) {
+            var listenRoute = args[0];
+            shouldNotBeDeleted.apply(null, args);
+        });
 
     });
 
