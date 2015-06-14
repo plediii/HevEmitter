@@ -12,28 +12,6 @@ var eventTree = function () {
     };
 };
 
-var chainExecutions = function () {
-    var ps = _.toArray(arguments);
-
-    var execution = Promise.reduce(ps, function (called, p) {
-        var result = p();
-        if (result.isPending()) {
-            return result.then(function (fcalled) {
-                return called || fcalled;
-            });
-        }
-        else {
-            if (result.isRejected()) {
-                return result;
-            }
-            else {
-                return Promise.resolve(called || result.value());
-            }
-        }
-    }, false);
-    return execution;
-};
-
 var addCallback = function (route, tree, cb) {
     var head = _.head(route);
     if (!tree.hash.hasOwnProperty(head)) {
@@ -45,122 +23,6 @@ var addCallback = function (route, tree, cb) {
     }
     else if (route.length === 1) {
         tree.hash[head].funcs.push(cb);
-    }
-};
-
-var execTree = function (tree, msg) {
-    if (!tree || (tree.funcs.length === 0)) {
-        return Promise.resolve(false);
-    }
-    var funcs = tree.funcs;
-    var execution = Promise.reduce(funcs, function (called, f) {
-        return f(msg);
-    }, false);
-    if (execution.isPending()) {
-        return execution.then(true);
-    }
-    else {
-        if (execution.isRejected()) {
-            return execution;
-        }
-        else {
-            return Promise.resolve(true);
-        }
-    }
-};
-
-var applySubTrees = function (tree, method) {
-    return Promise.map(_.pairs(tree.hash)
-                       , function (kv) {
-                           if (kv[0] === '**') {
-                               return false;
-                           }
-                           else {
-                               return method(kv[1]);
-                           }
-                       }, {concurrency: 1});
-};
-
-
-
-var execAll = function (tree, msg) {
-    return chainExecutions(
-        function () {
-            return execTree(tree, msg);
-        }
-        , function () {
-            return applySubTrees(tree, function (subtree) {
-                return execAll(subtree, msg);
-            });
-        }
-    );
-};
-
-var execMatch = function (target, tree, msg) {
-    if (!tree) {
-        return Promise.resolve(false);
-    }
-    var targetTree = tree.hash.hasOwnProperty(target) && tree.hash[target];
-    if (!targetTree) {
-        return Promise.resolve(false);
-    }
-    var doubleStarTree = targetTree.hash['**'];
-    return Promise.join(execTree(targetTree, msg)
-                        , execTree(doubleStarTree, msg))
-        .then(_.any);
-};
-
-var noExecution = function () {
-    return Promise.resolve(false);
-};
-
-var execCallbacks = function (route, tree, msg) {
-    if (!tree) {
-        return noExecution();
-    }
-    var head = _.head(route);
-    if (head === '**') {
-        return execAll(tree, msg);
-    }
-    else if (route.length > 1) {
-        var rest = _.rest(route);
-        if (head === '*') {
-            return applySubTrees(tree, function (subtree) {
-                return Promise.join(execTree(subtree.hash['**'], msg)
-                                    , execCallbacks(rest, subtree, msg))
-                    .then(_.any);
-            });
-        }
-        else {
-            var matchTree = tree.hash.hasOwnProperty(head) && tree.hash[head];
-            return chainExecutions(function () {
-                return execTree(tree.hash['*'] && tree.hash['*'].hash['**'], msg);
-            }, function () {
-                return execTree(matchTree && matchTree.hash['**'], msg);
-            }, function () {
-                return execCallbacks(rest, tree.hash['*'], msg);
-            }, function () {
-                return execCallbacks(rest, matchTree, msg);
-            });
-        }
-    }
-    else if (route.length === 1) {
-        if (head === '*') {
-            return applySubTrees(tree, function (subtree) {
-                return execTree(subtree, msg);
-            })
-                .then(_.any);    
-        }
-        else {
-            return chainExecutions(function () {
-                return execMatch('*', tree, msg);
-            }, function () {
-                return execMatch(head, tree, msg);
-            });
-        }
-    }
-    else {
-        return noExecution();
     }
 };
 
@@ -230,34 +92,6 @@ var removeCallback = function (route, tree, f) {
     }
 };
 
-var adaptCallback = function (cb) {
-    var f;
-    if (cb.length === 2) {
-        f = function (msg) {
-            return new Promise(function (resolve, reject) {
-                return cb(msg, function (abort) {
-                    if (abort) {
-                        reject({
-                            message: abort
-                        });
-                    }
-                    else {
-                        resolve(true);
-                    }
-                });
-            });
-        };
-    }
-    else {
-        f = function (msg) {
-            cb(msg);
-            return Promise.resolve(true);
-        };
-    }
-    f.listener = cb.listener || cb;
-    return f;
-};
-
 var allSubListeners = function (eventTree) {
     var hash = eventTree.hash;
     var starListeners = [];
@@ -274,12 +108,6 @@ var allSubListeners = function (eventTree) {
         }
     });
     return [].concat.apply(starListeners, funcs);
-};
-
-var listenerFuncs = function (funcs) {
-    return _.map(funcs, function (f) {
-        return f.listener || f;
-    });
 };
 
 var listeners = function (route, eventTree) {
