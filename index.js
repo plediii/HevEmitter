@@ -391,15 +391,16 @@ _.extend(EventEmitter.prototype, {
     }
     , on: function (route, cb) {
         route = this.parseRoute(route);
-        if (route.length === 1
-            && (route[0] === 'newListener'
-                || route[0] === 'error')) {
-            route = route.concat('**');
-        }
         if (route[0] === 'newListener') {
+            if (route.length === 1) {
+                route = route.concat('**');
+            }
             addCallback(route.slice(1), this._newListenerTree, cb);
         }
         else if (route[0] === 'error') {
+            if (route.length === 1) {
+                route = route.concat('**');
+            }
             addCallback(route.slice(1), this._errorTree, cb);
         }
         else {
@@ -412,7 +413,7 @@ _.extend(EventEmitter.prototype, {
         route = this.parseRoute(route);
         var args = _.toArray(arguments).slice(1);
         if (route[0] === 'newListener') {
-            return emit(_this._newListenerTree, route.slice(1), msg);
+            return false;
         }
         else if (route[0] === 'error') {
             if (!emit(_this._errorTree, route.slice(1), args)) {
