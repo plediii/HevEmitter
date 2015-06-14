@@ -214,6 +214,9 @@ _.extend(EventEmitter.prototype, {
         if (_.isString(route))  {
             route = route.split(this.delimiter);
         }
+        if (_.any(route, _.isUndefined)) {
+            throw new Error('undefined route ' + JSON.stringify(route));
+        }
         return route;
     }
     , on: function (route, cb) {
