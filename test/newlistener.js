@@ -51,9 +51,21 @@ describe('HevEmitter newlistener', function () {
                 h.on(onRoute, function (msg) {
                     count++;
                 });
-                assert.equal(0, count);
+                assert.equal(0, count, 'bad initial state');
                 h.on(emitRoute, function () {});
-                assert.equal(0, count);
+                assert.equal(0, count, 'listener received the event.');
+            });
+        };
+
+        var shouldNotReceiveEmit = function (onRoute, emitRoute) {
+            it('should *not* receive at ' + '"' + onRoute.join('/') + '" messages emitted to "' + emitRoute.join('/') + '"', function () {
+                var msg = { emitted: 0 };
+                h.on(onRoute, function (msg) {
+                    msg.emitted += 1;
+                });
+                assert(!h.emit(emitRoute, msg));
+                assert(!h.emit(emitRoute, msg));
+                assert.equal(0, msg.emitted);
             });
         };
 
@@ -92,12 +104,39 @@ describe('HevEmitter newlistener', function () {
             shouldReceive.apply(null, args);
         });
 
-        _.each(_.map(routes.matchRoutes, function (basicMatch) {
+        _.each(_.map(routes.notMatchRoutes, function (basicMatch) {
             return [['newListener'].concat(basicMatch[0]), basicMatch[1]];
-        }), function (args) {
+        }).concat(), function (args) {
             var listenRoute = args[0];
             shouldNotReceive.apply(null, args);
         });
+
+        _.each([
+            [['newListener'], ['name']]
+            , [['newListener'], ['*']]
+            , [['newListener'], ['**']]
+            , [['newListener', 'name'], ['*', 'othername']]
+            , [['newListener', 'name'], ['*', 'name']]
+            , [['newListener', 'name'], ['*', '*']]
+            , [['newListener', '*'], ['*', 'name']]
+            , [['newListener', '*'], ['*', '*']]
+            , [['newListener', '*'], ['*', '**']]
+            , [['newListener', '**'], ['*', 'name']]
+            , [['newListener', '**'], ['*', '*']]
+            , [['newListener', '**'], ['*', '**']]
+            , [['newListener'], ['newListener']]
+            , [['newListener'], ['newListener', 'name']]
+            , [['newListener'], ['newListener', 'name', 'name2']]
+            , [['newListener', 'name'], ['newListener', 'name']]
+            , [['newListener', '*'], ['newListener', 'name']]
+            , [['newListener', '*', '*'], ['newListener', 'name', 'name2']]
+            , [['newListener', '**'], ['newListener', 'name']]
+            , [['newListener', '**'], ['newListener', 'name', 'name2']]
+        ], function (args) {
+            var listenRoute = args[0];
+            shouldNotReceiveEmit.apply(null, args);
+        });
+
 
     });
 
