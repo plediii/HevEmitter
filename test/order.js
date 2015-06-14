@@ -1,112 +1,36 @@
 /*jslint node: true */
 "use strict";
 
-var H = require('../index').EventEmitter;
 var _ = require('lodash');
 var assert = require('assert');
 
+var H = require('../index').EventEmitter;
+var routes = require('./routes');
+
 describe('HevEmitter callback order', function () {
-
-    it('should trigger .on/.once callback in order of addition', function (done) {
-        var h = new H();
-        var reports = [];
-        h.on(['duras'], function () {
-            reports.push('on');
-        });
-        h.once(['duras'], function () {
-            reports.push('once');
-        });
-        h.emit(['duras'])
-        .then(function () {
-            assert.deepEqual(['on', 'once'], reports);
-            done();
-        });
+    
+    var h;
+    beforeEach(function () {
+        h = new H();
     });
 
-    it('should trigger .once/.on callback in order of addition', function (done) {
-        var h = new H();
-        var reports = [];
-        h.once(['duras'], function () {
-            reports.push('once');
+    var calledInOrderOfAddition = function (onRoute, emitRoute) {
+        it('should trigger in order of adding to "' + onRoute.join('/') + '" when emitting to "' + emitRoute.join('/') + '"', function () {
+            var msg = { emitted: [] };
+            h.on(onRoute, function (msg) {
+                msg.emitted.push('a') 
+            });
+            h.on(onRoute, function (msg) {
+                msg.emitted.push('b') 
+            });
+            assert(h.emit(emitRoute, msg));
+            assert.deepEqual(['a', 'b'], msg.emitted);
         });
-        h.on(['duras'], function () {
-            reports.push('on');
-        });
-        h.emit(['duras'])
-        .then(function () {
-            assert.deepEqual(['once', 'on'], reports);
-            done();
-        });
+    };
+
+
+    _.each(routes.matchRoutes, function (args) {
+        calledInOrderOfAddition.apply(null, args);
     });
-
-    it('should trigger .on/promise callback in order of addition', function (done) {
-        var h = new H();
-        var reports = [];
-        h.on(['kales'], function () {
-            reports.push('on');
-        });
-        h.on(['kales'], function (msg, cb) {
-            reports.push('promise');
-            cb();
-        });
-        h.emit(['kales'])
-        .then(function () {
-            assert.deepEqual(['on', 'promise'], reports);
-            done();
-        });
-    });
-
-    it('should trigger promise/.on callback in order of addition', function (done) {
-        var h = new H();
-        var reports = [];
-        h.on(['kales'], function (msg, cb) {
-            reports.push('promise');
-            cb();
-        });
-        h.on(['kales'], function () {
-            reports.push('on');
-        });
-        h.emit(['kales'])
-        .then(function () {
-            assert.deepEqual(['promise', 'on'], reports);
-            done();
-        });
-    });
-
-
-    it('should trigger .once/promise callback in order of addition', function (done) {
-        var h = new H();
-        var reports = [];
-        h.once(['kitamer'], function () {
-            reports.push('once');
-        });
-        h.on(['kitamer'], function (msg, cb) {
-            reports.push('promise');
-            cb();
-        });
-        h.emit(['kitamer'])
-        .then(function () {
-            assert.deepEqual(['once', 'promise'], reports);
-            done();
-        });
-    });
-
-    it('should trigger promise/.once callback in order of addition', function (done) {
-        var h = new H();
-        var reports = [];
-        h.on(['kitamer'], function (msg, cb) {
-            reports.push('promise');
-            cb();
-        });
-        h.once(['kitamer'], function () {
-            reports.push('once');
-        });
-        h.emit(['kitamer'])
-        .then(function () {
-            assert.deepEqual(['promise', 'once'], reports);
-            done();
-        });
-    });
-
 
 });

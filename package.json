@@ -1,6 +1,6 @@
 {
   "name": "hevemitter",
-  "version": "0.9.3",
+  "version": "1.0.1",
   "private": false,
   "author": "Paul J. Ledbetter III",
   "license": "MIT",
@@ -10,7 +10,7 @@
   },
   "scripts": {
     "test": "mocha",
-      "ci-test": "istanbul cover _mocha -- -R tap \"./test/*.js\" > test.tap && istanbul report clover"
+    "ci-test": "istanbul cover _mocha -- -R tap \"./test/*.js\" > test.tap && istanbul report clover"
   },
   "keywords": [
     "hierarchical",
@@ -19,7 +19,6 @@
     "router"
   ],
   "dependencies": {
-    "bluebird": "^2.2.2",
     "lodash": "^2.4.1"
   },
   "devDependencies": {

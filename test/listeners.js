@@ -5,199 +5,72 @@ var H = require('../index').EventEmitter;
 var _ = require('lodash');
 var assert = require('assert');
 
+var routes = require('./routes');
+
 describe('HevEmitter listeners', function () {
+    var h;
 
-    it('should return a "name" listener for "name"', function () {
-        var h = new H();
-        var listener = function () {};
-        h.on(['tiger'], listener);
-        var listeners = h.listeners(['tiger']);
-        assert.equal(1, listeners.length);
-        assert(_.contains(listeners, listener));
+    beforeEach(function () {
+        h = new H();
     });
 
-    it('should return not return a "name" listener for different "name"', function () {
-        var h = new H();
-        var listener = function () {};
-        h.on(['quarters'], listener);
-        var listeners = h.listeners(['way']);
-        assert.equal(0, listeners.length);
+    var listenerShouldMatch = function (listenerRoute, matchRoute) {
+        it('"' + listenerRoute.join('/') + '" should be returned by listeners of "' + matchRoute.join('/') + '"', function () {
+            var f = function () {};
+            h.on(listenerRoute, f);
+            var l = h.listeners(matchRoute);
+            assert.equal(1, l.length);
+            assert(_.contains(l, f));
+        });
+    };
+
+    var listenerShouldNotMatch = function (listenerRoute, matchRoute) {
+        it('"' + listenerRoute.join('/') + '" *not* should be returned by listeners of "' + matchRoute.join('/') + '"', function () {
+            var f = function () {};
+            h.on(listenerRoute, f);
+            var l = h.listeners(matchRoute);
+            assert.equal(0, l.length);
+        });
+    };
+
+    var shouldPrecedeInMatch = function (firstRoute, secondRoute, matchRoute) {
+        it('"' + firstRoute.join('/') + '" should precede "' + secondRoute.join('/')
+           + '"  by listeners of "' + matchRoute.join('/') + '"', function () {
+            var f = function () {};
+            var g = function () {};
+            h.on(firstRoute, f);
+            h.on(secondRoute, g);
+            var l = h.listeners(matchRoute);
+            assert.equal(2, l.length, 'did not contain two functions');
+            assert(_.contains(l, f), 'did not contain first function');
+            assert(_.contains(l, g), 'did not contain second function');
+            assert(_.indexOf(l, f) < _.indexOf(l, g), 'wrong order');
+        });
+
+        it('"' + firstRoute.join('/') + '" should precede "' + secondRoute.join('/')
+           + '"  by listeners of "' + matchRoute.join('/') + '" (opposite order)', function () {
+            var f = function () {};
+            var g = function () {};
+            h.on(secondRoute, g);
+            h.on(firstRoute, f);
+            var l = h.listeners(matchRoute);
+            assert.equal(2, l.length, 'did not contain two functions');
+            assert(_.contains(l, f), 'did not contain first function');
+            assert(_.contains(l, g), 'did not contain second function');
+            assert(_.indexOf(l, f) < _.indexOf(l, g), 'wrong order');
+        });
+    };
+
+    _.each(routes.matchRoutes, function (args) {
+        listenerShouldMatch.apply(null, args);
     });
 
-
-    it('should return a "*" listener for "*"', function () {
-        var h = new H();
-        var listener = function () {};
-        h.on(['*'], listener);
-        var listeners = h.listeners(['*']);
-        assert.equal(1, listeners.length);
-        assert(_.contains(listeners, listener));
+    _.each(routes.notMatchRoutes, function (args) {
+        listenerShouldNotMatch.apply(null, args);
     });
 
-    it('should return a "*" listener for "name"', function () {
-        var h = new H();
-        var listener = function () {};
-        h.on(['*'], listener);
-        var listeners = h.listeners(['name']);
-        assert.equal(1, listeners.length);
-        assert(_.contains(listeners, listener));
+    _.each(routes.matchOrders, function (args) {
+        shouldPrecedeInMatch.apply(null, args);
     });
-
-    it('should return a "name" listener for "*"', function () {
-        var h = new H();
-        var listener = function () {};
-        h.on(['else'], listener);
-        var listeners = h.listeners(['*']);
-        assert.equal(1, listeners.length);
-        assert(_.contains(listeners, listener));
-    });
-
-
-    it('should return a "**" listener for "**"', function () {
-        var h = new H();
-        var listener = function () {};
-        h.on(['**'], listener);
-        var listeners = h.listeners(['**']);
-        assert.equal(1, listeners.length);
-        assert(_.contains(listeners, listener));
-    });
-
-    it('should return a "name" listener for "**"', function () {
-        var h = new H();
-        var listener = function () {};
-        h.on(['effect'], listener);
-        var listeners = h.listeners(['**']);
-        assert.equal(1, listeners.length);
-        assert(_.contains(listeners, listener));
-    });
-
-    it('should return a "**" listener for "name"', function () {
-        var h = new H();
-        var listener = function () {};
-        h.on(['**'], listener);
-        var listeners = h.listeners(['shields']);
-        assert.equal(1, listeners.length);
-        assert(_.contains(listeners, listener));
-    });
-
-    it('should return a "**" listener for "*"', function () {
-        var h = new H();
-        var listener = function () {};
-        h.on(['**'], listener);
-        var listeners = h.listeners(['*']);
-        assert.equal(1, listeners.length);
-        assert(_.contains(listeners, listener));
-    });
-
-    it('should return a "*" listener for "**"', function () {
-        var h = new H();
-        var listener = function () {};
-        h.on(['*'], listener);
-        var listeners = h.listeners(['**']);
-        assert.equal(1, listeners.length);
-        assert(_.contains(listeners, listener));
-    });
-
-    it('should return a "name/name" listener for "name/name"', function () {
-        var h = new H();
-        var listener = function () {};
-        h.on(['we', 'know'], listener);
-        var listeners = h.listeners(['we', 'know']);
-        assert.equal(1, listeners.length);
-        assert(_.contains(listeners, listener));
-    });
-
-    it('should return not return a "name/name" listener for different "name/name"', function () {
-        var h = new H();
-        var listener = function () {};
-        h.on(['scary', 'real'], listener);
-        var listeners = h.listeners(['scary', 'ship']);
-        assert.equal(0, listeners.length);
-    });
-
-
-    it('should return not return a "name/name" listener for different "*/name"', function () {
-        var h = new H();
-        var listener = function () {};
-        h.on(['room', 'ship'], listener);
-        var listeners = h.listeners(['*', 'being']);
-        assert.equal(0, listeners.length);
-    });
-
-    it('should return a "name/name" listener for "*/name"', function () {
-        var h = new H();
-        var listener = function () {};
-        h.on(['is', 'she'], listener);
-        var listeners = h.listeners(['*', 'she']);
-        assert.equal(1, listeners.length);
-        assert(_.contains(listeners, listener));
-    });
-
-    it('should return a "name/name" listener for "**"', function () {
-        var h = new H();
-        var listener = function () {};
-        h.on(['lets', 'see'], listener);
-        var listeners = h.listeners(['**']);
-        assert.equal(1, listeners.length);
-        assert(_.contains(listeners, listener));
-    });
-
-
-    it('should return a "name/name" listener for "name/**"', function () {
-        var h = new H();
-        var listener = function () {};
-        h.on(['maybe', 'closet'], listener);
-        var listeners = h.listeners(['maybe', '**']);
-        assert.equal(1, listeners.length);
-        assert(_.contains(listeners, listener));
-    });
-
-    it('should return a "name/name" listener for "name/name/**"', function () {
-        var h = new H();
-        var listener = function () {};
-        h.on(['wouldnt', 'let'], listener);
-        var listeners = h.listeners(['wouldnt', 'let', '**']);
-        assert.equal(1, listeners.length);
-        assert(_.contains(listeners, listener));
-    });
-
-
-    it('should return a "name/name" listener for "name/*"', function () {
-        var h = new H();
-        var listener = function () {};
-        h.on(['young', 'children'], listener);
-        var listeners = h.listeners(['young', '*']);
-        assert.equal(1, listeners.length);
-        assert(_.contains(listeners, listener));
-    });
-
-    it('should return a "*/name" listener for "*/name"', function () {
-        var h = new H();
-        var listener = function () {};
-        h.on(['*', 'claire'], listener);
-        var listeners = h.listeners(['*', 'claire']);
-        assert.equal(1, listeners.length);
-        assert(_.contains(listeners, listener));
-    });
-
-    it('should return a "name/*" listener for "name/*"', function () {
-        var h = new H();
-        var listener = function () {};
-        h.on(['protect', '*'], listener);
-        var listeners = h.listeners(['protect', '*']);
-        assert.equal(1, listeners.length);
-        assert(_.contains(listeners, listener));
-    });
-
-    it('should return a "**" listener for "name/name"', function () {
-        var h = new H();
-        var listener = function () {};
-        h.on(['**'], listener);
-        var listeners = h.listeners(['isabella', 'isabella']);
-        assert.equal(1, listeners.length);
-        assert(_.contains(listeners, listener));
-    });
-
-
 
 });

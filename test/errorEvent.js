@@ -1,71 +1,211 @@
 /*jslint node: true */
 "use strict";
 
-var H = require('../index').EventEmitter;
 var _ = require('lodash');
 var assert = require('assert');
 
+var H = require('../index').EventEmitter;
+
 describe('HevEmitter error', function () {
-
-    it('should trigger "error" listeners', function (done) {
-        var h = new H();
-        h.on(['error'], function () {
-            done();
-        });
-        h.emit(['error']);
+    
+    var h;
+    beforeEach(function () {
+        h = new H();
     });
 
-    it('should *NOT* trigger * listeners', function (done) {
-        var h = new H();
-        h.on(['*'], function () {
-            done(true);
+
+    var shouldReceive = function (onRoute, emitRoute) {
+        it('should receive at ' + '"' + onRoute.join('/') + '" messages emitted to "' + emitRoute.join('/') + '"', function () {
+            var msg = { emitted: 0 };
+            h.on(onRoute, function (msg) {
+                msg.emitted += 1;
+            });
+            assert(h.emit(emitRoute, msg));
+            assert(h.emit(emitRoute, msg));
+            assert.equal(2, msg.emitted);
         });
-        h.on(['*', '*'], function () {
-            done(true);
+    };
+
+    var shouldNotReceive = function (onRoute, emitRoute) {
+        it('should *not* receive at ' + '"' + onRoute.join('/') + '" messages emitted to "' + emitRoute.join('/') + '"', function () {
+            var msg = { emitted: 0 };
+            h.on(onRoute, function (msg) {
+                msg.emitted += 1;
+            });
+            try {
+                assert(!h.emit(emitRoute, msg));
+                assert(!h.emit(emitRoute, msg));
+            } catch (expected) {}
+            assert.equal(0, msg.emitted);
         });
-        h.on(['error'], function () {
-            done();
+    };
+
+    var shouldBeDeletedAt = function (onRoute, deleteRoute) {
+        it('should not receive at ' + '"' + onRoute.join('/') + '" after deleting at "' + deleteRoute.join('/') + '"', function () {
+            var msg = { emitted: 0 };
+            var f = function (msg) {
+                msg.emitted += 1;
+            };
+            h.on(onRoute, f);
+            assert(h.emit(onRoute, msg), 'did not emit to start with');
+            assert.equal(1, msg.emitted, 'was not called to start with');
+            h.removeListener(deleteRoute, f);
+            try {
+                assert(!h.emit(onRoute, msg), 'unexpectedly emitted after removal');
+            } catch (expected) {}
+            assert.equal(1, msg.emitted, 'unexpectedly called after removal');
         });
-        h.emit(['error'], function () {});
+
+        it('should not receive at ' + '"' + onRoute.join('/') + '" after deleting at "' + deleteRoute.join('/') + '" when deleting by handle', function () {
+            var msg = { emitted: 0 };
+            var f = function (msg) {
+                msg.emitted += 1;
+            };
+            var g = f.listener = function () {};
+            h.on(onRoute, f);
+            assert(h.emit(onRoute, msg), 'did not emit to start with');
+            assert.equal(1, msg.emitted, 'was not called to start with');
+            h.removeListener(deleteRoute, g);
+            try {
+                assert(!h.emit(deleteRoute, msg), 'unexpectedly emitted after removal');
+            } catch (expected) {}
+            assert.equal(1, msg.emitted, 'unexpectedly called after removal');
+        });
+
+        it('should not leak when deleting listeners ' + '"' + onRoute.join('/') + '" by route "' + deleteRoute.join('/') + '"', function () {
+            var msg = { emitted: 0 };
+            var f = function (msg) {
+                msg.emitted += 1;
+            };
+            assert(_.isEmpty(h._errorTree.hash), 'was not empty to start with');
+            h.on(onRoute, f);
+            assert(!_.isEmpty(h._errorTree.hash), 'was empty even after adding listener');
+            h.removeListener(deleteRoute, f);
+            assert(_.isEmpty(h._errorTree.hash), 'was not empty after removal');
+        });
+
+
+        it('should not receive at ' + '"' + onRoute.join('/') + '" after deleting all listeners at "' + deleteRoute.join('/') + '"', function () {
+            var msg = { emitted: 0 };
+            h.on(onRoute, function (msg) {
+                msg.emitted += 1;
+            });
+            assert(h.emit(onRoute, msg), 'did not emit to start with');
+            assert.equal(1, msg.emitted, 'was not called to start with');
+            h.removeAllListeners(deleteRoute);
+            try {
+                assert(!h.emit(onRoute, msg), 'unexpectedly emitted after removal');
+            } catch (expected) {}
+            assert.equal(1, msg.emitted, 'unexpectedly called after removal');
+        });
+
+        it('should not leak when deleting all listeners ' + '"' + onRoute.join('/') + '" by route "' + deleteRoute.join('/') + '"', function () {
+            var msg = { emitted: 0 };
+            assert(_.isEmpty(h._errorTree.hash), 'was not empty to start with');
+            h.on(onRoute, function (msg) {
+                msg.emitted += 1;
+            });
+            assert(!_.isEmpty(h._errorTree.hash), 'was empty even after adding listener');
+            h.removeAllListeners(deleteRoute);
+            assert(_.isEmpty(h._errorTree.hash), 'was not empty after removal');
+        });
+
+
+    };
+
+    var shouldNotBeDeletedAt = function (onRoute, deleteRoute) {
+        it('should receive at ' + '"' + onRoute.join('/') + '" after deleting at "' + deleteRoute.join('/') + '"', function () {
+            var msg = { emitted: 0 };
+            var f = function (msg) {
+                msg.emitted += 1;
+            };
+            h.on(onRoute, f);
+            assert(h.emit(onRoute, msg), 'did not emit to start with');
+            assert.equal(1, msg.emitted, 'was not called to start with');
+            h.removeListener(deleteRoute, f);
+            assert(h.emit(onRoute, msg), 'was not emitted after mismatching removal');
+            assert.equal(2, msg.emitted, 'was not called after mismatching removal');
+        });
+
+        it('should receive at ' + '"' + onRoute.join('/') + '" after deleting all listeners at "' + deleteRoute.join('/') + '"', function () {
+            var msg = { emitted: 0 };
+            h.on(onRoute, function (msg) {
+                msg.emitted += 1;
+            });
+            assert(h.emit(onRoute, msg), 'did not emit to start with');
+            assert.equal(1, msg.emitted, 'was not called to start with');
+            h.removeAllListeners(deleteRoute);
+            assert(h.emit(onRoute, msg), 'was not emitted after mismatching removal');
+            assert.equal(2, msg.emitted, 'was not called after mismatching removal');
+        });
+
+    };
+
+    _.each([
+        [['error'], ['error']]
+        , [['error'], ['error', 'name']]
+        , [['error'], ['error', 'name', 'name2']]
+        , [['error', 'name'], ['error', 'name']]
+        , [['error', '*'], ['error', 'name']]
+        , [['error', '*', '*'], ['error', 'name', 'name2']]
+        , [['error', '**'], ['error', 'name']]
+        , [['error', '**'], ['error', 'name', 'name2']]
+    ], function (args) {
+        shouldReceive.apply(null, args);
     });
 
-    it('should NOT trigger ** events', function (done) {
-        var h = new H();
-        h.on(['**'], function () {
-            done(true);
-        });
-        h.on(['error'], function () {
-            done();
-        });
-        h.emit(['error']);
+    _.each([
+        [['error'], ['name']]
+        , [['error'], ['*']]
+        , [['error'], ['**']]
+        , [['error', 'name'], ['*', 'othername']]
+        , [['error', 'name'], ['*', 'name']]
+        , [['error', 'name'], ['*', '*']]
+        , [['error', '*'], ['*', 'name']]
+        , [['error', '*'], ['*', '*']]
+        , [['error', '*'], ['*', '**']]
+        , [['error', '**'], ['*', 'name']]
+        , [['error', '**'], ['*', '*']]
+        , [['error', '**'], ['*', '**']]
+    ], function (args) {
+        shouldNotReceive.apply(null, args);
     });
 
-    it('should cause exception when there is no listener', function (done) {
-        var h = new H();
-        h.emit(['error'])
-        .catch(function () {
-            done();
-        });
+    _.each([
+        [['error'], ['error']]
+        , [['error', 'name'], ['error', 'name']]
+        , [['error', 'name'], ['error', '*']]
+        , [['error', 'name'], ['error', '**']]
+        , [['error', '*'], ['error', '*']]
+        , [['error', '*'], ['error', '**']]
+        , [['error', '**'], ['error', '**']]
+        , [['error', 'name', 'name2'], ['error', 'name', 'name2']]
+        , [['error', 'name', 'name2'], ['error', 'name', '*']]
+        , [['error', 'name', 'name2'], ['error', '*', 'name2']]
+        , [['error', 'name', 'name2'], ['error', '*', '*']]
+        , [['error', 'name', 'name2'], ['error', '*', '**']]
+        , [['error', 'name', 'name2'], ['error', '**']]
+        , [['error', '*', 'name2'], ['error', '*', 'name2']]
+        , [['error', '*', 'name2'], ['error', '*', '*']]
+        , [['error', '*', 'name2'], ['error', '*', '**']]
+        , [['error', '*', 'name2'], ['error', '**']]
+        , [['error', 'name', '*'], ['error', 'name', '*']]
+        , [['error', 'name', '*'], ['error', 'name', '**']]
+        , [['error', 'name', '*'], ['error', '*', '*']]
+        , [['error', 'name', '*'], ['error', '*', '**']]
+        , [['error', 'name', '*'], ['error', '**']]
+    ], function (args) {
+        shouldBeDeletedAt.apply(null, args);
     });
 
-    it('should allow sub listeners', function (done) {
-        var h = new H();
-        h.on(['error', 'smith'], function () {
-            done(false);
-        });
-        h.on(['error', 'photo'], function () {
-            done();
-        });
-        h.emit(['error', 'photo']);
+    _.each([
+        [['error'], ['*']]
+        , [['error'], ['**']]
+        , [['error', 'name'], ['*', '*']]
+        , [['error', 'name'], ['*', '**']]
+        , [['error', 'name'], ['**']]
+    ], function (args) {
+        shouldNotBeDeletedAt.apply(null, args);
     });
-
-    it('should catch sub events on error', function (done) {
-        var h = new H();
-        h.on(['error'], function () {
-            done();
-        });
-        h.emit(['error', 'photo']);
-    });
-
 
 });

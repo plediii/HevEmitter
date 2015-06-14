@@ -1,589 +1,121 @@
 /*jslint node: true */
 "use strict";
 
-var H = require('../index').EventEmitter;
 var _ = require('lodash');
 var assert = require('assert');
 
-describe('HevEmitter once', function () {
+var H = require('../index').EventEmitter;
+var routes = require('./routes');
 
-    describe(' synchronous ', function () {
+describe('HevEmitter once listener', function () {
 
-        it('should emit and recieve one level events', function (done) {
-            var h = new H();
-            var emitted = 0;
-            h.once(['storage'], function () {
-                emitted += 1;
-            });
-            h.emit(['storage']);
-            h.emit(['storage'])
-                .then(function () {
-                    assert.equal(1, emitted);
-                    done();
-                });
-        });
-
-        it('should not be able to trigger twice', function (done) {
-            var h = new H();
-            var emitted = 0;
-            h.once(['storage'], function () {
-                emitted += 1;
-                h.emit(['storage'])
-                    .then(function (called) {
-                        assert(!called);
-                        assert.equal(1, emitted);
-                    });
-
-            });
-            h.emit(['storage'])
-                .then(function (called) {
-                    assert(called);
-                    assert.equal(1, emitted);
-                });
-
-            h.emit(['storage'])
-                .then(function (called) {
-                    assert(!called);
-                    assert.equal(1, emitted);
-                    done();
-                });
-        });
-
-        it('should not be able to trigger twice when registered on **', function (done) {
-            var h = new H();
-            var emitted = 0;
-            h.once(['**'], function () {
-                emitted += 1;
-                h.emit(['storage'])
-                    .then(function (called) {
-                        assert(!called);
-                        assert.equal(1, emitted);
-                    });
-
-            });
-            h.emit(['storage'])
-                .then(function (called) {
-                    assert(called);
-                    assert.equal(1, emitted);
-                });
-
-            h.emit(['storage'])
-                .then(function (called) {
-                    assert(!called);
-                    assert.equal(1, emitted);
-                    done();
-                });
-        });
-
-
-        it('should emit and recieve two level events', function (done) {
-            var h = new H();
-            var emitted = 0;
-            h.once(['request', 'date'], function () {
-                emitted += 1;
-            });
-            h.emit(['request', 'date']);
-            h.emit(['request', 'date'])
-                .then(function () {
-                    assert.equal(1, emitted);
-                    done();
-                });
-        });
-
-        it('should NOT recieve the wrong event', function (done) {
-            var h = new H();
-            var emitted = 0;
-            h.once(['prismo'], function () {
-                emitted += 1;
-            });
-            h.emit(['wish']);
-            h.emit(['wish'])
-                .then(function () {
-                    assert.equal(0, emitted);
-                    done();
-                });
-
-        });
-
-        it('should NOT receive the wrong two level event', function (done) {
-            var h = new H();
-            var emitted = 0;
-            h.once(['ritz', 'cracker'], function () {
-                emitted += 1;
-            });
-            h.emit(['cheese', 'cracker']);
-            h.emit(['cheese', 'cracker'])
-                .then(function () {
-                    assert.equal(0, emitted);
-                    done();
-                });
-        });
-
-        it('should trigger listeners on one star events', function (done) {
-            var h = new H();
-            var emitted = 0;
-            h.once(['bones', '*'], function () {
-                emitted += 1;
-            });
-            h.emit(['bones', 'elephant']);
-            h.emit(['bones', 'elephant'])
-                .then(function () {
-                    assert.equal(1, emitted);
-                    done();
-                });
-        });
-
-        it('should trigger listeners on one star events in the first place', function (done) {
-            var h = new H();
-            var emitted = 0;
-            h.once(['*', 'bill'], function () {
-                emitted += 1;
-            });
-            h.emit(['thankyou', 'bill']);
-            h.emit(['thankyou', 'bill'])
-                .then(function () {
-                    assert.equal(1, emitted);
-                    done();
-                });
-        });
-
-        it('should trigger one star events in the first place', function (done) {
-            var h = new H();
-            var emitted = 0;
-            h.once(['baby', 'booster'], function () {
-                emitted += 1;
-            });
-            h.emit(['*', 'booster']);
-            h.emit(['*', 'booster'])
-                .then(function () {
-                    assert.equal(1, emitted);
-                    done();
-                });
-        });
-
-        it('should NOT trigger one star events only in the first place', function (done) {
-            var h = new H();
-            var emitted = 0;
-            h.once(['baby', 'booster'], function () {
-                emitted += 1;
-            });
-            h.emit(['*']);
-            h.emit(['*'])
-                .then(function () {
-                    assert.equal(0, emitted);
-                    done();
-                });
-        });
-
-        it('should NOT trigger one star events only in the first place', function (done) {
-            var h = new H();
-            var emitted = 0;
-            h.once(['*'], function () {
-                emitted += 1;
-            });
-            h.emit(['green', 'buns']);
-            h.emit(['green', 'buns'])
-                .then(function () {
-                    assert.equal(0, emitted);
-                    done();
-                });
-        });
-
-        it('should trigger two star events in the first place with one level', function (done) {
-            var h = new H();
-            var emitted = 0;
-            h.once(['**'], function () {
-                emitted += 1;
-            });
-            h.emit(['giant']);
-            h.emit(['giant'])
-                .then(function () {
-                    assert.equal(1, emitted);
-                    done();
-                });
-        });
-
-
-        it('should trigger two star emitted events in the first place with one level', function (done) {
-            var h = new H();
-            var emitted = 0;
-            h.once(['sun'], function () {
-                emitted += 1;
-            });
-            h.emit(['**']);
-            h.emit(['**'])
-                .then(function () {
-                    assert.equal(1, emitted);
-                    done();
-                });
-        });
-
-        it('should trigger two star events in the first place with two levels', function (done) {
-            var h = new H();
-            var emitted = 0;
-            h.once(['**'], function () {
-                emitted += 1;
-            });
-            h.emit(['oglethorpe', 'piggy']);
-            h.emit(['oglethorpe', 'piggy'])
-                .then(function () {
-                    assert.equal(1, emitted);
-                    done();
-                });
-        });
-
-
-        it('should trigger second level two star emitted events in the first place with two levels', function (done) {
-            var h = new H();
-            var emitted = 0;
-            h.once(['emry', 'please'], function () {
-                emitted += 1;
-            });
-            h.emit(['emry', '**']);
-            h.emit(['emry', '**'])
-                .then(function () {
-                    assert.equal(1, emitted);
-                    done();
-                });
-        });
-
-        it('should trigger second level two star events in the first place with one level', function (done) {
-            var h = new H();
-            var emitted = 0;
-            h.once(['**'], function () {
-                emitted += 1;
-            });
-            h.emit(['vanted', 'vatch']);
-            h.emit(['vanted', 'vatch'])
-                .then(function () {
-                    assert.equal(1, emitted);
-                    done();
-                });
-        });
-
-
-        it('should trigger second level two star emitted events in the first place with one level', function (done) {
-            var h = new H();
-            var emitted = 0;
-            h.once(['trail'], function () {
-                emitted += 1;
-            });
-            h.emit(['trail', '**']);
-            h.emit(['trail', '**'])
-                .then(function () {
-                    assert.equal(1, emitted);
-                    done();
-                });
-        });
-
-        it('should trigger second level two star events in the first place with two levels', function (done) {
-            var h = new H();
-            var emitted = 0;
-            h.once(['rrr', '**'], function () {
-                emitted += 1;
-            });
-            h.emit(['rrr', 'mooninite']);
-            h.emit(['rrr', 'mooninite'])
-                .then(function () {
-                    assert.equal(1, emitted);
-                    done();
-                });
-        });
-
-        it('should trigger second level two star emitted events in the first place with two levels', function (done) {
-            var h = new H();
-            var emitted = 0;
-            h.once(['hypersleep', 'dreams'], function () {
-                emitted += 1;
-            });
-            h.emit(['hypersleep', '**']);
-            h.emit(['hypersleep', '**'])
-                .then(function () {
-                    assert.equal(1, emitted);
-                    done();
-                });
-
-        });
-
-
+    var h;
+    beforeEach(function () {
+        h = new H();
     });
-    describe(' promise ', function () {
 
-        it('should emit and recieve one level events', function (done) {
-            var h = new H();
-            var emitted = 0;
-            h.once(['storage'], function (msg, cb) {
-                emitted += 1;
-                cb();
+    var shouldReceiveOnce = function (onRoute, emitRoute) {
+        it('should receive once at ' + '"' + onRoute.join('/') + '" messages emitted to "' + emitRoute.join('/') + '"', function () {
+            var msg = { emitted: 0 };
+            h.once(onRoute, function (msg) {
+                msg.emitted += 1;
             });
-            h.emit(['storage']).catch(done);
-            h.emit(['storage'])
-                .then(function () {
-                    assert.equal(1, emitted);
-                    done();
-                });
+            assert.equal(0, msg.emitted, 'bad initial state');
+            assert(h.emit(emitRoute, msg), 'did not emit as expected');
+            assert.equal(1, msg.emitted, 'method was not called once');
+            assert(!h.emit(emitRoute, msg), 'unexpectedly emitted a second time');
+            assert.equal(1, msg.emitted, 'method was called a second time');
         });
 
-        it('should not be able to trigger twice', function (done) {
-            var h = new H();
-            var emitted = 0;
-            h.once(['storage'], function (msg, cb) {
-                emitted += 1;
-                h.emit(['storage']);
-                cb();
+        it('should not be able to nested trigger at ' + '"' + onRoute.join('/') + '" messages emitted to "' + emitRoute.join('/') + '"', function () {
+            var msg = { emitted: 0 };
+            h.once(onRoute, function (msg) {
+                assert.equal(0, msg.emitted, 'method was called more than once');
+                msg.emitted += 1;
+                assert(!h.emit(emitRoute, msg), 'unexpectedly emitted a nested call');
             });
-            h.emit(['storage']).catch(done);
-            h.emit(['storage'])
-                .then(function () {
-                    assert.equal(1, emitted);
-                    done();
-                });
+            assert.equal(0, msg.emitted, 'bad initial state');
+            assert(h.emit(emitRoute, msg), 'did not emit as expected');
+            assert.equal(1, msg.emitted, 'method was not called once');
         });
 
-
-        it('should emit and recieve two level events', function (done) {
-            var h = new H();
-            var emitted = 0;
-            h.once(['request', 'date'], function (msg, cb) {
-                emitted += 1;
-                cb();
+        it('should receive once at ' + '"' + onRoute.join('/') + '" messages emitted with multiple arguments to "' + emitRoute.join('/') + '"', function () {
+            var msg = { emitted: 0 };
+            h.once(onRoute, function (a, msg) {
+                assert.equal(a, 'a');
+                msg.emitted += 1;
             });
-            h.emit(['request', 'date']).catch(done);
-            h.emit(['request', 'date'])
-                .then(function () {
-                    assert.equal(1, emitted);
-                    done();
-                });
+            assert.equal(0, msg.emitted, 'bad initial state');
+            assert(h.emit(emitRoute, 'a', msg), 'did not emit as expected');
+            assert.equal(1, msg.emitted, 'method was not called');
+            assert(!h.emit(emitRoute, 'a', msg), 'unexpectedly emitted a second time');
+            assert.equal(1, msg.emitted, 'method was called a second time');
         });
 
-        it('should NOT recieve the wrong event', function (done) {
-            var h = new H();
-            var emitted = 0;
-            h.once(['prismo'], function (msg, cb) {
-                emitted += 1;
-                cb();
+        it('should not leak once listener at ' + '"' + onRoute.join('/') + '" after messages to "' + emitRoute.join('/') + '"', function () {
+            var msg = { emitted: 0 };
+            assert(_.isEmpty(h._eventTree.hash), 'was not empty to start with');
+            h.once(onRoute, function (a, msg) {
+                assert.equal(a, 'a');
+                msg.emitted += 1;
             });
-            h.emit(['wish']).catch(done);
-            h.emit(['wish'])
-                .then(function () {
-                    assert.equal(0, emitted);
-                    done();
-                });
-
+            assert(!_.isEmpty(h._eventTree.hash), 'was not empty after adding listener');
+            assert(h.emit(emitRoute, 'a', msg), 'did not emit as expected');
+            assert(_.isEmpty(h._eventTree.hash), 'listener was leaked after triggering once');
         });
 
-        it('should NOT receive the wrong two level event', function (done) {
-            var h = new H();
-            var emitted = 0;
-            h.once(['ritz', 'cracker'], function (msg, cb) {
-                emitted += 1;
-                cb();
+    };
+
+    var shouldReceiveInOrder = function (firstRoute, secondRoute, emitRoute) {
+        it('should receive at ' + '"' + firstRoute.join('/') + '" before "' + secondRoute.join('/') + '" on messages emitted to "' + emitRoute.join('/') + '"', function () {
+            var msg = { emitted: [] };
+            h.once(firstRoute, function (msg) {
+                msg.emitted.push('a') 
             });
-            h.emit(['cheese', 'cracker']).catch(done);
-            h.emit(['cheese', 'cracker'])
-                .then(function () {
-                    assert.equal(0, emitted);
-                    done();
-                });
+            h.once(secondRoute, function (msg) {
+                msg.emitted.push('b') 
+            });
+            assert(h.emit(emitRoute, msg), 'did not emit as expected');
+            assert.deepEqual(['a', 'b'], msg.emitted, 'did not receive events in order');
         });
 
-        it('should trigger listeners on one star events', function (done) {
-            var h = new H();
-            var emitted = 0;
-            h.once(['bones', '*'], function (msg, cb) {
-                emitted += 1;
-                cb();
+        it('should receive at ' + '"' + firstRoute.join('/') + '" before "' + secondRoute.join('/') + '" on messages emitted to "' + emitRoute.join('/') + '" (opposite order)', function () {
+            var msg = { emitted: [] };
+            h.once(secondRoute, function (msg) {
+                msg.emitted.push('b') 
             });
-            h.emit(['bones', 'elephant']).catch(done);
-            h.emit(['bones', 'elephant'])
-                .then(function () {
-                    assert.equal(1, emitted);
-                    done();
-                });
-        });
-
-        it('should trigger listeners on one star events in the first place', function (done) {
-            var h = new H();
-            var emitted = 0;
-            h.once(['*', 'bill'], function (msg, cb) {
-                emitted += 1;
-                cb();
+            h.once(firstRoute, function (msg) {
+                msg.emitted.push('a') 
             });
-            h.emit(['thankyou', 'bill']).catch(done);
-            h.emit(['thankyou', 'bill'])
-                .then(function () {
-                    assert.equal(1, emitted);
-                    done();
-                });
+            assert(h.emit(emitRoute, msg), 'did not emit as expected');
+            assert.deepEqual(['a', 'b'], msg.emitted, 'did not receive events in order');
         });
+    };
 
-        it('should trigger one star events in the first place', function (done) {
-            var h = new H();
-            var emitted = 0;
-            h.once(['baby', 'booster'], function (msg, cb) {
-                emitted += 1;
-                cb();
+
+    var shouldNotReceive = function (onRoute, emitRoute) {
+        it('should *not* receive at ' + '"' + onRoute.join('/') + '" messages emitted to "' + emitRoute.join('/') + '"', function () {
+            var msg = { emitted: 0 };
+            h.once(onRoute, function (msg) {
+                msg.emitted += 1;
             });
-            h.emit(['*', 'booster']).catch(done);
-            h.emit(['*', 'booster'])
-                .then(function () {
-                    assert.equal(1, emitted);
-                    done();
-                });
+            assert(!h.emit(emitRoute, msg), 'unexpectedly emitted');
+            assert.equal(0, msg.emitted, 'method was unexpectedly called');
         });
+    };
 
-        it('should NOT trigger one star events only in the first place', function (done) {
-            var h = new H();
-            var emitted = 0;
-            h.once(['baby', 'booster'], function (msg, cb) {
-                emitted += 1;
-                cb();
-            });
-            h.emit(['*']).catch(done);
-            h.emit(['*'])
-                .then(function () {
-                    assert.equal(0, emitted);
-                    done();
-                });
-        });
-
-        it('should NOT trigger one star events only in the first place', function (done) {
-            var h = new H();
-            var emitted = 0;
-            h.once(['*'], function (msg, cb) {
-                emitted += 1;
-                cb();
-            });
-            h.emit(['green', 'buns']).catch(done);
-            h.emit(['green', 'buns'])
-                .then(function () {
-                    assert.equal(0, emitted);
-                    done();
-                });
-        });
-
-        it('should trigger two star events in the first place with one level', function (done) {
-            var h = new H();
-            var emitted = 0;
-            h.once(['**'], function (msg, cb) {
-                emitted += 1;
-                cb();
-            });
-            h.emit(['giant']).catch(done);
-            h.emit(['giant'])
-                .then(function () {
-                    assert.equal(1, emitted);
-                    done();
-                });
-        });
-
-
-        it('should trigger two star emitted events in the first place with one level', function (done) {
-            var h = new H();
-            var emitted = 0;
-            h.once(['sun'], function (msg, cb) {
-                emitted += 1;
-                cb();
-            });
-            h.emit(['**']).catch(done);
-            h.emit(['**'])
-                .then(function () {
-                    assert.equal(1, emitted);
-                    done();
-                });
-        });
-
-        it('should trigger two star events in the first place with two levels', function (done) {
-            var h = new H();
-            var emitted = 0;
-            h.once(['**'], function (msg, cb) {
-                emitted += 1;
-                cb();
-            });
-            h.emit(['oglethorpe', 'piggy']).catch(done);
-            h.emit(['oglethorpe', 'piggy'])
-                .then(function () {
-                    assert.equal(1, emitted);
-                    done();
-                });
-        });
-
-
-        it('should trigger second level two star emitted events in the first place with two levels', function (done) {
-            var h = new H();
-            var emitted = 0;
-            h.once(['emry', 'please'], function (msg, cb) {
-                emitted += 1;
-                cb();
-            });
-            h.emit(['emry', '**']).catch(done);
-            h.emit(['emry', '**'])
-                .then(function () {
-                    assert.equal(1, emitted);
-                    done();
-                });
-        });
-
-        it('should trigger second level two star events in the first place with one level', function (done) {
-            var h = new H();
-            var emitted = 0;
-            h.once(['**'], function (msg, cb) {
-                emitted += 1;
-                cb();
-            });
-            h.emit(['vanted', 'vatch']).catch(done);
-            h.emit(['vanted', 'vatch'])
-                .then(function () {
-                    assert.equal(1, emitted);
-                    done();
-                });
-        });
-
-
-        it('should trigger second level two star emitted events in the first place with one level', function (done) {
-            var h = new H();
-            var emitted = 0;
-            h.once(['trail'], function (msg, cb) {
-                emitted += 1;
-                cb();
-            });
-            h.emit(['trail', '**']).catch(done);
-            h.emit(['trail', '**'])
-                .then(function () {
-                    assert.equal(1, emitted);
-                    done();
-                });
-        });
-
-        it('should trigger second level two star events in the first place with two levels', function (done) {
-            var h = new H();
-            var emitted = 0;
-            h.once(['rrr', '**'], function (msg, cb) {
-                emitted += 1;
-                cb();
-            });
-            h.emit(['rrr', 'mooninite']).catch(done);
-            h.emit(['rrr', 'mooninite'])
-                .then(function () {
-                    assert.equal(1, emitted);
-                    done();
-                });
-        });
-
-        it('should trigger second level two star emitted events in the first place with two levels', function (done) {
-            var h = new H();
-            var emitted = 0;
-            h.once(['hypersleep', 'dreams'], function (msg, cb) {
-                emitted += 1;
-                cb();
-            });
-            h.emit(['hypersleep', '**']).catch(done);
-            h.emit(['hypersleep', '**'])
-                .then(function () {
-                    assert.equal(1, emitted);
-                    done();
-                });
-        });
+    _.each(routes.matchRoutes, function (args) {
+        shouldReceiveOnce.apply(null, args);
     });
+
+
+    _.each(routes.notMatchRoutes, function (args) {
+        shouldNotReceive.apply(null, args);
+    });
+
+    _.each(routes.matchOrders, function (args) {
+        shouldReceiveInOrder.apply(null, args);
+    });
+
 
 });
