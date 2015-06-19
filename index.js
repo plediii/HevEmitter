@@ -298,4 +298,5 @@ _.extend(EventEmitter.prototype, {
 
 module.exports = {
     EventEmitter: EventEmitter
+    , _: _
 };
