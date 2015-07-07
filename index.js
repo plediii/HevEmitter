@@ -53,7 +53,13 @@ var removeFunc = function (tree, f, onRemove) {
     var originalLength = funcs.length;
     tree.funcs = filterFuncs(funcs, f);
     if (tree.funcs.length < originalLength) {
-        onRemove(tree.route, f);
+        if (f) {
+            onRemove(tree.route, f);
+        } else {
+            _.each(funcs, function (f) {
+                onRemove(tree.route, f);
+            });
+        }
     }
 };
 
