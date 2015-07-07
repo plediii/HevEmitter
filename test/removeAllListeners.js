@@ -27,6 +27,30 @@ describe('HevEmitter removeAllListners', function () {
             assert.equal(1, msg.emitted, 'unexpectedly called after removal');
         });
 
+        it('should emit removeListener when listener at ' + '"' + onRoute.join('/') + '" after deleting all listeners at "' + deleteRoute.join('/') + '"', function (done) {
+            var f = function (msg) {};
+            h.on(['removeListener'], function (removeRoute, listener) {
+                assert.equal(0, h.listeners(onRoute));
+                assert.deepEqual(removeRoute, onRoute);
+                assert.equal(listener, f);
+                done();
+            });
+            h.on(onRoute, f);
+            h.removeListener(deleteRoute, f);
+        });
+
+        it('should emit ' + ['removeListener'].concat(onRoute).join('/') + ' when all listeners at ' + '"' + onRoute.join('/') + '" is deleted at "' + deleteRoute.join('/') + '"', function (done) {
+            var f = function (msg) {};
+            h.on(['removeListener'].concat(onRoute), function (removeRoute, listener) {
+                assert.equal(0, h.listeners(onRoute));
+                assert.deepEqual(removeRoute, onRoute);
+                assert.equal(listener, f);
+                done();
+            });
+            h.on(onRoute, f);
+            h.removeListener(deleteRoute, f);
+        });
+
         it('should not leak when deleting all listeners ' + '"' + onRoute.join('/') + '" by route "' + deleteRoute.join('/') + '"', function () {
             var msg = { emitted: 0 };
             assert(_.isEmpty(h._eventTree.hash), 'was not empty to start with');
