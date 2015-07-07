@@ -36,7 +36,7 @@ describe('HevEmitter removeAllListners', function () {
                 done();
             });
             h.on(onRoute, f);
-            h.removeListener(deleteRoute, f);
+            h.removeAllListeners(deleteRoute);
         });
 
         it('should emit ' + ['removeListener'].concat(onRoute).join('/') + ' when all listeners at ' + '"' + onRoute.join('/') + '" is deleted at "' + deleteRoute.join('/') + '"', function (done) {
@@ -48,7 +48,7 @@ describe('HevEmitter removeAllListners', function () {
                 done();
             });
             h.on(onRoute, f);
-            h.removeListener(deleteRoute, f);
+            h.removeAllListeners(deleteRoute);
         });
 
         it('should not leak when deleting all listeners ' + '"' + onRoute.join('/') + '" by route "' + deleteRoute.join('/') + '"', function () {
