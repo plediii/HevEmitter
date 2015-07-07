@@ -28,6 +28,30 @@ describe('HevEmitter removeListener', function () {
             assert.equal(1, msg.emitted, 'unexpectedly called after removal');
         });
 
+        it('should emit removeListener when listener at ' + '"' + onRoute.join('/') + '" is deleted at "' + deleteRoute.join('/') + '"', function (done) {
+            var f = function (msg) {};
+            h.on(['removeListener'], function (removeRoute, listener) {
+                assert.equal(0, h.listeners(onRoute));
+                assert.deepEqual(removeRoute, onRoute);
+                assert.equal(listener, f);
+                done();
+            });
+            h.on(onRoute, f);
+            h.removeListener(deleteRoute, f);
+        });
+
+        it('should emit ' + ['removeListener'].concat(onRoute).join('/') + ' when listener at ' + '"' + onRoute.join('/') + '" is deleted at "' + deleteRoute.join('/') + '"', function (done) {
+            var f = function (msg) {};
+            h.on(['removeListener'].concat(onRoute), function (removeRoute, listener) {
+                assert.equal(0, h.listeners(onRoute));
+                assert.deepEqual(removeRoute, onRoute);
+                assert.equal(listener, f);
+                done();
+            });
+            h.on(onRoute, f);
+            h.removeListener(deleteRoute, f);
+        });
+
         it('should not receive at ' + '"' + onRoute.join('/') + '" after deleting at "' + deleteRoute.join('/') + '" when deleting by handle', function () {
             var msg = { emitted: 0 };
             var f = function (msg) {
