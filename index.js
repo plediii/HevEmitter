@@ -4,17 +4,18 @@
 
 var _ = require('lodash');
 
-var eventTree = function () {
+var eventTree = function (route) {
     return {
         hash: {}
         , funcs: []
+        , route: route
     };
 };
 
 var addCallback = function (route, tree, cb) {
     var head = _.head(route);
     if (!tree.hash.hasOwnProperty(head)) {
-        tree.hash[head] = eventTree();
+        tree.hash[head] = eventTree(tree.route.concat(head));
     }
 
     if (route.length > 1) {
@@ -47,45 +48,50 @@ var deleteIfEmpty = function (target, hash) {
     }
 };
 
-var removeFunc = function (tree, f) {
-    tree.funcs = filterFuncs(tree.funcs, f);
+var removeFunc = function (tree, f, onRemove) {
+    var funcs = tree.funcs;
+    var originalLength = funcs.length;
+    tree.funcs = filterFuncs(funcs, f);
+    if (tree.funcs.length < originalLength) {
+        onRemove(tree.route, f);
+    }
 };
 
-var removeCallback = function (route, tree, f) {
+var removeCallback = function (route, tree, f, onRemove) {
     var head = _.head(route);
     if (route.length > 1) {
         var rest = _.rest(route);
         if (head === '*') {
             return _.each(tree.hash, function (subtree, subhead) {
                 if (subhead !== '**') {
-                    removeCallback(rest, subtree, f);
+                    removeCallback(rest, subtree, f, onRemove);
                     deleteIfEmpty(subhead, tree.hash);
                 }
             });
         }
         else if (tree.hash.hasOwnProperty(head)) {
-            removeCallback(_.rest(route), tree.hash[head], f);
+            removeCallback(_.rest(route), tree.hash[head], f, onRemove);
             deleteIfEmpty(head, tree.hash);            
         }
     }
     else if (route.length === 1) {
         if (head === '**')  {
             _.each(tree.hash, function (subtree, subhead) {
-                removeFunc(subtree, f);
-                removeCallback(route, subtree, f);
+                removeFunc(subtree, f, onRemove);
+                removeCallback(route, subtree, f, onRemove);
                 deleteIfEmpty(subhead, tree.hash);
             });
         }
         if (head === '*') {
             _.each(tree.hash, function (subtree, subhead) {
                 if (subhead != '**') {
-                    removeFunc(subtree, f);
+                    removeFunc(subtree, f, onRemove);
                     deleteIfEmpty(subhead, tree.hash);
                 }
             });
         }
         else if (tree.hash.hasOwnProperty(head)) {
-            removeFunc(tree.hash[head], f);
+            removeFunc(tree.hash[head], f, onRemove);
             deleteIfEmpty(head, tree.hash);
         }
     }
@@ -203,9 +209,10 @@ var EventEmitter = function (options) {
     options = _.defaults({}, options, {
         delimiter: '/'
     });
-    this._eventTree = eventTree();
-    this._newListenerTree = eventTree();
-    this._errorTree = eventTree();
+    this._eventTree = eventTree([]);
+    this._newListenerTree = eventTree([]);
+    this._removeListenerTree = eventTree([]);
+    this._errorTree = eventTree([]);
     this.delimiter = options.delimiter;
 };
 
@@ -233,6 +240,12 @@ _.extend(EventEmitter.prototype, {
             }
             addCallback(route.slice(1), this._errorTree, cb);
         }
+        else if (route[0] === 'removeListener') {
+            if (route.length === 1) {
+                route = route.concat('**');
+            }
+            addCallback(route.slice(1), this._removeListenerTree, cb);
+        }
         else {
             emit(this._newListenerTree, route, [route, cb]);
             addCallback(route, this._eventTree, cb);
@@ -256,21 +269,28 @@ _.extend(EventEmitter.prototype, {
         }
     } 
     , removeListener: function (route, f) {
-        route = this.parseRoute(route);
+        var h = this;
+        route = h.parseRoute(route);
         if (route[0] === 'error') {
             if (route.length === 1) {
                 route = route.concat('**');
             }
-            removeCallback(route.slice(1), this._errorTree, f);
+            removeCallback(route.slice(1), this._errorTree, f, function (route, f) {
+                emit(h._removeListenerTree, route, [route, f]);
+            });
         }
         else if (route[0] === 'newListener') {
             if (route.length === 1) {
                 route = route.concat('**');
             }
-            removeCallback(route.slice(1), this._newListenerTree, f);
+            removeCallback(route.slice(1), this._newListenerTree, f, function (route, f) {
+                emit(h._removeListenerTree, route, [route, f]);
+            });
         }
         else {
-            removeCallback(route, this._eventTree, f);
+            removeCallback(route, this._eventTree, f, function (route, f) {
+                emit(h._removeListenerTree, route, [route, f]);
+            });
         }
         
     }
