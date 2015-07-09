@@ -1,6 +1,6 @@
 # HevEmitter [![Build Status](http://jenkins.plediii.net:8080/buildStatus/icon?job=hevemitter master)](http://jenkins.plediii.net:8080/job/hevemitter%20master/)
 
-A Hierarchical event emitter for nodejs.
+A Hierarchical event emitter for javascript.
 
 ## Examples
 
