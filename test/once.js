@@ -70,10 +70,10 @@ describe('HevEmitter once listener', function () {
         it('should receive at ' + '"' + firstRoute.join('/') + '" before "' + secondRoute.join('/') + '" on messages emitted to "' + emitRoute.join('/') + '"', function () {
             var msg = { emitted: [] };
             h.once(firstRoute, function (msg) {
-                msg.emitted.push('a') 
+                msg.emitted.push('a');
             });
             h.once(secondRoute, function (msg) {
-                msg.emitted.push('b') 
+                msg.emitted.push('b');
             });
             assert(h.emit(emitRoute, msg), 'did not emit as expected');
             assert.deepEqual(['a', 'b'], msg.emitted, 'did not receive events in order');
@@ -82,10 +82,10 @@ describe('HevEmitter once listener', function () {
         it('should receive at ' + '"' + firstRoute.join('/') + '" before "' + secondRoute.join('/') + '" on messages emitted to "' + emitRoute.join('/') + '" (opposite order)', function () {
             var msg = { emitted: [] };
             h.once(secondRoute, function (msg) {
-                msg.emitted.push('b') 
+                msg.emitted.push('b');
             });
             h.once(firstRoute, function (msg) {
-                msg.emitted.push('a') 
+                msg.emitted.push('a');
             });
             assert(h.emit(emitRoute, msg), 'did not emit as expected');
             assert.deepEqual(['a', 'b'], msg.emitted, 'did not receive events in order');

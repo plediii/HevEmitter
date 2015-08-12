@@ -126,12 +126,13 @@ var listeners = function (route, eventTree) {
     if (head === '**') {
         return allSubListeners(eventTree);
     } else {
+        var starListeners = [];
+        var hash = eventTree.hash;
+        var funcs;
         if (route.length > 1) {
-            var hash = eventTree.hash;
             var rest = _.rest(route);
             if (head === '*') {
-                var starListeners = [];
-                var funcs = [].concat.apply([], _.map(hash, function (subtree, key) {
+                funcs = [].concat.apply([], _.map(hash, function (subtree, key) {
                     if (key === '*') {
                         starListeners = starListeners.concat(listeners(rest, subtree));
                         return [];
@@ -144,7 +145,6 @@ var listeners = function (route, eventTree) {
                 }));
                 return [].concat.apply(starListeners, funcs);
             } else {
-                var starListeners = [];
                 if (hash.hasOwnProperty('**')) {
                     starListeners = hash['**'].funcs;
                 }
@@ -159,10 +159,8 @@ var listeners = function (route, eventTree) {
                 }
             }
         } else {
-            var hash = eventTree.hash;
             if (head === '*') {
-                var starListeners = [];
-                var funcs = [].concat.apply([], _.map(hash, function (subtree, key) {
+                funcs = [].concat.apply([], _.map(hash, function (subtree, key) {
                     if (key === '*') {
                         starListeners = starListeners.concat(subtree.funcs);
                         return [];
@@ -175,8 +173,6 @@ var listeners = function (route, eventTree) {
                 }));
                 return [].concat.apply(starListeners, funcs);
             } else {
-                var hash = eventTree.hash;
-                var starListeners = [];
                 if (hash.hasOwnProperty('**')) {
                     starListeners = hash['**'].funcs;
                 }

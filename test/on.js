@@ -41,10 +41,10 @@ describe('HevEmitter on listener', function () {
         it('should receive at ' + '"' + firstRoute.join('/') + '" before "' + secondRoute.join('/') + '" on messages emitted to "' + emitRoute.join('/') + '"', function () {
             var msg = { emitted: [] };
             h.on(firstRoute, function (msg) {
-                msg.emitted.push('a') 
+                msg.emitted.push('a');
             });
             h.on(secondRoute, function (msg) {
-                msg.emitted.push('b') 
+                msg.emitted.push('b');
             });
             assert(h.emit(emitRoute, msg));
             assert.deepEqual(['a', 'b'], msg.emitted);
@@ -53,10 +53,10 @@ describe('HevEmitter on listener', function () {
         it('should receive at ' + '"' + firstRoute.join('/') + '" before "' + secondRoute.join('/') + '" on messages emitted to "' + emitRoute.join('/') + '" (opposite order)', function () {
             var msg = { emitted: [] };
             h.on(secondRoute, function (msg) {
-                msg.emitted.push('b') 
+                msg.emitted.push('b');
             });
             h.on(firstRoute, function (msg) {
-                msg.emitted.push('a') 
+                msg.emitted.push('a');
             });
             assert(h.emit(emitRoute, msg));
             assert.deepEqual(['a', 'b'], msg.emitted);
