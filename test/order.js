@@ -18,10 +18,10 @@ describe('HevEmitter callback order', function () {
         it('should trigger in order of adding to "' + onRoute.join('/') + '" when emitting to "' + emitRoute.join('/') + '"', function () {
             var msg = { emitted: [] };
             h.on(onRoute, function (msg) {
-                msg.emitted.push('a') 
+                msg.emitted.push('a');
             });
             h.on(onRoute, function (msg) {
-                msg.emitted.push('b') 
+                msg.emitted.push('b');
             });
             assert(h.emit(emitRoute, msg));
             assert.deepEqual(['a', 'b'], msg.emitted);

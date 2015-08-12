@@ -43,10 +43,10 @@ describe('HevEmitter string routes', function () {
         it('should receive at literal ' + '"' + firstRoute.join('/') + '" before literal "' + secondRoute.join('/') + '" on messages emitted to "' + emitRoute.join('/') + '"', function () {
             var msg = { emitted: [] };
             h.on(firstRoute.join('/'), function (msg) {
-                msg.emitted.push('a') 
+                msg.emitted.push('a');
             });
             h.on(secondRoute.join('/'), function (msg) {
-                msg.emitted.push('b') 
+                msg.emitted.push('b');
             });
             assert(h.emit(emitRoute, msg));
             assert.deepEqual(['a', 'b'], msg.emitted);
@@ -55,10 +55,10 @@ describe('HevEmitter string routes', function () {
         it('should receive at literal ' + '"' + firstRoute.join('/') + '" before literal "' + secondRoute.join('/') + '" on messages emitted to "' + emitRoute.join('/') + '" (opposite order)', function () {
             var msg = { emitted: [] };
             h.on(secondRoute.join('/'), function (msg) {
-                msg.emitted.push('b') 
+                msg.emitted.push('b');
             });
             h.on(firstRoute.join('/'), function (msg) {
-                msg.emitted.push('a') 
+                msg.emitted.push('a');
             });
             assert(h.emit(emitRoute, msg));
             assert.deepEqual(['a', 'b'], msg.emitted);
@@ -67,10 +67,10 @@ describe('HevEmitter string routes', function () {
         it('should receive at ' + '"' + firstRoute.join('/') + '" before  "' + secondRoute.join('/') + '" on messages emitted to literal "' + emitRoute.join('/') + '"', function () {
             var msg = { emitted: [] };
             h.on(firstRoute, function (msg) {
-                msg.emitted.push('a') 
+                msg.emitted.push('a');
             });
             h.on(secondRoute, function (msg) {
-                msg.emitted.push('b') 
+                msg.emitted.push('b');
             });
             assert(h.emit(emitRoute.join('/'), msg));
             assert.deepEqual(['a', 'b'], msg.emitted);
@@ -79,10 +79,10 @@ describe('HevEmitter string routes', function () {
         it('should receive at ' + '"' + firstRoute.join('/') + '" before  "' + secondRoute.join('/') + '" on messages emitted to literal "' + emitRoute.join('/') + '" (opposite order)', function () {
             var msg = { emitted: [] };
             h.on(secondRoute, function (msg) {
-                msg.emitted.push('b') 
+                msg.emitted.push('b');
             });
             h.on(firstRoute, function (msg) {
-                msg.emitted.push('a') 
+                msg.emitted.push('a');
             });
             assert(h.emit(emitRoute.join('/'), msg));
             assert.deepEqual(['a', 'b'], msg.emitted);
