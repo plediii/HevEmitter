@@ -11,7 +11,7 @@
   "scripts": {
     "test": "mocha",
     "ci-test": "istanbul cover _mocha -- -R tap \"./test/*.js\" > test.tap && istanbul report clover",
-      "lint": "jshint *.js test/*.js"
+    "lint": "jshint *.js test/*.js"
   },
   "keywords": [
     "hierarchical",
@@ -29,9 +29,10 @@
     "jshint": "^2.8.0",
     "jshint-stylish": "^0.4.0",
     "mocha": "^1.21.4",
+    "pre-commit": "^1.1.1",
     "tape": "^4.0.0"
-  }
-    "pre-commit": [
-        "lint"
-    ]
+  },
+  "pre-commit": [
+    "lint"
+  ]
 }
