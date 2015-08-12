@@ -10,7 +10,8 @@
   },
   "scripts": {
     "test": "mocha",
-    "ci-test": "istanbul cover _mocha -- -R tap \"./test/*.js\" > test.tap && istanbul report clover"
+    "ci-test": "istanbul cover _mocha -- -R tap \"./test/*.js\" > test.tap && istanbul report clover",
+      "lint": "jshint *.js test/*.js"
   },
   "keywords": [
     "hierarchical",
@@ -25,6 +26,7 @@
     "gulp": "^3.8.7",
     "gulp-jshint": "^1.8.4",
     "istanbul": "^0.3.14",
+    "jshint": "^2.8.0",
     "jshint-stylish": "^0.4.0",
     "mocha": "^1.21.4",
     "tape": "^4.0.0"
