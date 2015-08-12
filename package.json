@@ -23,8 +23,6 @@
     "lodash": "^3.9.3"
   },
   "devDependencies": {
-    "gulp": "^3.8.7",
-    "gulp-jshint": "^1.8.4",
     "istanbul": "^0.3.14",
     "jshint": "^2.8.0",
     "jshint-stylish": "^0.4.0",
