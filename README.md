@@ -1,4 +1,4 @@
-# HevEmitter [![Build Status](http://jenkins.plediii.net:8080/buildStatus/icon?job=hevemitter master)](http://jenkins.plediii.net:8080/job/hevemitter%20master/)
+# HevEmitter [![Build Status](https://travis-ci.org/plediii/HevEmitter.svg)](https://travis-ci.org/plediii/HevEmitter)
 
 A Hierarchical event emitter for javascript.
 
