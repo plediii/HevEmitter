@@ -47,7 +47,7 @@ This would trigger the same output:
 ```javascript
 h.emit(['finn', '**'], 'cake');
 ```
-Here, `**` refers to all listeners to events at that level and all descendants.
+Here, `**` refers all descendendents of the `['finn']` route.
 
 
 ### Listening to all events in a hierarchy
