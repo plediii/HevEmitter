@@ -4,189 +4,14 @@
 
 var _ = require('lodash');
 
-var eventTree = function (route) {
-    return {
-        hash: {}
-        , funcs: []
-        , route: route
-    };
-};
+var htree = require('./src/htree');
 
 var addCallback = function (route, tree, cb) {
-    var head = _.head(route);
-    if (!tree.hash.hasOwnProperty(head)) {
-        tree.hash[head] = eventTree(tree.route.concat(head));
-    }
-
-    if (route.length > 1) {
-        return addCallback(_.rest(route), tree.hash[head], cb);
-    }
-    else if (route.length === 1) {
-        tree.hash[head].funcs.push(cb);
-    }
+    htree.addItem(route, tree, cb);
 };
 
-var filterFuncs = function (funcs, f) {
-    if (f) {
-        return _.filter(funcs, function (func) {
-            return func !== f && func.listener !== f;
-        });
-    }
-    else {
-        return [];
-    }
-};
-
-var emptyTree = function (tree) {
-    return tree.funcs.length === 0
-        && _.isEmpty(tree.hash);
-};
-
-var deleteIfEmpty = function (target, hash) {
-    if (emptyTree(hash[target])) {
-        delete hash[target];
-    }
-};
-
-var removeFunc = function (tree, f, onRemove) {
-    var funcs = tree.funcs;
-    var originalLength = funcs.length;
-    tree.funcs = filterFuncs(funcs, f);
-    if (tree.funcs.length < originalLength) {
-        if (f) {
-            onRemove(tree.route, f);
-        } else {
-            _.each(funcs, function (f) {
-                onRemove(tree.route, f);
-            });
-        }
-    }
-};
-
-var removeCallback = function (route, tree, f, onRemove) {
-    var head = _.head(route);
-    if (route.length > 1) {
-        var rest = _.rest(route);
-        if (head === '*') {
-            return _.each(tree.hash, function (subtree, subhead) {
-                if (subhead !== '**') {
-                    removeCallback(rest, subtree, f, onRemove);
-                    deleteIfEmpty(subhead, tree.hash);
-                }
-            });
-        }
-        else if (tree.hash.hasOwnProperty(head)) {
-            removeCallback(_.rest(route), tree.hash[head], f, onRemove);
-            deleteIfEmpty(head, tree.hash);            
-        }
-    }
-    else if (route.length === 1) {
-        if (head === '**')  {
-            _.each(tree.hash, function (subtree, subhead) {
-                removeFunc(subtree, f, onRemove);
-                removeCallback(route, subtree, f, onRemove);
-                deleteIfEmpty(subhead, tree.hash);
-            });
-        }
-        if (head === '*') {
-            _.each(tree.hash, function (subtree, subhead) {
-                if (subhead != '**') {
-                    removeFunc(subtree, f, onRemove);
-                    deleteIfEmpty(subhead, tree.hash);
-                }
-            });
-        }
-        else if (tree.hash.hasOwnProperty(head)) {
-            removeFunc(tree.hash[head], f, onRemove);
-            deleteIfEmpty(head, tree.hash);
-        }
-    }
-};
-
-var allSubListeners = function (eventTree) {
-    var hash = eventTree.hash;
-    var starListeners = [];
-    var funcs = _.map(eventTree.hash, function (subtree, key) {
-        if (key === '**') {
-            starListeners = subtree.funcs.concat(starListeners);
-            return [];
-        }
-        else if (key === '*') {
-            starListeners = starListeners.concat(subtree.funcs.concat(allSubListeners(subtree)));
-            return [];
-        } else {
-            return subtree.funcs.concat(allSubListeners(subtree));
-        }
-    });
-    return [].concat.apply(starListeners, funcs);
-};
-
-var listeners = function (route, eventTree) {
-    var head = _.head(route);
-    if (head === '**') {
-        return allSubListeners(eventTree);
-    } else {
-        var starListeners = [];
-        var hash = eventTree.hash;
-        var funcs;
-        if (route.length > 1) {
-            var rest = _.rest(route);
-            if (head === '*') {
-                funcs = [].concat.apply([], _.map(hash, function (subtree, key) {
-                    if (key === '*') {
-                        starListeners = starListeners.concat(listeners(rest, subtree));
-                        return [];
-                    } if (key == '**') {
-                        starListeners = subtree.funcs.concat(starListeners);
-                        return [];
-                    } else {
-                        return listeners(rest, subtree);
-                    }
-                }));
-                return [].concat.apply(starListeners, funcs);
-            } else {
-                if (hash.hasOwnProperty('**')) {
-                    starListeners = hash['**'].funcs;
-                }
-                if (hash.hasOwnProperty('*')) {
-                    starListeners = starListeners.concat(listeners(rest, hash['*']));
-                }
-                if (hash.hasOwnProperty(head)) {
-                    return starListeners.concat(listeners(rest, hash[head]));
-                }
-                else {
-                    return starListeners;
-                }
-            }
-        } else {
-            if (head === '*') {
-                funcs = [].concat.apply([], _.map(hash, function (subtree, key) {
-                    if (key === '*') {
-                        starListeners = starListeners.concat(subtree.funcs);
-                        return [];
-                    } if (key == '**') {
-                        starListeners = subtree.funcs.concat(starListeners);
-                        return [];
-                    } else {
-                        return subtree.funcs;
-                    }
-                }));
-                return [].concat.apply(starListeners, funcs);
-            } else {
-                if (hash.hasOwnProperty('**')) {
-                    starListeners = hash['**'].funcs;
-                }
-                if (hash.hasOwnProperty('*')) {
-                    starListeners = starListeners.concat(hash['*'].funcs);
-                }
-                if (hash.hasOwnProperty(head)) {
-                    return starListeners.concat(hash[head].funcs);
-                } else {
-                    return starListeners;
-                }
-            }
-        }
-    }
+var listeners = function (route, tree) {
+    return htree.items(route, tree);
 };
 
 var emit = function (eventTree, route, args) {
@@ -197,24 +22,14 @@ var emit = function (eventTree, route, args) {
     return ls.length > 0;
 };
 
-var list = function (eventTree, parent) {
-    var l = [];
-    if (eventTree.funcs.length > 0) {
-        l = [parent.join('/')];
-    }
-    return [].concat.apply(l, _.map(eventTree.hash, function (subtree, name) {
-        return list(subtree, parent.concat(name));
-    }));
-};
-
 var EventEmitter = function (options) {
     options = _.defaults({}, options, {
         delimiter: '/'
     });
-    this._eventTree = eventTree([]);
-    this._newListenerTree = eventTree([]);
-    this._removeListenerTree = eventTree([]);
-    this._errorTree = eventTree([]);
+    this._eventTree = htree.create([]);
+    this._newListenerTree = htree.create([]);
+    this._removeListenerTree = htree.create([]);
+    this._errorTree = htree.create([]);
     this.delimiter = options.delimiter;
 };
 
@@ -273,28 +88,31 @@ _.extend(EventEmitter.prototype, {
     , removeListener: function (route, f) {
         var h = this;
         route = h.parseRoute(route);
+        var targetTree;
+        var targetRoute;
         if (route[0] === 'error') {
             if (route.length === 1) {
-                route = route.concat('**');
+                targetRoute = ['**'];
+            } else {
+                targetRoute = route.slice(1);
             }
-            removeCallback(route.slice(1), this._errorTree, f, function (route, f) {
-                emit(h._removeListenerTree, route, [route, f]);
-            });
+            targetTree = this._errorTree;
         }
         else if (route[0] === 'newListener') {
             if (route.length === 1) {
-                route = route.concat('**');
+                targetRoute = ['**'];
+            } else {
+                targetRoute = route.slice(1);
             }
-            removeCallback(route.slice(1), this._newListenerTree, f, function (route, f) {
-                emit(h._removeListenerTree, route, [route, f]);
-            });
+            targetTree = this._newListenerTree;
         }
         else {
-            removeCallback(route, this._eventTree, f, function (route, f) {
-                emit(h._removeListenerTree, route, [route, f]);
-            });
+            targetTree = this._eventTree;
+            targetRoute = route;
         }
-        
+        htree.filterItems(targetRoute, targetTree, f && listenerFilter(f), function (route, f) {
+            emit(h._removeListenerTree, route, [route, f]);
+        });
     }
     , once: function (route, f) {
         route = this.parseRoute(route);
@@ -313,12 +131,16 @@ _.extend(EventEmitter.prototype, {
         route = this.parseRoute(route);
         return listeners(route, this._eventTree);
     }
-    , list: function () {
-        return list(this._eventTree, []);
-    }
 });
+
+var listenerFilter = function (f) {
+    return function (func) {
+        return func === f || func.listener === f;
+    };
+};
 
 module.exports = {
     EventEmitter: EventEmitter
     , _: _
+    , htree: htree
 };
