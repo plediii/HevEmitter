@@ -30,7 +30,7 @@ describe('HevEmitter removeAllListners', function () {
         it('should emit removeListener when listener at ' + '"' + onRoute.join('/') + '" after deleting all listeners at "' + deleteRoute.join('/') + '"', function (done) {
             var f = function (msg) {};
             h.on(['removeListener'], function (removeRoute, listener) {
-                assert.equal(0, h.listeners(onRoute));
+                assert.equal(0, h.listeners(onRoute).length);
                 assert.deepEqual(removeRoute, onRoute);
                 assert.equal(listener, f);
                 done();
